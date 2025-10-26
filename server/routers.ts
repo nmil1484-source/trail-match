@@ -123,7 +123,16 @@ export const appRouter = router({
         minTireSize: z.string().optional(),
         requiresWinch: z.boolean().default(false),
         requiresLockers: z.boolean().default(false),
-        minBuildLevel: z.enum(["stock", "mild", "moderate", "heavy"]).optional(),
+        vehicleRequirement: z.enum([
+          "2wd",
+          "4x4_stock",
+          "4x4_modded",
+          "2wd_prerunner",
+          "4wd_prerunner",
+          "raptor",
+          "long_travel_fast",
+          "long_travel_slow"
+        ]).optional(),
         photos: z.array(z.string()).optional(),
         itinerary: z.string().optional(),
         campingInfo: z.string().optional(),

@@ -210,12 +210,12 @@ export default function TripDetail() {
                   </div>
                 )}
 
-                {trip.minBuildLevel && (
+                {trip.vehicleRequirement && (
                   <div className="flex items-start gap-3">
                     <Wrench className="h-5 w-5 text-primary mt-0.5" />
                     <div>
-                      <p className="font-medium text-foreground">Minimum Build Level</p>
-                      <p className="text-sm text-muted-foreground capitalize">{trip.minBuildLevel}</p>
+                    <p className="font-medium text-foreground">Vehicle Requirement</p>
+                    <p className="text-sm text-muted-foreground capitalize">{trip.vehicleRequirement?.replace(/_/g, ' ')}</p>
                     </div>
                   </div>
                 )}

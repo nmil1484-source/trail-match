@@ -51,3 +51,12 @@
 ## Bugs
 - [x] Fix nested anchor tag error in navigation links
 
+
+
+## High Priority Features
+- [x] Create user profile page with vehicle setup
+- [x] Add riding style preferences: rock crawling, overland, desert, wanna be long travel, long travel only, raptor, jeeping, pre-running
+- [x] Add mods list field to vehicle profile
+- [x] Update trip minimum requirements: 2wd needed, 4x4, 4x4 with mods, 2wd pre runner, 4wd pre-runner, raptor, long travel (fast), long travel (slow)
+- [x] Update database schema for new styles and requirements
+

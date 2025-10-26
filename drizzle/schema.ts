@@ -49,6 +49,7 @@ export const vehicles = mysqlTable("vehicles", {
   hasSuspensionUpgrade: boolean("hasSuspensionUpgrade").default(false),
   
   // Additional details
+  modsList: text("modsList"), // User-entered list of modifications
   modifications: json("modifications"), // Array of modification details
   photos: json("photos"), // Array of photo URLs
   capabilityScore: int("capabilityScore").default(0), // Calculated score
@@ -79,17 +80,26 @@ export const trips = mysqlTable("trips", {
   
   // Trip characteristics
   difficulty: mysqlEnum("difficulty", ["beginner", "intermediate", "advanced", "expert"]).notNull(),
-  styles: json("styles"), // Array of styles: ["rock_crawling", "desert", "overlanding", etc.]
+  styles: json("styles"), // Array of styles: ["rock_crawling", "overland", "desert", etc.]
   
   // Group details
   maxParticipants: int("maxParticipants").default(6),
   currentParticipants: int("currentParticipants").default(1),
   
-  // Requirements
+  // Requirements - vehicle capability needed
+  vehicleRequirement: mysqlEnum("vehicleRequirement", [
+    "2wd",
+    "4x4_stock", 
+    "4x4_modded",
+    "2wd_prerunner",
+    "4wd_prerunner",
+    "raptor",
+    "long_travel_fast",
+    "long_travel_slow"
+  ]),
   minTireSize: varchar("minTireSize", { length: 50 }),
   requiresWinch: boolean("requiresWinch").default(false),
   requiresLockers: boolean("requiresLockers").default(false),
-  minBuildLevel: mysqlEnum("minBuildLevel", ["stock", "mild", "moderate", "heavy"]),
   
   // Additional info
   photos: json("photos"), // Array of photo URLs

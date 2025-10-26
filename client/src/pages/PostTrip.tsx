@@ -15,12 +15,24 @@ import { toast } from "sonner";
 
 const OFF_ROAD_STYLES = [
   { value: "rock_crawling", label: "Rock Crawling" },
-  { value: "desert", label: "Desert Driving" },
-  { value: "overlanding", label: "Overlanding" },
-  { value: "mud_bogging", label: "Mud Bogging" },
-  { value: "trail_riding", label: "Trail Riding" },
-  { value: "snow_wheeling", label: "Snow/Winter Wheeling" },
-  { value: "green_laning", label: "Green Laning" },
+  { value: "overland", label: "Overland" },
+  { value: "desert", label: "Desert" },
+  { value: "wanna_be_long_travel", label: "Wanna Be Long Travel" },
+  { value: "long_travel_only", label: "Long Travel Only" },
+  { value: "raptor", label: "Raptor" },
+  { value: "jeeping", label: "Jeeping" },
+  { value: "pre_running", label: "Pre-Running" },
+];
+
+const VEHICLE_REQUIREMENTS = [
+  { value: "2wd", label: "2WD Needed" },
+  { value: "4x4_stock", label: "4x4 Stock" },
+  { value: "4x4_modded", label: "4x4 with Mods" },
+  { value: "2wd_prerunner", label: "2WD Pre-Runner" },
+  { value: "4wd_prerunner", label: "4WD Pre-Runner" },
+  { value: "raptor", label: "Raptor" },
+  { value: "long_travel_fast", label: "Long Travel (Fast)" },
+  { value: "long_travel_slow", label: "Long Travel (Slow)" },
 ];
 
 export default function PostTrip() {
@@ -39,7 +51,7 @@ export default function PostTrip() {
   const [minTireSize, setMinTireSize] = useState("");
   const [requiresWinch, setRequiresWinch] = useState(false);
   const [requiresLockers, setRequiresLockers] = useState(false);
-  const [minBuildLevel, setMinBuildLevel] = useState<"stock" | "mild" | "moderate" | "heavy">("stock");
+  const [vehicleRequirement, setVehicleRequirement] = useState<string>("");
   const [itinerary, setItinerary] = useState("");
   const [campingInfo, setCampingInfo] = useState("");
 
@@ -82,7 +94,7 @@ export default function PostTrip() {
       minTireSize: minTireSize || undefined,
       requiresWinch,
       requiresLockers,
-      minBuildLevel: minBuildLevel || undefined,
+      vehicleRequirement: vehicleRequirement as any || undefined,
       itinerary: itinerary || undefined,
       campingInfo: campingInfo || undefined,
     });
@@ -271,16 +283,17 @@ export default function PostTrip() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="minBuildLevel">Minimum Build Level</Label>
-                <Select value={minBuildLevel} onValueChange={(value: any) => setMinBuildLevel(value)}>
+                <Label htmlFor="vehicleRequirement">Vehicle Requirement</Label>
+                <Select value={vehicleRequirement} onValueChange={(value: string) => setVehicleRequirement(value)}>
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Select requirement..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="stock">Stock</SelectItem>
-                    <SelectItem value="mild">Mild</SelectItem>
-                    <SelectItem value="moderate">Moderate</SelectItem>
-                    <SelectItem value="heavy">Heavy</SelectItem>
+                    {VEHICLE_REQUIREMENTS.map((req) => (
+                      <SelectItem key={req.value} value={req.value}>
+                        {req.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

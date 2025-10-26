@@ -7,6 +7,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import PostTrip from "./pages/PostTrip";
 import TripDetail from "./pages/TripDetail";
+import Profile from "./pages/Profile";
 
 function Router() {
   return (
@@ -14,6 +15,7 @@ function Router() {
       <Route path={"/"} component={Home} />
       <Route path={"/post-trip"} component={PostTrip} />
       <Route path={"/trip/:id"} component={TripDetail} />
+      <Route path={"/profile"} component={Profile} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
