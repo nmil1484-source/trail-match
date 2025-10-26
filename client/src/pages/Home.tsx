@@ -103,9 +103,7 @@ export default function Home() {
             <h2 className="text-3xl font-bold text-foreground">Upcoming Trips</h2>
             {isAuthenticated && (
               <Button asChild>
-                <Link href="/post-trip">
-                  <a>Post a Trip</a>
-                </Link>
+                <Link href="/post-trip">Post a Trip</Link>
               </Button>
             )}
           </div>
