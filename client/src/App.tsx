@@ -5,12 +5,14 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
+import PostTrip from "./pages/PostTrip";
 import TripDetail from "./pages/TripDetail";
 
 function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
+      <Route path={"/post-trip"} component={PostTrip} />
       <Route path={"/trip/:id"} component={TripDetail} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
