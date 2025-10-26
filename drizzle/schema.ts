@@ -1,22 +1,22 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, json } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
- * Extend this file with additional tables as your product grows.
- * Columns use camelCase to match both database fields and generated types.
  */
 export const users = mysqlTable("users", {
-  /**
-   * Surrogate primary key. Auto-incremented numeric value managed by the database.
-   * Use this for relations between tables.
-   */
   id: int("id").autoincrement().primaryKey(),
-  /** Manus OAuth identifier (openId) returned from the OAuth callback. Unique per user. */
   openId: varchar("openId", { length: 64 }).notNull().unique(),
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+  
+  // User profile fields
+  location: varchar("location", { length: 255 }),
+  experienceLevel: mysqlEnum("experienceLevel", ["beginner", "intermediate", "advanced", "expert"]),
+  bio: text("bio"),
+  profilePhoto: text("profilePhoto"),
+  
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
@@ -25,4 +25,103 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+/**
+ * Vehicles table - stores user vehicle information
+ */
+export const vehicles = mysqlTable("vehicles", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  
+  // Basic vehicle info
+  make: varchar("make", { length: 100 }).notNull(),
+  model: varchar("model", { length: 100 }).notNull(),
+  year: int("year").notNull(),
+  
+  // Build details
+  buildLevel: mysqlEnum("buildLevel", ["stock", "mild", "moderate", "heavy"]).default("stock").notNull(),
+  liftHeight: varchar("liftHeight", { length: 50 }), // e.g., "3.5 inches"
+  tireSize: varchar("tireSize", { length: 50 }), // e.g., "35x12.5"
+  
+  // Modifications (boolean flags)
+  hasWinch: boolean("hasWinch").default(false),
+  hasLockers: boolean("hasLockers").default(false),
+  hasArmor: boolean("hasArmor").default(false),
+  hasSuspensionUpgrade: boolean("hasSuspensionUpgrade").default(false),
+  
+  // Additional details
+  modifications: json("modifications"), // Array of modification details
+  photos: json("photos"), // Array of photo URLs
+  capabilityScore: int("capabilityScore").default(0), // Calculated score
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Vehicle = typeof vehicles.$inferSelect;
+export type InsertVehicle = typeof vehicles.$inferInsert;
+
+/**
+ * Trips table - stores trip postings
+ */
+export const trips = mysqlTable("trips", {
+  id: int("id").autoincrement().primaryKey(),
+  organizerId: int("organizerId").notNull(),
+  
+  // Trip basics
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  location: varchar("location", { length: 255 }).notNull(),
+  state: varchar("state", { length: 50 }),
+  
+  // Dates
+  startDate: timestamp("startDate").notNull(),
+  endDate: timestamp("endDate").notNull(),
+  
+  // Trip characteristics
+  difficulty: mysqlEnum("difficulty", ["beginner", "intermediate", "advanced", "expert"]).notNull(),
+  styles: json("styles"), // Array of styles: ["rock_crawling", "desert", "overlanding", etc.]
+  
+  // Group details
+  maxParticipants: int("maxParticipants").default(6),
+  currentParticipants: int("currentParticipants").default(1),
+  
+  // Requirements
+  minTireSize: varchar("minTireSize", { length: 50 }),
+  requiresWinch: boolean("requiresWinch").default(false),
+  requiresLockers: boolean("requiresLockers").default(false),
+  minBuildLevel: mysqlEnum("minBuildLevel", ["stock", "mild", "moderate", "heavy"]),
+  
+  // Additional info
+  photos: json("photos"), // Array of photo URLs
+  itinerary: text("itinerary"),
+  campingInfo: text("campingInfo"),
+  
+  // Status
+  status: mysqlEnum("status", ["open", "full", "completed", "cancelled"]).default("open").notNull(),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Trip = typeof trips.$inferSelect;
+export type InsertTrip = typeof trips.$inferInsert;
+
+/**
+ * Trip participants - tracks join requests and accepted members
+ */
+export const tripParticipants = mysqlTable("tripParticipants", {
+  id: int("id").autoincrement().primaryKey(),
+  tripId: int("tripId").notNull(),
+  userId: int("userId").notNull(),
+  vehicleId: int("vehicleId").notNull(),
+  
+  status: mysqlEnum("status", ["pending", "accepted", "declined"]).default("pending").notNull(),
+  message: text("message"), // Optional message when requesting to join
+  
+  joinedAt: timestamp("joinedAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type TripParticipant = typeof tripParticipants.$inferSelect;
+export type InsertTripParticipant = typeof tripParticipants.$inferInsert;
+
