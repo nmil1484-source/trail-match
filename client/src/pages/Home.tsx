@@ -39,8 +39,8 @@ export default function Home() {
         <div className="container py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Mountain className="h-8 w-8 text-primary" />
-              <span className="text-2xl font-bold text-foreground">OFF-ROAD</span>
+              <img src="/trailmatch-logo.png" alt="TrailMatch" className="h-10 w-10" />
+              <span className="text-2xl font-bold text-foreground">TrailMatch</span>
             </div>
             <nav className="flex items-center gap-6">
               <Link href="/">
@@ -70,8 +70,7 @@ export default function Home() {
         <div className="container">
           <div className="max-w-3xl">
             <h1 className="text-5xl font-bold text-foreground mb-4">
-              OFF-ROAD ADVENTURE<br />
-              TRIP MATCHING PLATFORM
+              Find Your Trail Crew
             </h1>
             <p className="text-xl text-muted-foreground mb-8">
               Find compatible off-roaders with similar vehicles and builds. 
@@ -205,9 +204,9 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t mt-auto bg-card">
         <div className="container py-8">
-          <div className="text-center text-sm text-muted-foreground">
-            <p>© 2025 Off-Road Trip Matcher. Find your next adventure.</p>
-          </div>
+          <p className="text-center text-sm text-muted-foreground">
+            © 2025 TrailMatch. Find your trail crew.
+          </p>
         </div>
       </footer>
     </div>
