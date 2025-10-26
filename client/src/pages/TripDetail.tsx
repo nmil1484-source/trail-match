@@ -63,14 +63,12 @@ export default function TripDetail() {
       {/* Header */}
       <header className="border-b bg-card">
         <div className="container py-4">
-          <Button variant="ghost" asChild>
-            <Link href="/">
-              <a className="flex items-center gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                Back to Trips
-              </a>
-            </Link>
-          </Button>
+          <Link href="/">
+            <Button variant="ghost" className="flex items-center gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Trips
+            </Button>
+          </Link>
         </div>
       </header>
 

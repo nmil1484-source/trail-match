@@ -43,16 +43,16 @@ export default function Home() {
               <span className="text-2xl font-bold text-foreground">TrailMatch</span>
             </div>
             <nav className="flex items-center gap-6">
-              <Link href="/">
-                <a className="text-foreground hover:text-primary font-medium">Find Trips</a>
+              <Link href="/" className="text-foreground hover:text-primary font-medium">
+                Find Trips
               </Link>
               {isAuthenticated ? (
                 <>
-                  <Link href="/post-trip">
-                    <a className="text-foreground hover:text-primary font-medium">Post Trip</a>
+                  <Link href="/post-trip" className="text-foreground hover:text-primary font-medium">
+                    Post Trip
                   </Link>
-                  <Link href="/profile">
-                    <a className="text-foreground hover:text-primary font-medium">My Profile</a>
+                  <Link href="/profile" className="text-foreground hover:text-primary font-medium">
+                    My Profile
                   </Link>
                 </>
               ) : (

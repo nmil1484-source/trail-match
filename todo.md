@@ -46,3 +46,8 @@
 - [x] Add logo to header
 - [x] Update meta tags and page titles
 
+
+
+## Bugs
+- [x] Fix nested anchor tag error in navigation links
+
