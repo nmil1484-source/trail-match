@@ -370,7 +370,7 @@ export default function Profile() {
 
               {/* Riding Styles */}
               <div>
-                <Label className="mb-3 block">Preferred Riding Styles</Label>
+                <Label className="mb-3 block">Preferred Type of Off-Roading</Label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   {RIDING_STYLES.map((style) => (
                     <div
