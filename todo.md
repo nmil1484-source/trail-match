@@ -60,3 +60,11 @@
 - [x] Update trip minimum requirements: 2wd needed, 4x4, 4x4 with mods, 2wd pre runner, 4wd pre-runner, raptor, long travel (fast), long travel (slow)
 - [x] Update database schema for new styles and requirements
 
+
+
+## Railway Deployment Issues
+- [x] Fix OAuth error - make authentication optional for Railway deployment
+- [ ] Implement Google OAuth for Railway deployment
+- [ ] Add missing VITE environment variables for production
+- [ ] Test site functionality on www.trail-match.com
+
