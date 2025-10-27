@@ -1,10 +1,10 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import type { Express } from "express";
+import jwt from "jsonwebtoken";
 import * as db from "../db";
 import { ENV } from "./env";
-import { sdk } from "./sdk";
-import { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
+import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./cookies";
 
 export function setupGoogleAuth(app: Express) {
@@ -85,18 +85,16 @@ export function setupGoogleAuth(app: Express) {
           return;
         }
 
-        // Create session token
-        const sessionToken = await sdk.createSessionToken(user.openId, {
-          name: user.name || "",
-          expiresInMs: ONE_YEAR_MS,
-        });
+        // Create JWT session token
+        const sessionToken = jwt.sign(
+          { userId: user.id, openId: user.openId, email: user.email },
+          ENV.jwtSecret,
+          { expiresIn: "7d" }
+        );
 
         // Set cookie
         const cookieOptions = getSessionCookieOptions(req);
-        res.cookie(COOKIE_NAME, sessionToken, {
-          ...cookieOptions,
-          maxAge: ONE_YEAR_MS,
-        });
+        res.cookie(COOKIE_NAME, sessionToken, cookieOptions);
 
         // Redirect to home
         res.redirect("/");

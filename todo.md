@@ -68,3 +68,23 @@
 - [ ] Add missing VITE environment variables for production
 - [ ] Test site functionality on www.trail-match.com
 
+
+
+## Authentication System Enhancement
+- [x] Add password field to users table in database schema
+- [x] Install bcrypt for password hashing
+- [x] Create email/password signup endpoint
+- [x] Create email/password login endpoint
+- [ ] Add password reset functionality
+- [x] Create signup form UI component
+- [x] Create login form UI component with Google OAuth and email/password options
+- [x] Add email validation
+- [x] Add password strength requirements
+- [ ] Test both Google OAuth and email/password authentication flows
+
+
+
+## Current Bugs
+- [x] Fix Google OAuth callback 500 error on Railway deployment
+- [x] Ensure Google OAuth callback properly creates user session
+
