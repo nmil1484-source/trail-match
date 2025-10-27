@@ -8,6 +8,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import * as db from "./db";
 import { ENV } from "./_core/env";
+import { generateResetToken, verifyResetToken, sendPasswordResetEmail } from "./_core/passwordReset";
 
 export const appRouter = router({
   system: systemRouter,
@@ -117,6 +118,58 @@ export const appRouter = router({
             name: user.name,
           },
         };
+      }),
+
+    requestPasswordReset: publicProcedure
+      .input(z.object({
+        email: z.string().email(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        // Find user by email
+        const user = await db.getUserByEmail(input.email);
+        
+        // Always return success to prevent email enumeration
+        if (!user || !user.passwordHash) {
+          // User doesn't exist or uses OAuth only
+          return { success: true };
+        }
+
+        // Generate reset token
+        const resetToken = generateResetToken(user.id, user.email!);
+
+        // Get base URL from request
+        const protocol = ctx.req.headers["x-forwarded-proto"] || "http";
+        const host = ctx.req.headers.host || "localhost:3000";
+        const baseUrl = `${protocol}://${host}`;
+
+        // Send reset email
+        await sendPasswordResetEmail(user.email!, resetToken, baseUrl);
+
+        return { success: true };
+      }),
+
+    resetPassword: publicProcedure
+      .input(z.object({
+        token: z.string(),
+        newPassword: z.string().min(8),
+      }))
+      .mutation(async ({ input }) => {
+        // Verify reset token
+        const payload = verifyResetToken(input.token);
+        if (!payload) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Invalid or expired reset token",
+          });
+        }
+
+        // Hash new password
+        const passwordHash = await bcrypt.hash(input.newPassword, 10);
+
+        // Update user password
+        await db.updateUserProfile(payload.userId, { passwordHash });
+
+        return { success: true };
       }),
     
     logout: publicProcedure.mutation(({ ctx }) => {

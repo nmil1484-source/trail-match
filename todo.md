@@ -88,3 +88,17 @@
 - [x] Fix Google OAuth callback 500 error on Railway deployment
 - [x] Ensure Google OAuth callback properly creates user session
 
+
+
+## Additional Authentication Features
+- [x] Add Facebook OAuth integration
+- [x] Add Apple Sign In integration
+- [x] Implement password reset functionality via email
+- [x] Set up email service (Resend)
+- [x] Create password reset request endpoint
+- [x] Create password reset confirmation endpoint
+- [ ] Build password reset UI flow (forgot password link + reset page)
+- [x] Add email templates for password reset
+- [ ] Test all OAuth providers after adding credentials (Google works, Facebook/Apple need credentials)
+- [ ] Test password reset flow end-to-end after adding email API key
+
