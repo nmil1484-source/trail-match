@@ -12,6 +12,7 @@ import { ArrowLeft, Loader2, Mountain } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useState } from "react";
 import { toast } from "sonner";
+import { PhotoUpload } from "@/components/PhotoUpload";
 
 const OFF_ROAD_STYLES = [
   { value: "rock_crawling", label: "Rock Crawling" },
@@ -54,6 +55,7 @@ export default function PostTrip() {
   const [vehicleRequirement, setVehicleRequirement] = useState<string>("");
   const [itinerary, setItinerary] = useState("");
   const [campingInfo, setCampingInfo] = useState("");
+  const [photos, setPhotos] = useState<string[]>([]);
 
   const createTripMutation = trpc.trips.create.useMutation({
     onSuccess: (data) => {
@@ -97,6 +99,7 @@ export default function PostTrip() {
       vehicleRequirement: vehicleRequirement as any || undefined,
       itinerary: itinerary || undefined,
       campingInfo: campingInfo || undefined,
+      photos: photos.length > 0 ? photos : undefined,
     });
   };
 
@@ -366,6 +369,12 @@ export default function PostTrip() {
                   placeholder="Where will the group stay? Camping, hotels, etc."
                   rows={3}
                 />
+              </div>
+              
+              <div>
+                <Label>Trip Photos</Label>
+                <p className="text-sm text-muted-foreground mb-2">Add photos of the trail, terrain, or previous trips</p>
+                <PhotoUpload photos={photos} onPhotosChange={setPhotos} maxPhotos={5} />
               </div>
             </CardContent>
           </Card>

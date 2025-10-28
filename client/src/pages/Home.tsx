@@ -48,6 +48,9 @@ export default function Home() {
               <Link href="/" className="text-foreground hover:text-primary font-medium">
                 Find Trips
               </Link>
+              <Link href="/shops" className="text-foreground hover:text-primary font-medium">
+                Shops
+              </Link>
               {isAuthenticated ? (
                 <>
                   <Link href="/post-trip" className="text-foreground hover:text-primary font-medium">

@@ -136,3 +136,69 @@ export const tripParticipants = mysqlTable("tripParticipants", {
 export type TripParticipant = typeof tripParticipants.$inferSelect;
 export type InsertTripParticipant = typeof tripParticipants.$inferInsert;
 
+/**
+ * Shops table - local shops that work on off-road vehicles
+ */
+export const shops = mysqlTable("shops", {
+  id: int("id").autoincrement().primaryKey(),
+  addedBy: int("addedBy").notNull(), // User who added the shop
+  
+  // Shop details
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  category: mysqlEnum("category", [
+    "mechanic",
+    "fabrication",
+    "parts",
+    "tires",
+    "suspension",
+    "general"
+  ]).notNull(),
+  
+  // Location
+  address: text("address"),
+  city: varchar("city", { length: 100 }),
+  state: varchar("state", { length: 50 }),
+  zipCode: varchar("zipCode", { length: 20 }),
+  
+  // Contact
+  phone: varchar("phone", { length: 50 }),
+  email: varchar("email", { length: 320 }),
+  website: text("website"),
+  
+  // Stats
+  averageRating: int("averageRating").default(0), // 0-50 (stored as 0-5.0 * 10)
+  totalReviews: int("totalReviews").default(0),
+  
+  // Photos
+  photos: json("photos"), // Array of photo URLs
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Shop = typeof shops.$inferSelect;
+export type InsertShop = typeof shops.$inferInsert;
+
+/**
+ * Shop reviews table
+ */
+export const shopReviews = mysqlTable("shopReviews", {
+  id: int("id").autoincrement().primaryKey(),
+  shopId: int("shopId").notNull(),
+  userId: int("userId").notNull(),
+  
+  rating: int("rating").notNull(), // 1-5 stars
+  reviewText: text("reviewText"),
+  
+  // Service details
+  serviceType: varchar("serviceType", { length: 100 }), // What service they got
+  wouldRecommend: boolean("wouldRecommend").default(true),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ShopReview = typeof shopReviews.$inferSelect;
+export type InsertShopReview = typeof shopReviews.$inferInsert;
+

@@ -360,6 +360,93 @@ export const appRouter = router({
         return { success: true };
       }),
   }),
+
+  shops: router({
+    create: protectedProcedure
+      .input(z.object({
+        name: z.string(),
+        description: z.string().optional(),
+        category: z.enum(["mechanic", "fabrication", "parts", "tires", "suspension", "general"]),
+        address: z.string().optional(),
+        city: z.string().optional(),
+        state: z.string().optional(),
+        zipCode: z.string().optional(),
+        phone: z.string().optional(),
+        email: z.string().email().optional(),
+        website: z.string().optional(),
+        photos: z.array(z.string()).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const shopId = await db.createShop({
+          ...input,
+          addedBy: ctx.user.id,
+        });
+        return { shopId };
+      }),
+
+    list: publicProcedure
+      .input(z.object({
+        category: z.string().optional(),
+        state: z.string().optional(),
+        city: z.string().optional(),
+      }).optional())
+      .query(async ({ input }) => {
+        return await db.getShops(input);
+      }),
+
+    getById: publicProcedure
+      .input(z.object({ shopId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getShopById(input.shopId);
+      }),
+
+    addReview: protectedProcedure
+      .input(z.object({
+        shopId: z.number(),
+        rating: z.number().min(1).max(5),
+        reviewText: z.string().optional(),
+        serviceType: z.string().optional(),
+        wouldRecommend: z.boolean().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const reviewId = await db.createShopReview({
+          ...input,
+          userId: ctx.user.id,
+        });
+        return { reviewId };
+      }),
+
+    getReviews: publicProcedure
+      .input(z.object({ shopId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getShopReviews(input.shopId);
+      }),
+  }),
+
+  upload: router({
+    photo: protectedProcedure
+      .input(z.object({
+        file: z.string(), // base64 encoded image
+        fileName: z.string(),
+        contentType: z.string(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { storagePut } = await import("./storage");
+        
+        // Decode base64
+        const buffer = Buffer.from(input.file, "base64");
+        
+        // Generate unique file name
+        const timestamp = Date.now();
+        const extension = input.fileName.split(".").pop() || "jpg";
+        const key = `photos/${ctx.user.id}/${timestamp}.${extension}`;
+        
+        // Upload to S3
+        const result = await storagePut(key, buffer, input.contentType);
+        
+        return { url: result.url, key: result.key };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

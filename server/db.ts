@@ -1,6 +1,6 @@
-import { and, eq, gte, lte, sql } from "drizzle-orm";
+import { and, eq, gte, lte, sql, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertTrip, InsertTripParticipant, InsertUser, InsertVehicle, tripParticipants, trips, users, vehicles } from "../drizzle/schema";
+import { InsertTrip, InsertTripParticipant, InsertUser, InsertVehicle, InsertShop, InsertShopReview, tripParticipants, trips, users, vehicles, shops, shopReviews } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -258,5 +258,98 @@ export async function getUserTrips(userId: number) {
     .from(tripParticipants)
     .leftJoin(trips, eq(tripParticipants.tripId, trips.id))
     .where(and(eq(tripParticipants.userId, userId), eq(tripParticipants.status, "accepted")));
+}
+
+
+// ===== SHOP FUNCTIONS =====
+
+export async function createShop(shop: InsertShop) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(shops).values(shop);
+  return result[0].insertId;
+}
+
+export async function getShops(filters?: { category?: string; state?: string; city?: string }) {
+  const db = await getDb();
+  if (!db) return [];
+
+  let query = db.select().from(shops);
+  
+  const conditions = [];
+  if (filters?.category) conditions.push(eq(shops.category, filters.category as any));
+  if (filters?.state) conditions.push(eq(shops.state, filters.state));
+  if (filters?.city) conditions.push(eq(shops.city, filters.city));
+  
+  if (conditions.length > 0) {
+    query = query.where(and(...conditions)) as any;
+  }
+  
+  return await query;
+}
+
+export async function getShopById(shopId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const result = await db.select().from(shops).where(eq(shops.id, shopId)).limit(1);
+  return result[0] || null;
+}
+
+export async function updateShop(shopId: number, updates: Partial<InsertShop>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(shops).set(updates).where(eq(shops.id, shopId));
+}
+
+// ===== SHOP REVIEW FUNCTIONS =====
+
+export async function createShopReview(review: InsertShopReview) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(shopReviews).values(review);
+  
+  // Update shop's average rating and review count
+  await updateShopRating(review.shopId);
+  
+  return result[0].insertId;
+}
+
+export async function getShopReviews(shopId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select({
+      review: shopReviews,
+      user: users,
+    })
+    .from(shopReviews)
+    .leftJoin(users, eq(shopReviews.userId, users.id))
+    .where(eq(shopReviews.shopId, shopId))
+    .orderBy(desc(shopReviews.createdAt));
+}
+
+async function updateShopRating(shopId: number) {
+  const db = await getDb();
+  if (!db) return;
+
+  const reviews = await db.select().from(shopReviews).where(eq(shopReviews.shopId, shopId));
+  
+  if (reviews.length === 0) {
+    await db.update(shops).set({ averageRating: 0, totalReviews: 0 }).where(eq(shops.id, shopId));
+    return;
+  }
+
+  const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+  const averageRating = Math.round((totalRating / reviews.length) * 10); // Store as 0-50 (0.0-5.0 * 10)
+
+  await db.update(shops).set({
+    averageRating,
+    totalReviews: reviews.length,
+  }).where(eq(shops.id, shopId));
 }
 

@@ -43,6 +43,13 @@
       "when": 1761624112063,
       "tag": "0005_last_major_mapleleaf",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1761624835960,
+      "tag": "0006_broken_trish_tilby",
+      "breakpoints": true
     }
   ]
 }
