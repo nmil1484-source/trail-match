@@ -26,8 +26,8 @@
 ## Photo Upload Features
 - [x] Add photo upload to trip creation/posting
 - [x] Add multiple photo support for trip listings
-- [ ] Add profile photo upload for users
-- [ ] Add vehicle photo upload to user profiles
+- [x] Add profile photo upload for users
+- [x] Add vehicle photo upload to user profiles
 - [x] Integrate with S3 storage for photo hosting
 - [x] Add image preview and delete functionality
 - [x] Optimize/resize images before upload

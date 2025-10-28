@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { SinglePhotoUpload } from "@/components/SinglePhotoUpload";
 import { trpc } from "@/lib/trpc";
 import { ArrowLeft, Loader2, Plus, Trash2, Pencil } from "lucide-react";
 import { Link, useLocation } from "wouter";
@@ -53,6 +54,7 @@ export default function Profile() {
   const [editLocation, setEditLocation] = useState("");
   const [editExperienceLevel, setEditExperienceLevel] = useState<"beginner" | "intermediate" | "advanced" | "expert">("beginner");
   const [editBio, setEditBio] = useState("");
+  const [editProfilePhoto, setEditProfilePhoto] = useState<string | null>(null);
 
   // Edit vehicle dialog state
   const [editVehicleOpen, setEditVehicleOpen] = useState(false);
@@ -149,6 +151,7 @@ export default function Profile() {
     setEditLocation(user?.location || "");
     setEditExperienceLevel(user?.experienceLevel || "beginner");
     setEditBio(user?.bio || "");
+    setEditProfilePhoto(user?.profilePhoto || null);
     setEditProfileOpen(true);
   };
 
@@ -157,6 +160,7 @@ export default function Profile() {
       location: editLocation || undefined,
       experienceLevel: editExperienceLevel,
       bio: editBio || undefined,
+      profilePhoto: editProfilePhoto || undefined,
     });
   };
 
@@ -180,6 +184,7 @@ export default function Profile() {
       hasLockers: editingVehicle.hasLockers,
       hasArmor: editingVehicle.hasArmor,
       hasSuspensionUpgrade: editingVehicle.hasSuspensionUpgrade,
+      photos: editingVehicle.photos || undefined,
     });
   };
 
@@ -499,6 +504,14 @@ export default function Profile() {
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div>
+                <Label>Profile Photo</Label>
+                <SinglePhotoUpload
+                  photo={editProfilePhoto}
+                  onPhotoChange={setEditProfilePhoto}
+                  type="profile"
+                />
+              </div>
+              <div>
                 <Label htmlFor="editLocation">Location</Label>
                 <Input
                   id="editLocation"
@@ -550,6 +563,14 @@ export default function Profile() {
             </DialogHeader>
             {editingVehicle && (
               <div className="space-y-4 py-4">
+                <div>
+                  <Label>Vehicle Photo</Label>
+                  <SinglePhotoUpload
+                    photo={editingVehicle.photos?.[0] || null}
+                    onPhotoChange={(photo) => setEditingVehicle({...editingVehicle, photos: photo ? [photo] : []})}
+                    type="vehicle"
+                  />
+                </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
                     <Label>Make</Label>
