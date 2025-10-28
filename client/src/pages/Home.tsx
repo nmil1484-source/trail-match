@@ -4,16 +4,14 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
-import { APP_LOGO, APP_TITLE } from "@/const";
+import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { Calendar, MapPin, Users, Mountain, Loader2 } from "lucide-react";
 import { Link } from "wouter";
 import { useState } from "react";
-import { AuthModal } from "@/components/AuthModal";
 
 export default function Home() {
   const { user, isAuthenticated } = useAuth();
   const [locationFilter, setLocationFilter] = useState("");
-  const [authModalOpen, setAuthModalOpen] = useState(false);
   const { data: trips, isLoading } = trpc.trips.list.useQuery();
 
   const filteredTrips = trips?.filter(trip => 
@@ -58,8 +56,8 @@ export default function Home() {
                   </Link>
                 </>
               ) : (
-                <Button onClick={() => setAuthModalOpen(true)}>
-                  Sign In
+                <Button asChild>
+                  <a href={getLoginUrl()}>Sign In</a>
                 </Button>
               )}
             </nav>
@@ -209,9 +207,6 @@ export default function Home() {
           </p>
         </div>
       </footer>
-
-      {/* Auth Modal */}
-      <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
     </div>
   );
 }

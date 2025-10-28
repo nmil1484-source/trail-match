@@ -22,13 +22,6 @@
       "when": 1761518592584,
       "tag": "0002_reflective_mockingbird",
       "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1761545258113,
-      "tag": "0003_amused_red_wolf",
-      "breakpoints": true
     }
   ]
 }
