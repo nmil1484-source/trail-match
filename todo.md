@@ -47,6 +47,7 @@
 
 ## Bugs
 - [x] Fix 404 error on /shops/add page - need to create AddShop component
+- [x] Fix Google OAuth login - user redirects but doesn't stay logged in (changed sameSite from 'none' to 'lax')
 
 
 
