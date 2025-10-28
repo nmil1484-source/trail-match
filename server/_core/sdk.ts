@@ -257,9 +257,36 @@ class SDKServer {
   }
 
   async authenticateRequest(req: Request): Promise<User> {
-    // Regular authentication flow
     const cookies = this.parseCookies(req.headers.cookie);
     const sessionCookie = cookies.get(COOKIE_NAME);
+    
+    if (!sessionCookie) {
+      throw ForbiddenError("No session cookie");
+    }
+
+    const signedInAt = new Date();
+    
+    // Try JWT token first (for email/password auth)
+    try {
+      const jwt = await import("jsonwebtoken");
+      const { ENV } = await import("./env");
+      const decoded = jwt.verify(sessionCookie, ENV.jwtSecret) as { userId: number; email: string };
+      
+      if (decoded.userId) {
+        const user = await db.getUserById(decoded.userId);
+        if (user) {
+          await db.upsertUser({
+            openId: user.openId,
+            lastSignedIn: signedInAt,
+          });
+          return user;
+        }
+      }
+    } catch (jwtError) {
+      // Not a JWT token, try SDK session token
+    }
+
+    // Try SDK session token (for OAuth)
     const session = await this.verifySession(sessionCookie);
 
     if (!session) {
@@ -267,7 +294,6 @@ class SDKServer {
     }
 
     const sessionUserId = session.openId;
-    const signedInAt = new Date();
     let user = await db.getUserByOpenId(sessionUserId);
 
     // If user not in DB, sync from OAuth server automatically

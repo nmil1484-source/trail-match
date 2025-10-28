@@ -47,7 +47,9 @@
 
 ## Bugs
 - [x] Fix 404 error on /shops/add page - need to create AddShop component
-- [x] Fix Google OAuth login - user redirects but doesn't stay logged in (changed sameSite from 'none' to 'lax')
+- [x] Fix Google OAuth login - user redirects to home but doesn't stay logged in (cookie and/or frontend auth check issue)
+  - Fixed by modifying authenticateRequest in server/_core/sdk.ts to support both JWT tokens (email/password) and SDK session tokens (OAuth)
+  - Added getUserById function to server/db.ts
 
 
 
