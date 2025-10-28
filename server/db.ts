@@ -93,6 +93,34 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function getUserByEmail(email: string) {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get user: database not available");
+    return undefined;
+  }
+
+  const result = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createUserWithPassword(data: { email: string; passwordHash: string; name: string }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(users).values({
+    email: data.email,
+    passwordHash: data.passwordHash,
+    name: data.name,
+    loginMethod: "email",
+    lastSignedIn: new Date(),
+  });
+  
+  const userId = result[0].insertId;
+  const user = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+  return user[0];
+}
+
 export async function updateUserProfile(userId: number, data: Partial<InsertUser>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

@@ -22,6 +22,27 @@
       "when": 1761518592584,
       "tag": "0002_reflective_mockingbird",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1761545258113,
+      "tag": "0003_amused_red_wolf",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1761624045984,
+      "tag": "0004_dapper_mantis",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1761624112063,
+      "tag": "0005_last_major_mapleleaf",
+      "breakpoints": true
     }
   ]
 }
