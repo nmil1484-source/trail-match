@@ -61,3 +61,6 @@
 - [x] Fetch and display shop photos from Google Places
 - [x] Add manual override option if Google data is incorrect
 
+
+- [x] Fix nested anchor tags in Home.tsx line 175-176 causing React hydration errors
+

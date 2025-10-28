@@ -172,9 +172,7 @@ export default function Home() {
 
                   <CardFooter className="pt-0 gap-2">
                     <Button variant="outline" size="sm" className="flex-1" asChild>
-                      <Link href={`/trip/${trip.id}`}>
-                        <a>View Details</a>
-                      </Link>
+                      <Link href={`/trip/${trip.id}`}>View Details</Link>
                     </Button>
                     <Button size="sm" className="flex-1">
                       Express Interest
