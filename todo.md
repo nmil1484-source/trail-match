@@ -48,3 +48,13 @@
 ## Bugs
 - [x] Fix 404 error on /shops/add page - need to create AddShop component
 
+
+
+## Google Places Integration
+- [x] Add Google Places API key to environment variables
+- [x] Install Google Places API library
+- [x] Add Google Places Autocomplete search box to AddShop page
+- [x] Auto-populate shop details when user selects from autocomplete
+- [x] Fetch and display shop photos from Google Places
+- [x] Add manual override option if Google data is incorrect
+

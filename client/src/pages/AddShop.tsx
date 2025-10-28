@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
 import { PhotoUpload } from "@/components/PhotoUpload";
+import { GooglePlacesAutocomplete } from "@/components/GooglePlacesAutocomplete";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
 
@@ -32,6 +33,21 @@ export default function AddShop() {
   const [email, setEmail] = useState("");
   const [website, setWebsite] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
+  const [useGoogleSearch, setUseGoogleSearch] = useState(true);
+
+  const handlePlaceSelected = (details: any) => {
+    setName(details.name);
+    setAddress(details.address);
+    setCity(details.city);
+    setState(details.state);
+    setZipCode(details.zipCode);
+    setPhone(details.phone);
+    setWebsite(details.website);
+    if (details.photos.length > 0) {
+      setPhotos(details.photos);
+    }
+    setUseGoogleSearch(false);
+  };
 
   const createShop = trpc.shops.create.useMutation({
     onSuccess: () => {
@@ -90,6 +106,35 @@ export default function AddShop() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Google Places Search */}
+              {useGoogleSearch && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                  <h3 className="text-sm font-semibold mb-2 text-blue-900">🔍 Search Google Places</h3>
+                  <p className="text-xs text-blue-700 mb-3">Find a shop on Google to auto-fill details</p>
+                  <GooglePlacesAutocomplete
+                    apiKey={""}
+                    onPlaceSelected={handlePlaceSelected}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setUseGoogleSearch(false)}
+                    className="text-xs text-blue-600 hover:underline mt-2"
+                  >
+                    Or add manually
+                  </button>
+                </div>
+              )}
+
+              {!useGoogleSearch && (
+                <button
+                  type="button"
+                  onClick={() => setUseGoogleSearch(true)}
+                  className="text-sm text-blue-600 hover:underline mb-4"
+                >
+                  ← Search Google Places instead
+                </button>
+              )}
+
               {/* Basic Info */}
               <div>
                 <label className="text-sm font-medium mb-2 block">
