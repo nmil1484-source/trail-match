@@ -6,8 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, Loader2, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Loader2, Plus, Trash2, Pencil } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -47,6 +48,16 @@ export default function Profile() {
   const [experienceLevel, setExperienceLevel] = useState<"beginner" | "intermediate" | "advanced" | "expert">("beginner");
   const [bio, setBio] = useState("");
 
+  // Edit profile dialog state
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
+  const [editLocation, setEditLocation] = useState("");
+  const [editExperienceLevel, setEditExperienceLevel] = useState<"beginner" | "intermediate" | "advanced" | "expert">("beginner");
+  const [editBio, setEditBio] = useState("");
+
+  // Edit vehicle dialog state
+  const [editVehicleOpen, setEditVehicleOpen] = useState(false);
+  const [editingVehicle, setEditingVehicle] = useState<any>(null);
+
   const { data: vehicles, isLoading: vehiclesLoading, refetch: refetchVehicles } = trpc.vehicles.list.useQuery();
 
   const createVehicleMutation = trpc.vehicles.create.useMutation({
@@ -82,6 +93,27 @@ export default function Profile() {
     },
   });
 
+  const updateProfileMutation = trpc.profile.update.useMutation({
+    onSuccess: () => {
+      toast.success("Profile updated successfully!");
+      setEditProfileOpen(false);
+    },
+    onError: (error) => {
+      toast.error("Failed to update profile: " + error.message);
+    },
+  });
+
+  const updateVehicleMutation = trpc.vehicles.update.useMutation({
+    onSuccess: () => {
+      toast.success("Vehicle updated successfully!");
+      setEditVehicleOpen(false);
+      refetchVehicles();
+    },
+    onError: (error) => {
+      toast.error("Failed to update vehicle: " + error.message);
+    },
+  });
+
   const handleSubmitVehicle = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -111,6 +143,44 @@ export default function Profile() {
         ? prev.filter(s => s !== style)
         : [...prev, style]
     );
+  };
+
+  const handleEditProfile = () => {
+    setEditLocation(user?.location || "");
+    setEditExperienceLevel(user?.experienceLevel || "beginner");
+    setEditBio(user?.bio || "");
+    setEditProfileOpen(true);
+  };
+
+  const handleSaveProfile = () => {
+    updateProfileMutation.mutate({
+      location: editLocation || undefined,
+      experienceLevel: editExperienceLevel,
+      bio: editBio || undefined,
+    });
+  };
+
+  const handleEditVehicle = (vehicle: any) => {
+    setEditingVehicle(vehicle);
+    setEditVehicleOpen(true);
+  };
+
+  const handleSaveVehicle = () => {
+    if (!editingVehicle) return;
+    
+    updateVehicleMutation.mutate({
+      id: editingVehicle.id,
+      make: editingVehicle.make,
+      model: editingVehicle.model,
+      year: editingVehicle.year,
+      buildLevel: editingVehicle.buildLevel,
+      liftHeight: editingVehicle.liftHeight || undefined,
+      tireSize: editingVehicle.tireSize || undefined,
+      hasWinch: editingVehicle.hasWinch,
+      hasLockers: editingVehicle.hasLockers,
+      hasArmor: editingVehicle.hasArmor,
+      hasSuspensionUpgrade: editingVehicle.hasSuspensionUpgrade,
+    });
   };
 
   if (authLoading) {
@@ -163,8 +233,12 @@ export default function Profile() {
 
         {/* User Info */}
         <Card className="mb-6">
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>User Information</CardTitle>
+            <Button variant="outline" size="sm" onClick={handleEditProfile}>
+              <Pencil className="h-4 w-4 mr-2" />
+              Edit Profile
+            </Button>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
@@ -209,13 +283,22 @@ export default function Profile() {
                         </div>
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => deleteVehicleMutation.mutate({ id: vehicle.id })}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleEditVehicle(vehicle)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => deleteVehicleMutation.mutate({ id: vehicle.id })}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -406,6 +489,170 @@ export default function Profile() {
             </form>
           </CardContent>
         </Card>
+
+        {/* Edit Profile Dialog */}
+        <Dialog open={editProfileOpen} onOpenChange={setEditProfileOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Profile</DialogTitle>
+              <DialogDescription>Update your profile information</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div>
+                <Label htmlFor="editLocation">Location</Label>
+                <Input
+                  id="editLocation"
+                  value={editLocation}
+                  onChange={(e) => setEditLocation(e.target.value)}
+                  placeholder="City, State"
+                />
+              </div>
+              <div>
+                <Label htmlFor="editExperienceLevel">Experience Level</Label>
+                <Select value={editExperienceLevel} onValueChange={(value: any) => setEditExperienceLevel(value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="beginner">Beginner</SelectItem>
+                    <SelectItem value="intermediate">Intermediate</SelectItem>
+                    <SelectItem value="advanced">Advanced</SelectItem>
+                    <SelectItem value="expert">Expert</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="editBio">Bio</Label>
+                <Textarea
+                  id="editBio"
+                  value={editBio}
+                  onChange={(e) => setEditBio(e.target.value)}
+                  placeholder="Tell us about yourself..."
+                  rows={4}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditProfileOpen(false)}>Cancel</Button>
+              <Button onClick={handleSaveProfile} disabled={updateProfileMutation.isPending}>
+                {updateProfileMutation.isPending ? "Saving..." : "Save Changes"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Vehicle Dialog */}
+        <Dialog open={editVehicleOpen} onOpenChange={setEditVehicleOpen}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Edit Vehicle</DialogTitle>
+              <DialogDescription>Update your vehicle information</DialogDescription>
+            </DialogHeader>
+            {editingVehicle && (
+              <div className="space-y-4 py-4">
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label>Make</Label>
+                    <Input
+                      value={editingVehicle.make}
+                      onChange={(e) => setEditingVehicle({...editingVehicle, make: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <Label>Model</Label>
+                    <Input
+                      value={editingVehicle.model}
+                      onChange={(e) => setEditingVehicle({...editingVehicle, model: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <Label>Year</Label>
+                    <Input
+                      type="number"
+                      value={editingVehicle.year}
+                      onChange={(e) => setEditingVehicle({...editingVehicle, year: parseInt(e.target.value)})}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label>Build Level</Label>
+                    <Select value={editingVehicle.buildLevel} onValueChange={(value) => setEditingVehicle({...editingVehicle, buildLevel: value})}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="stock">Stock</SelectItem>
+                        <SelectItem value="mild">Mild</SelectItem>
+                        <SelectItem value="moderate">Moderate</SelectItem>
+                        <SelectItem value="heavy">Heavy</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Tire Size</Label>
+                    <Input
+                      value={editingVehicle.tireSize || ""}
+                      onChange={(e) => setEditingVehicle({...editingVehicle, tireSize: e.target.value})}
+                      placeholder="35 inches"
+                    />
+                  </div>
+                  <div>
+                    <Label>Lift Height</Label>
+                    <Input
+                      value={editingVehicle.liftHeight || ""}
+                      onChange={(e) => setEditingVehicle({...editingVehicle, liftHeight: e.target.value})}
+                      placeholder="3 inches"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <Label>Modifications</Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="editWinch"
+                        checked={editingVehicle.hasWinch}
+                        onCheckedChange={(checked) => setEditingVehicle({...editingVehicle, hasWinch: checked})}
+                      />
+                      <label htmlFor="editWinch" className="text-sm cursor-pointer">Winch</label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="editLockers"
+                        checked={editingVehicle.hasLockers}
+                        onCheckedChange={(checked) => setEditingVehicle({...editingVehicle, hasLockers: checked})}
+                      />
+                      <label htmlFor="editLockers" className="text-sm cursor-pointer">Lockers</label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="editArmor"
+                        checked={editingVehicle.hasArmor}
+                        onCheckedChange={(checked) => setEditingVehicle({...editingVehicle, hasArmor: checked})}
+                      />
+                      <label htmlFor="editArmor" className="text-sm cursor-pointer">Armor/Skids</label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="editSuspension"
+                        checked={editingVehicle.hasSuspensionUpgrade}
+                        onCheckedChange={(checked) => setEditingVehicle({...editingVehicle, hasSuspensionUpgrade: checked})}
+                      />
+                      <label htmlFor="editSuspension" className="text-sm cursor-pointer">Suspension Upgrade</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditVehicleOpen(false)}>Cancel</Button>
+              <Button onClick={handleSaveVehicle} disabled={updateVehicleMutation.isPending}>
+                {updateVehicleMutation.isPending ? "Saving..." : "Save Changes"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

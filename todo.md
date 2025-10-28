@@ -64,3 +64,11 @@
 
 - [x] Fix nested anchor tags in Home.tsx line 175-176 causing React hydration errors
 
+
+
+## Profile and Vehicle Management
+- [x] Add edit profile functionality (name, bio, location, experience level)
+- [x] Add edit vehicle functionality (make, model, year, build level, mods, riding styles)
+- [x] Add delete vehicle functionality
+- [x] Add edit buttons to Profile page UI
+
