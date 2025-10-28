@@ -9,6 +9,7 @@ import PostTrip from "./pages/PostTrip";
 import TripDetail from "./pages/TripDetail";
 import Profile from "./pages/Profile";
 import Shops from "./pages/Shops";
+import AddShop from "./pages/AddShop";
 
 function Router() {
   return (
@@ -18,6 +19,7 @@ function Router() {
       <Route path={"/trip/:id"} component={TripDetail} />
       <Route path={"/profile"} component={Profile} />
       <Route path={"/shops"} component={Shops} />
+      <Route path={"/shops/add"} component={AddShop} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

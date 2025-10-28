@@ -43,3 +43,8 @@
 - [x] Add shop categories (mechanic, parts, fabrication, etc.)
 - [x] Add location-based search for nearby shops
 
+
+
+## Bugs
+- [x] Fix 404 error on /shops/add page - need to create AddShop component
+
