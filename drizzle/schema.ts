@@ -147,6 +147,7 @@ export const shops = mysqlTable("shops", {
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
   categories: json("categories").notNull(), // Array of categories: ["mechanic", "fabrication", "parts", "tires", "suspension", "general", "other"]
+  otherDescription: text("otherDescription"), // Custom description when "other" category is selected
   
   // Location
   address: text("address"),

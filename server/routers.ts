@@ -367,6 +367,7 @@ export const appRouter = router({
         name: z.string(),
         description: z.string().optional(),
         categories: z.array(z.enum(["mechanic", "fabrication", "parts", "tires", "suspension", "general", "other"])).min(1),
+        otherDescription: z.string().optional(),
         address: z.string().optional(),
         city: z.string().optional(),
         state: z.string().optional(),

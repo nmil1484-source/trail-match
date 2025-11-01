@@ -86,3 +86,11 @@
 - [x] Mention special event permit requirements
 - [x] Add disclaimer to PostTrip page before form
 
+
+
+## "Other" Category Text Input
+- [x] Add otherDescription field to shops database schema
+- [x] Show text input in AddShop when "Other" is checked
+- [x] Save otherDescription to database
+- [x] Display otherDescription on shop cards when category is "other"
+

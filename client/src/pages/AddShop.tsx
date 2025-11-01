@@ -27,6 +27,7 @@ export default function AddShop() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [categories, setCategories] = useState<string[]>([]);
+  const [otherDescription, setOtherDescription] = useState("");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
@@ -73,6 +74,7 @@ export default function AddShop() {
       name,
       description: description || undefined,
       categories: categories as ("mechanic" | "fabrication" | "parts" | "tires" | "suspension" | "general" | "other")[],
+      otherDescription: otherDescription || undefined,
       address: address || undefined,
       city: city || undefined,
       state: state || undefined,
@@ -175,6 +177,16 @@ export default function AddShop() {
                     </div>
                   ))}
                 </div>
+                {categories.includes("other") && (
+                  <div className="mt-3">
+                    <Input
+                      value={otherDescription}
+                      onChange={(e) => setOtherDescription(e.target.value)}
+                      placeholder="Please specify the type of shop..."
+                      className="w-full"
+                    />
+                  </div>
+                )}
               </div>
 
               <div>

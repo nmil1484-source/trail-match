@@ -117,7 +117,7 @@ export default function Shops() {
                       <div className="flex flex-wrap gap-1">
                         {(shop.categories as string[]).map((cat) => (
                           <span key={cat} className="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full capitalize">
-                            {cat}
+                            {cat === "other" && shop.otherDescription ? shop.otherDescription : cat}
                           </span>
                         ))}
                       </div>
