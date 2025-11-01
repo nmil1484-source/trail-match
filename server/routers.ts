@@ -366,7 +366,7 @@ export const appRouter = router({
       .input(z.object({
         name: z.string(),
         description: z.string().optional(),
-        category: z.enum(["mechanic", "fabrication", "parts", "tires", "suspension", "general"]),
+        categories: z.array(z.enum(["mechanic", "fabrication", "parts", "tires", "suspension", "general"])).min(1),
         address: z.string().optional(),
         city: z.string().optional(),
         state: z.string().optional(),
@@ -386,7 +386,7 @@ export const appRouter = router({
 
     list: publicProcedure
       .input(z.object({
-        category: z.string().optional(),
+        categories: z.array(z.string()).optional(),
         state: z.string().optional(),
         city: z.string().optional(),
       }).optional())

@@ -282,14 +282,15 @@ export async function createShop(shop: InsertShop) {
   return result[0].insertId;
 }
 
-export async function getShops(filters?: { category?: string; state?: string; city?: string }) {
+export async function getShops(filters?: { categories?: string[]; state?: string; city?: string }) {
   const db = await getDb();
   if (!db) return [];
 
   let query = db.select().from(shops);
   
   const conditions = [];
-  if (filters?.category) conditions.push(eq(shops.category, filters.category as any));
+  // For categories, we need to check if the shop's categories array contains any of the filter categories
+  // Since we're using JSON, we'll filter in-memory for simplicity
   if (filters?.state) conditions.push(eq(shops.state, filters.state));
   if (filters?.city) conditions.push(eq(shops.city, filters.city));
   
@@ -297,7 +298,17 @@ export async function getShops(filters?: { category?: string; state?: string; ci
     query = query.where(and(...conditions)) as any;
   }
   
-  return await query;
+  const results = await query;
+  
+  // Filter by categories in-memory
+  if (filters?.categories && filters.categories.length > 0) {
+    return results.filter(shop => {
+      const shopCategories = shop.categories as string[];
+      return filters.categories!.some(cat => shopCategories.includes(cat));
+    });
+  }
+  
+  return results;
 }
 
 export async function getShopById(shopId: number) {

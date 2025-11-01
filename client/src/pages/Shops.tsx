@@ -2,14 +2,14 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { trpc } from "@/lib/trpc";
 import { MapPin, Phone, Mail, Globe, Star, Plus } from "lucide-react";
 import { Link } from "wouter";
 import { useState } from "react";
 
 const SHOP_CATEGORIES = [
-  { value: "all", label: "All Categories" },
   { value: "mechanic", label: "Mechanic" },
   { value: "fabrication", label: "Fabrication" },
   { value: "parts", label: "Parts" },
@@ -20,11 +20,11 @@ const SHOP_CATEGORIES = [
 
 export default function Shops() {
   const { isAuthenticated } = useAuth();
-  const [category, setCategory] = useState("all");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [searchState, setSearchState] = useState("");
 
   const { data: shops, isLoading } = trpc.shops.list.useQuery({
-    category: category !== "all" ? category : undefined,
+    categories: selectedCategories.length > 0 ? selectedCategories : undefined,
     state: searchState || undefined,
   });
 
@@ -55,20 +55,28 @@ export default function Shops() {
         <Card>
           <CardContent className="pt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium mb-2 block">Category</label>
-                <Select value={category} onValueChange={setCategory}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {SHOP_CATEGORIES.map((cat) => (
-                      <SelectItem key={cat.value} value={cat.value}>
+              <div className="md:col-span-2">
+                <label className="text-sm font-medium mb-3 block">Categories</label>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {SHOP_CATEGORIES.map((cat) => (
+                    <div key={cat.value} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`filter-${cat.value}`}
+                        checked={selectedCategories.includes(cat.value)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedCategories([...selectedCategories, cat.value]);
+                          } else {
+                            setSelectedCategories(selectedCategories.filter(c => c !== cat.value));
+                          }
+                        }}
+                      />
+                      <Label htmlFor={`filter-${cat.value}`} className="cursor-pointer">
                         {cat.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                      </Label>
+                    </div>
+                  ))}
+                </div>
               </div>
               <div>
                 <label className="text-sm font-medium mb-2 block">State</label>
@@ -105,9 +113,13 @@ export default function Shops() {
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <CardTitle className="text-xl">{shop.name}</CardTitle>
-                      <span className="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full capitalize">
-                        {shop.category}
-                      </span>
+                      <div className="flex flex-wrap gap-1">
+                        {(shop.categories as string[]).map((cat) => (
+                          <span key={cat} className="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full capitalize">
+                            {cat}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                     {shop.averageRating && shop.averageRating > 0 && (
                       <div className="flex items-center gap-1 text-sm">

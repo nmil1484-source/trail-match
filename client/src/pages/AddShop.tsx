@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { trpc } from "@/lib/trpc";
 import { PhotoUpload } from "@/components/PhotoUpload";
 import { GooglePlacesAutocomplete } from "@/components/GooglePlacesAutocomplete";
@@ -24,7 +25,7 @@ export default function AddShop() {
   const [, setLocation] = useLocation();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState<string>("mechanic");
+  const [categories, setCategories] = useState<string[]>([]);
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
@@ -62,15 +63,15 @@ export default function AddShop() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!name || !category) {
-      alert("Please fill in required fields (name and category)");
+    if (!name || categories.length === 0) {
+      alert("Please fill in required fields (name and at least one category)");
       return;
     }
 
     createShop.mutate({
       name,
       description: description || undefined,
-      category: category as "mechanic" | "fabrication" | "parts" | "tires" | "suspension" | "general",
+      categories: categories as ("mechanic" | "fabrication" | "parts" | "tires" | "suspension" | "general")[],
       address: address || undefined,
       city: city || undefined,
       state: state || undefined,
@@ -84,7 +85,7 @@ export default function AddShop() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+      {/* Page Header */}
       <div className="bg-white border-b">
         <div className="max-w-4xl mx-auto px-4 py-6">
           <Link href="/shops">
@@ -149,21 +150,30 @@ export default function AddShop() {
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-2 block">
-                  Category <span className="text-red-500">*</span>
+                <label className="text-sm font-medium mb-3 block">
+                  Categories <span className="text-red-500">*</span>
+                  <span className="text-xs text-gray-500 ml-2">(Select all that apply)</span>
                 </label>
-                <Select value={category} onValueChange={setCategory}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {SHOP_CATEGORIES.map((cat) => (
-                      <SelectItem key={cat.value} value={cat.value}>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {SHOP_CATEGORIES.map((cat) => (
+                    <div key={cat.value} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`cat-${cat.value}`}
+                        checked={categories.includes(cat.value)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setCategories([...categories, cat.value]);
+                          } else {
+                            setCategories(categories.filter(c => c !== cat.value));
+                          }
+                        }}
+                      />
+                      <Label htmlFor={`cat-${cat.value}`} className="cursor-pointer">
                         {cat.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                      </Label>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div>
