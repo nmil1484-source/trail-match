@@ -146,7 +146,7 @@ export const shops = mysqlTable("shops", {
   // Shop details
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
-  categories: json("categories").notNull(), // Array of categories: ["mechanic", "fabrication", "parts", "tires", "suspension", "general"]
+  categories: json("categories").notNull(), // Array of categories: ["mechanic", "fabrication", "parts", "tires", "suspension", "general", "other"]
   
   // Location
   address: text("address"),

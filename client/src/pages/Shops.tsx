@@ -16,6 +16,7 @@ const SHOP_CATEGORIES = [
   { value: "tires", label: "Tires" },
   { value: "suspension", label: "Suspension" },
   { value: "general", label: "General" },
+  { value: "other", label: "Other" },
 ];
 
 export default function Shops() {

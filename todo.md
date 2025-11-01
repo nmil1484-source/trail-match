@@ -72,3 +72,17 @@
 - [x] Add delete vehicle functionality
 - [x] Add edit buttons to Profile page UI
 
+
+
+## Shop "Other" Category
+- [x] Add "other" to shop category enum in database schema
+- [x] Add "Other" checkbox to AddShop form
+- [x] Add "Other" checkbox to Shops filter
+
+## Trip Creation Disclaimer
+- [x] Create disclaimer component with land management warnings
+- [x] Add Tread Lightly principles reminder
+- [x] Warn about checking with land management agencies
+- [x] Mention special event permit requirements
+- [x] Add disclaimer to PostTrip page before form
+

@@ -146,6 +146,18 @@ export default function PostTrip() {
           </p>
         </div>
 
+        {/* Disclaimer */}
+        <div className="mb-6 p-4 bg-amber-50 border-l-4 border-amber-500 rounded">
+          <h3 className="font-semibold text-amber-900 mb-2">⚠️ Important Reminders</h3>
+          <ul className="text-sm text-amber-800 space-y-1 list-disc list-inside">
+            <li><strong>TrailMatch does not coordinate or organize these trips.</strong> You are responsible for planning and leading your own events.</li>
+            <li><strong>Tread Lightly!</strong> Practice responsible off-roading. Stay on designated trails, pack out all trash, and respect wildlife and other visitors.</li>
+            <li><strong>Check with land management agencies</strong> (BLM, Forest Service, National Parks, etc.) for restrictions on group sizes and activities in your area.</li>
+            <li><strong>Special event permits may be required</strong> for larger groups or organized events. Contact the governing agency before your trip.</li>
+            <li><strong>Respect capacity limits</strong> to avoid overwhelming popular locations and preserve access for future generations.</li>
+          </ul>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Info */}
           <Card>

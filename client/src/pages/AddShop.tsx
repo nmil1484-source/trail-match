@@ -19,6 +19,7 @@ const SHOP_CATEGORIES = [
   { value: "tires", label: "Tires" },
   { value: "suspension", label: "Suspension" },
   { value: "general", label: "General" },
+  { value: "other", label: "Other" },
 ];
 
 export default function AddShop() {
@@ -71,7 +72,7 @@ export default function AddShop() {
     createShop.mutate({
       name,
       description: description || undefined,
-      categories: categories as ("mechanic" | "fabrication" | "parts" | "tires" | "suspension" | "general")[],
+      categories: categories as ("mechanic" | "fabrication" | "parts" | "tires" | "suspension" | "general" | "other")[],
       address: address || undefined,
       city: city || undefined,
       state: state || undefined,
