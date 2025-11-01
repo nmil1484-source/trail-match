@@ -110,6 +110,10 @@ export const trips = mysqlTable("trips", {
   // Status
   status: mysqlEnum("status", ["open", "full", "completed", "cancelled"]).default("open").notNull(),
   
+  // Premium listing tiers
+  premiumTier: mysqlEnum("premiumTier", ["free", "featured", "premium"]).default("free").notNull(),
+  premiumExpiresAt: timestamp("premiumExpiresAt"),
+  
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

@@ -286,6 +286,9 @@ export const appRouter = router({
         endDate: z.date().optional(),
       }).optional())
       .query(async ({ input }) => {
+        // Check and expire premium trips first
+        await db.checkAndExpirePremiumTrips();
+        
         const allTrips = await db.getAllTrips();
         
         if (!input) return allTrips;
@@ -356,6 +359,65 @@ export const appRouter = router({
           throw new TRPCError({ code: "FORBIDDEN" });
         }
         await db.deleteTrip(input.id);
+        return { success: true };
+      }),
+
+    // Create payment intent for premium trip upgrade
+    createPaymentIntent: protectedProcedure
+      .input(z.object({
+        tripId: z.number(),
+        tier: z.enum(["featured", "premium"]),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const trip = await db.getTripById(input.tripId);
+        if (!trip || trip.organizerId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "You can only upgrade your own trips" });
+        }
+
+        // Import stripe service
+        const { createTripPaymentIntent } = await import("./_core/stripe");
+
+        // Determine amount based on tier
+        const amount = input.tier === "featured" ? 99 : 199; // $0.99 or $1.99 in cents
+
+        const paymentIntent = await createTripPaymentIntent(
+          amount,
+          input.tripId,
+          ctx.user.id,
+          input.tier
+        );
+
+        return {
+          clientSecret: paymentIntent.client_secret,
+          amount,
+        };
+      }),
+
+    // Confirm payment and upgrade trip
+    confirmPremiumUpgrade: protectedProcedure
+      .input(z.object({
+        tripId: z.number(),
+        paymentIntentId: z.string(),
+        tier: z.enum(["featured", "premium"]),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const trip = await db.getTripById(input.tripId);
+        if (!trip || trip.organizerId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "You can only upgrade your own trips" });
+        }
+
+        // Import stripe service
+        const { verifyPayment } = await import("./_core/stripe");
+
+        // Verify payment was successful
+        const paymentSuccessful = await verifyPayment(input.paymentIntentId);
+        if (!paymentSuccessful) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Payment verification failed" });
+        }
+
+        // Upgrade trip to premium tier (30 days)
+        await db.upgradeTripToPremium(input.tripId, input.tier, 30);
+
         return { success: true };
       }),
   }),

@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
-import { Calendar, MapPin, Users, Mountain, Loader2 } from "lucide-react";
+import { Calendar, MapPin, Users, Mountain, Loader2, Star, Trophy } from "lucide-react";
 import { Link } from "wouter";
 import { useState } from "react";
 import { AuthModal } from "@/components/AuthModal";
@@ -16,9 +16,24 @@ export default function Home() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const { data: trips, isLoading } = trpc.trips.list.useQuery();
 
-  const filteredTrips = trips?.filter(trip => 
-    !locationFilter || trip.location.toLowerCase().includes(locationFilter.toLowerCase())
-  );
+  // Filter and sort trips: premium > featured > free, then by date
+  const filteredTrips = trips
+    ?.filter(trip => 
+      !locationFilter || trip.location.toLowerCase().includes(locationFilter.toLowerCase())
+    )
+    .sort((a, b) => {
+      // Sort by premium tier first
+      const tierOrder = { premium: 3, featured: 2, free: 1 };
+      const aTier = tierOrder[a.premiumTier as keyof typeof tierOrder] || 1;
+      const bTier = tierOrder[b.premiumTier as keyof typeof tierOrder] || 1;
+      
+      if (aTier !== bTier) {
+        return bTier - aTier; // Higher tier first
+      }
+      
+      // If same tier, sort by start date
+      return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+    });
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -125,7 +140,16 @@ export default function Home() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {filteredTrips?.map((trip) => (
-                <Card key={trip.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                <Card 
+                  key={trip.id} 
+                  className={`overflow-hidden hover:shadow-lg transition-shadow ${
+                    trip.premiumTier === "premium" 
+                      ? "border-2 border-purple-300 shadow-lg shadow-purple-100" 
+                      : trip.premiumTier === "featured"
+                      ? "border-2 border-amber-300 shadow-md shadow-amber-100"
+                      : ""
+                  }`}
+                >
                   <div className="aspect-video bg-muted relative overflow-hidden">
                     {trip.photos && (trip.photos as string[]).length > 0 ? (
                       <img
@@ -141,7 +165,21 @@ export default function Home() {
                   </div>
                   
                   <CardHeader className="pb-3">
-                    <h3 className="font-bold text-lg line-clamp-2 text-card-foreground">{trip.title}</h3>
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <h3 className="font-bold text-lg line-clamp-2 text-card-foreground flex-1">{trip.title}</h3>
+                      {trip.premiumTier === "featured" && (
+                        <Badge className="bg-amber-500 hover:bg-amber-600 text-white flex items-center gap-1 shrink-0">
+                          <Star className="h-3 w-3" />
+                          Featured
+                        </Badge>
+                      )}
+                      {trip.premiumTier === "premium" && (
+                        <Badge className="bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-1 shrink-0">
+                          <Trophy className="h-3 w-3" />
+                          Premium
+                        </Badge>
+                      )}
+                    </div>
                     <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
                       <MapPin className="h-4 w-4" />
                       <span>{trip.location}</span>

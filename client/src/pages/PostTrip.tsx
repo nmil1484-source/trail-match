@@ -13,6 +13,7 @@ import { Link, useLocation } from "wouter";
 import { useState } from "react";
 import { toast } from "sonner";
 import { PhotoUpload } from "@/components/PhotoUpload";
+import { PremiumTierDialog } from "@/components/PremiumTierDialog";
 
 const OFF_ROAD_STYLES = [
   { value: "rock_crawling", label: "Rock Crawling" },
@@ -56,11 +57,15 @@ export default function PostTrip() {
   const [itinerary, setItinerary] = useState("");
   const [campingInfo, setCampingInfo] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
+  const [showPremiumDialog, setShowPremiumDialog] = useState(false);
+  const [createdTripId, setCreatedTripId] = useState<number | null>(null);
 
   const createTripMutation = trpc.trips.create.useMutation({
     onSuccess: (data) => {
+      setCreatedTripId(data.tripId);
       toast.success("Trip posted successfully!");
-      setLocation(`/trip/${data.tripId}`);
+      // Show premium upgrade dialog
+      setShowPremiumDialog(true);
     },
     onError: (error) => {
       toast.error(`Failed to post trip: ${error.message}`);
@@ -418,6 +423,19 @@ export default function PostTrip() {
           </div>
         </form>
       </div>
+
+      {/* Premium Upgrade Dialog */}
+      {createdTripId && (
+        <PremiumTierDialog
+          open={showPremiumDialog}
+          onOpenChange={setShowPremiumDialog}
+          tripId={createdTripId}
+          onSuccess={() => {
+            // Navigate to trip detail page after upgrade
+            setLocation(`/trip/${createdTripId}`);
+          }}
+        />
+      )}
     </div>
   );
 }

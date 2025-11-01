@@ -156,3 +156,24 @@
 - [x] Make logo clickable to navigate to homepage on all pages
 - [x] Wrap logo and TrailMatch text in Link component pointing to "/"
 
+
+
+## Premium Trip Listings with Stripe
+- [x] Create favicon.ico for browser tab icon
+- [x] Add premiumTier field to trips database (free, featured $0.99, premium $1.99)
+- [x] Add premiumExpiresAt field for expiration tracking
+- [x] Remove PayPal and install Stripe SDK
+- [x] Integrate Stripe payment processing
+- [x] Create trip upgrade/payment page (PremiumTierDialog component)
+- [x] Add premium badges to trip cards (Featured, Premium)
+- [x] Sort premium trips to top of listings
+- [x] Add expiration and renewal system
+- [x] Create Stripe payment service (server/_core/stripe.ts)
+- [x] Add payment API endpoints (createPaymentIntent, confirmPremiumUpgrade)
+- [x] Integrate Stripe Elements for card payments
+- [x] Add premium card highlighting (borders and shadows)
+- [x] Automatic expiration checking on trip list load
+- [ ] Test Stripe payment flow in test mode
+- [ ] Add premium renewal flow for expired listings
+- [ ] Add email notifications for expiration warnings
+

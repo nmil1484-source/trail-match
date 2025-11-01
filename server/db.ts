@@ -1,4 +1,4 @@
-import { and, eq, gte, lte, sql, desc } from "drizzle-orm";
+import { and, eq, gte, lte, sql, desc, ne, lt } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertTrip, InsertTripParticipant, InsertUser, InsertVehicle, InsertShop, InsertShopReview, InsertPasswordResetToken, tripParticipants, trips, users, vehicles, shops, shopReviews, passwordResetTokens } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -568,5 +568,58 @@ export async function updateUserRole(userId: number, role: "user" | "admin"): Pr
     .update(users)
     .set({ role, updatedAt: new Date() })
     .where(eq(users.id, userId));
+}
+
+
+
+
+/**
+ * Upgrade trip to premium tier
+ */
+export async function upgradeTripToPremium(
+  tripId: number,
+  tier: 'featured' | 'premium',
+  durationDays: number = 30
+): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + durationDays);
+
+  await db
+    .update(trips)
+    .set({
+      premiumTier: tier,
+      premiumExpiresAt: expiresAt,
+    })
+    .where(eq(trips.id, tripId));
+}
+
+/**
+ * Check if trip premium status has expired and downgrade if needed
+ */
+export async function checkAndExpirePremiumTrips(): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  const now = new Date();
+  
+  await db
+    .update(trips)
+    .set({
+      premiumTier: 'free',
+      premiumExpiresAt: null,
+    })
+    .where(
+      and(
+        ne(trips.premiumTier, 'free'),
+        lt(trips.premiumExpiresAt, now)
+      )
+    );
 }
 

@@ -64,6 +64,13 @@
       "when": 1761979071444,
       "tag": "0009_nervous_kitty_pryde",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1762032263876,
+      "tag": "0010_ordinary_stark_industries",
+      "breakpoints": true
     }
   ]
 }
