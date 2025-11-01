@@ -40,10 +40,10 @@ export default function Home() {
       <header className="border-b bg-card">
         <div className="container py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+            <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
               <img src="/trailmatch-logo.png" alt="TrailMatch" className="h-10 w-10" />
               <span className="text-2xl font-bold text-foreground">TrailMatch</span>
-            </div>
+            </Link>
             <nav className="flex items-center gap-6">
               <Link href="/" className="text-foreground hover:text-primary font-medium">
                 Find Trips

@@ -150,3 +150,9 @@
 - [x] Check all pages for missing navigation
 - [x] Ensure consistent navigation across entire site
 
+
+
+## Clickable Logo
+- [x] Make logo clickable to navigate to homepage on all pages
+- [x] Wrap logo and TrailMatch text in Link component pointing to "/"
+
