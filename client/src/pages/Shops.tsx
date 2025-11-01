@@ -20,7 +20,7 @@ const SHOP_CATEGORIES = [
 ];
 
 export default function Shops() {
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [searchState, setSearchState] = useState("");
 
@@ -30,7 +30,42 @@ export default function Shops() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
+      {/* Navigation Header */}
+      <header className="border-b bg-card">
+        <div className="container py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <img src="/trailmatch-logo.png" alt="TrailMatch" className="h-10 w-10" />
+              <span className="text-2xl font-bold text-foreground">TrailMatch</span>
+            </div>
+            <nav className="flex items-center gap-6">
+              <Link href="/" className="text-foreground hover:text-primary font-medium">
+                Find Trips
+              </Link>
+              <Link href="/shops" className="text-foreground hover:text-primary font-medium">
+                Shops
+              </Link>
+              {isAuthenticated && (
+                <>
+                  <Link href="/post-trip" className="text-foreground hover:text-primary font-medium">
+                    Post Trip
+                  </Link>
+                  <Link href="/profile" className="text-foreground hover:text-primary font-medium">
+                    My Profile
+                  </Link>
+                  {user?.role === "admin" && (
+                    <Link href="/admin" className="text-foreground hover:text-primary font-medium">
+                      Admin
+                    </Link>
+                  )}
+                </>
+              )}
+            </nav>
+          </div>
+        </div>
+      </header>
+
       {/* Header */}
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-6">
