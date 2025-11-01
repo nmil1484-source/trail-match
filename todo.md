@@ -94,3 +94,10 @@
 - [x] Save otherDescription to database
 - [x] Display otherDescription on shop cards when category is "other"
 
+
+
+## Google Places API Key Setup
+- [x] Request GOOGLE_PLACES_API_KEY from user
+- [x] Update GooglePlacesAutocomplete component to use env variable
+- [x] Test Google Places search functionality
+

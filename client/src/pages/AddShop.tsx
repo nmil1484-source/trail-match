@@ -11,6 +11,7 @@ import { PhotoUpload } from "@/components/PhotoUpload";
 import { GooglePlacesAutocomplete } from "@/components/GooglePlacesAutocomplete";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
+import { GOOGLE_PLACES_API_KEY } from "@/const";
 
 const SHOP_CATEGORIES = [
   { value: "mechanic", label: "Mechanic" },
@@ -116,7 +117,7 @@ export default function AddShop() {
                   <h3 className="text-sm font-semibold mb-2 text-blue-900">🔍 Search Google Places</h3>
                   <p className="text-xs text-blue-700 mb-3">Find a shop on Google to auto-fill details</p>
                   <GooglePlacesAutocomplete
-                    apiKey={""}
+                    apiKey={GOOGLE_PLACES_API_KEY}
                     onPlaceSelected={handlePlaceSelected}
                   />
                   <button
