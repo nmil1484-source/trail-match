@@ -1,6 +1,5 @@
 /// <reference types="google.maps" />
 import { useEffect, useRef, useState } from "react";
-// Input component not needed - using native input
 
 interface PlaceDetails {
   name: string;
@@ -18,29 +17,78 @@ interface GooglePlacesAutocompleteProps {
   apiKey: string;
 }
 
-export function GooglePlacesAutocomplete({ onPlaceSelected, apiKey }: GooglePlacesAutocompleteProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [scriptLoaded, setScriptLoaded] = useState(false);
+// Global flag to track if script is loaded or loading
+let isScriptLoaded = false;
+let isScriptLoading = false;
+const scriptLoadCallbacks: Array<() => void> = [];
 
-  useEffect(() => {
-    if (!apiKey || scriptLoaded) return;
+function loadGoogleMapsScript(apiKey: string): Promise<void> {
+  return new Promise((resolve) => {
+    // If already loaded, resolve immediately
+    if (isScriptLoaded && window.google?.maps) {
+      resolve();
+      return;
+    }
 
-    // Load Google Maps script
+    // If currently loading, add to callback queue
+    if (isScriptLoading) {
+      scriptLoadCallbacks.push(() => resolve());
+      return;
+    }
+
+    // Check if script already exists in DOM
+    const existingScript = document.querySelector(
+      `script[src*="maps.googleapis.com/maps/api/js"]`
+    );
+    
+    if (existingScript) {
+      isScriptLoaded = true;
+      resolve();
+      return;
+    }
+
+    // Start loading
+    isScriptLoading = true;
+
     const script = document.createElement("script");
     script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
     script.async = true;
     script.defer = true;
-    script.onload = () => setScriptLoaded(true);
-    document.head.appendChild(script);
-
-    return () => {
-      document.head.removeChild(script);
+    
+    script.onload = () => {
+      isScriptLoaded = true;
+      isScriptLoading = false;
+      resolve();
+      
+      // Execute all queued callbacks
+      scriptLoadCallbacks.forEach(cb => cb());
+      scriptLoadCallbacks.length = 0;
     };
-  }, [apiKey, scriptLoaded]);
+
+    script.onerror = () => {
+      isScriptLoading = false;
+      console.error("Failed to load Google Maps script");
+    };
+
+    document.head.appendChild(script);
+  });
+}
+
+export function GooglePlacesAutocomplete({ onPlaceSelected, apiKey }: GooglePlacesAutocompleteProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [scriptReady, setScriptReady] = useState(isScriptLoaded);
 
   useEffect(() => {
-    if (!scriptLoaded || !inputRef.current || !window.google) return;
+    if (!apiKey) return;
+
+    loadGoogleMapsScript(apiKey).then(() => {
+      setScriptReady(true);
+    });
+  }, [apiKey]);
+
+  useEffect(() => {
+    if (!scriptReady || !inputRef.current || !window.google) return;
 
     const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
       types: ["establishment"],
@@ -110,7 +158,7 @@ export function GooglePlacesAutocomplete({ onPlaceSelected, apiKey }: GooglePlac
       onPlaceSelected(details);
       setIsLoading(false);
     });
-  }, [scriptLoaded, onPlaceSelected]);
+  }, [scriptReady, onPlaceSelected]);
 
   return (
     <div className="relative">
