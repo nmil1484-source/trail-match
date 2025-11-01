@@ -177,3 +177,12 @@
 - [ ] Add premium renewal flow for expired listings
 - [ ] Add email notifications for expiration warnings
 
+
+
+
+## Bugs to Fix
+- [ ] Fix photo upload error on Post Trip page - "Failed to upload photos. Please try again."
+
+
+- [x] Add clear "Skip" button to premium upgrade dialog for easy free trip posting
+
