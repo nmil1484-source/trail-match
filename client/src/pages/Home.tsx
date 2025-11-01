@@ -59,6 +59,11 @@ export default function Home() {
                   <Link href="/profile" className="text-foreground hover:text-primary font-medium">
                     My Profile
                   </Link>
+                  {user?.role === "admin" && (
+                    <Link href="/admin" className="text-foreground hover:text-primary font-medium">
+                      Admin
+                    </Link>
+                  )}
                 </>
               ) : (
                 <Button onClick={() => setAuthModalOpen(true)}>

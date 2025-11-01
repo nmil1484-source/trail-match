@@ -9,4 +9,6 @@ export const ENV = {
   forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? "",
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
   googlePlacesApiKey: process.env.GOOGLE_PLACES_API_KEY ?? "",
+  frontendUrl: process.env.FRONTEND_URL ?? "http://localhost:3000",
+  emailFrom: process.env.EMAIL_FROM ?? "noreply@trail-match.com",
 };

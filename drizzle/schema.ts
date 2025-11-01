@@ -196,3 +196,18 @@ export const shopReviews = mysqlTable("shopReviews", {
 export type ShopReview = typeof shopReviews.$inferSelect;
 export type InsertShopReview = typeof shopReviews.$inferInsert;
 
+/**
+ * Password reset tokens table
+ */
+export const passwordResetTokens = mysqlTable("passwordResetTokens", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  token: varchar("token", { length: 255 }).notNull().unique(),
+  expiresAt: timestamp("expiresAt").notNull(),
+  used: boolean("used").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
+export type InsertPasswordResetToken = typeof passwordResetTokens.$inferInsert;
+

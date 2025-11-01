@@ -93,6 +93,53 @@ export const appRouter = router({
         return { success: true, user };
       }),
     
+    requestPasswordReset: publicProcedure
+      .input(z.object({
+        email: z.string().email(),
+      }))
+      .mutation(async ({ input }) => {
+        // Find user by email
+        const user = await db.getUserByEmail(input.email);
+        
+        // Always return success to prevent email enumeration
+        if (!user) {
+          return { success: true };
+        }
+
+        // Create reset token
+        const resetToken = await db.createPasswordResetToken(user.id);
+
+        // Send reset email
+        const { sendPasswordResetEmail } = await import("./_core/email");
+        await sendPasswordResetEmail(user.email!, resetToken, user.name || undefined);
+
+        return { success: true };
+      }),
+
+    resetPassword: publicProcedure
+      .input(z.object({
+        token: z.string(),
+        newPassword: z.string().min(8),
+      }))
+      .mutation(async ({ input }) => {
+        // Verify token
+        const userId = await db.verifyPasswordResetToken(input.token);
+        if (!userId) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Invalid or expired reset token",
+          });
+        }
+
+        // Hash new password
+        const passwordHash = await bcrypt.hash(input.newPassword, 10);
+
+        // Update user password
+        await db.updateUserPassword(userId, passwordHash);
+
+        return { success: true };
+      }),
+    
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
@@ -446,6 +493,79 @@ export const appRouter = router({
         const result = await storagePut(key, buffer, input.contentType);
         
         return { url: result.url, key: result.key };
+      }),
+  }),
+
+  admin: router({
+    // Get all users (admin only)
+    getAllUsers: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+      }
+      return await db.getAllUsers();
+    }),
+
+    // Get all trips (admin only)
+    getAllTrips: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+      }
+      return await db.getAllTripsAdmin();
+    }),
+
+    // Get all shops (admin only)
+    getAllShops: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+      }
+      return await db.getAllShopsAdmin();
+    }),
+
+    // Delete user (admin only)
+    deleteUser: protectedProcedure
+      .input(z.object({ userId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+        }
+        await db.deleteUser(input.userId);
+        return { success: true };
+      }),
+
+    // Delete trip (admin only)
+    deleteTrip: protectedProcedure
+      .input(z.object({ tripId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+        }
+        await db.deleteTrip(input.tripId);
+        return { success: true };
+      }),
+
+    // Delete shop (admin only)
+    deleteShop: protectedProcedure
+      .input(z.object({ shopId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+        }
+        await db.deleteShop(input.shopId);
+        return { success: true };
+      }),
+
+    // Update user role (admin only)
+    updateUserRole: protectedProcedure
+      .input(z.object({ 
+        userId: z.number(),
+        role: z.enum(["user", "admin"]),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+        }
+        await db.updateUserRole(input.userId, input.role);
+        return { success: true };
       }),
   }),
 });

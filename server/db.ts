@@ -1,7 +1,8 @@
 import { and, eq, gte, lte, sql, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertTrip, InsertTripParticipant, InsertUser, InsertVehicle, InsertShop, InsertShopReview, tripParticipants, trips, users, vehicles, shops, shopReviews } from "../drizzle/schema";
+import { InsertTrip, InsertTripParticipant, InsertUser, InsertVehicle, InsertShop, InsertShopReview, InsertPasswordResetToken, tripParticipants, trips, users, vehicles, shops, shopReviews, passwordResetTokens } from "../drizzle/schema";
 import { ENV } from './_core/env';
+import crypto from "crypto";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -373,5 +374,199 @@ async function updateShopRating(shopId: number) {
     averageRating,
     totalReviews: reviews.length,
   }).where(eq(shops.id, shopId));
+}
+
+
+
+// ===== PASSWORD RESET TOKEN FUNCTIONS =====
+
+
+
+/**
+ * Create a password reset token for a user
+ */
+export async function createPasswordResetToken(userId: number): Promise<string> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  // Generate a secure random token
+  const token = crypto.randomBytes(32).toString("hex");
+  
+  // Token expires in 1 hour
+  const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
+  const resetToken: InsertPasswordResetToken = {
+    userId,
+    token,
+    expiresAt,
+    used: false,
+  };
+
+  await db.insert(passwordResetTokens).values(resetToken);
+
+  return token;
+}
+
+/**
+ * Verify and consume a password reset token
+ * Returns the userId if valid, null if invalid/expired/used
+ */
+export async function verifyPasswordResetToken(token: string): Promise<number | null> {
+  const db = await getDb();
+  if (!db) {
+    return null;
+  }
+
+  const result = await db
+    .select()
+    .from(passwordResetTokens)
+    .where(eq(passwordResetTokens.token, token))
+    .limit(1);
+
+  if (result.length === 0) {
+    return null;
+  }
+
+  const resetToken = result[0];
+
+  // Check if token is expired
+  if (resetToken.expiresAt < new Date()) {
+    return null;
+  }
+
+  // Check if token has been used
+  if (resetToken.used) {
+    return null;
+  }
+
+  // Mark token as used
+  await db
+    .update(passwordResetTokens)
+    .set({ used: true })
+    .where(eq(passwordResetTokens.token, token));
+
+  return resetToken.userId;
+}
+
+/**
+ * Update user password
+ */
+export async function updateUserPassword(userId: number, passwordHash: string): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  await db
+    .update(users)
+    .set({ passwordHash, updatedAt: new Date() })
+    .where(eq(users.id, userId));
+}
+
+
+
+// ===== ADMIN FUNCTIONS =====
+
+/**
+ * Get all users (admin only)
+ */
+export async function getAllUsers() {
+  const db = await getDb();
+  if (!db) {
+    return [];
+  }
+
+  return await db.select().from(users).orderBy(desc(users.createdAt));
+}
+
+/**
+ * Get all trips (admin only)
+ */
+export async function getAllTripsAdmin() {
+  const db = await getDb();
+  if (!db) {
+    return [];
+  }
+
+  const results = await db
+    .select({
+      trip: trips,
+      organizer: users,
+    })
+    .from(trips)
+    .leftJoin(users, eq(trips.organizerId, users.id))
+    .orderBy(desc(trips.createdAt));
+
+  return results.map((r) => ({
+    ...r.trip,
+    organizer: r.organizer,
+  }));
+}
+
+/**
+ * Get all shops (admin only)
+ */
+export async function getAllShopsAdmin() {
+  const db = await getDb();
+  if (!db) {
+    return [];
+  }
+
+  const results = await db
+    .select({
+      shop: shops,
+      addedByUser: users,
+    })
+    .from(shops)
+    .leftJoin(users, eq(shops.addedBy, users.id))
+    .orderBy(desc(shops.createdAt));
+
+  return results.map((r) => ({
+    ...r.shop,
+    addedByUser: r.addedByUser,
+  }));
+}
+
+/**
+ * Delete user (admin only)
+ */
+export async function deleteUser(userId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  await db.delete(users).where(eq(users.id, userId));
+}
+
+
+
+/**
+ * Delete shop (admin only)
+ */
+export async function deleteShop(shopId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  await db.delete(shops).where(eq(shops.id, shopId));
+}
+
+/**
+ * Update user role (admin only)
+ */
+export async function updateUserRole(userId: number, role: "user" | "admin"): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  await db
+    .update(users)
+    .set({ role, updatedAt: new Date() })
+    .where(eq(users.id, userId));
 }
 

@@ -10,6 +10,9 @@ import TripDetail from "./pages/TripDetail";
 import Profile from "./pages/Profile";
 import Shops from "./pages/Shops";
 import AddShop from "./pages/AddShop";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import Admin from "./pages/Admin";
 
 function Router() {
   return (
@@ -20,6 +23,9 @@ function Router() {
       <Route path={"/profile"} component={Profile} />
       <Route path={"/shops"} component={Shops} />
       <Route path={"/shops/add"} component={AddShop} />
+      <Route path={"/forgot-password"} component={ForgotPassword} />
+      <Route path={"/reset-password"} component={ResetPassword} />
+      <Route path={"/admin"} component={Admin} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
