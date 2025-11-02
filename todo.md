@@ -228,3 +228,8 @@
 - [x] Add premium boost option after editing trips (like after posting new trips) - Premium dialog shows after edit
 - [x] Fix logout functionality on profile page - Added logout button to headere
 
+
+
+## Critical Bug
+- [x] Email/password login fails with "jwt.sign is not a function" error on live site - Fixed jwt import
+
