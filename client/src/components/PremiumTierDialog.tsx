@@ -254,12 +254,13 @@ export function PremiumTierDialog({ open, onOpenChange, tripId, onSuccess }: Pre
 
         <div className="space-y-3 pt-4 border-t">
           <Button 
-            variant="ghost" 
+            variant="outline" 
+            size="lg"
             onClick={() => {
               onSuccess();
               onOpenChange(false);
             }}
-            className="w-full text-muted-foreground hover:text-foreground"
+            className="w-full font-semibold"
           >
             Skip - Post Free Trip Instead
           </Button>

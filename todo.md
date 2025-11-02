@@ -186,3 +186,9 @@
 
 - [x] Add clear "Skip" button to premium upgrade dialog for easy free trip posting
 
+
+
+## Current Issues
+- [ ] Photo upload still not working on live site - investigate and fix
+- [x] Premium dialog stuck loading - skip button not clickable - Made skip button larger and more prominent
+
