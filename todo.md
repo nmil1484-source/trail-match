@@ -192,3 +192,13 @@
 - [ ] Photo upload still not working on live site - investigate and fix
 - [x] Premium dialog stuck loading - skip button not clickable - Made skip button larger and more prominent
 
+
+
+## New Features
+- [x] Add edit functionality for users' own trips
+- [x] Add delete functionality for users' own trips  
+- [x] Add edit functionality for users' own shops
+- [x] Add delete functionality for users' own shops
+- [x] Created ShopDetail page with edit/delete buttons
+- [x] Added edit/delete buttons to TripDetail page
+

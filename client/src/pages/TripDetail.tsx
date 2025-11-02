@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { getLoginUrl } from "@/const";
-import { Calendar, MapPin, Users, Mountain, ArrowLeft, Shield, Wrench } from "lucide-react";
+import { toast } from "sonner";
+import { Calendar, MapPin, Users, Mountain, ArrowLeft, Shield, Wrench, Edit, Trash2 } from "lucide-react";
 import { Link, useParams } from "wouter";
 
 export default function TripDetail() {
@@ -14,6 +15,24 @@ export default function TripDetail() {
   
   const { data: trip, isLoading } = trpc.trips.getById.useQuery({ id: tripId });
   const { data: participants } = trpc.participants.listForTrip.useQuery({ tripId });
+  
+  const deleteMutation = trpc.trips.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Trip deleted successfully");
+      window.location.href = "/";
+    },
+    onError: (error) => {
+      toast.error(`Failed to delete trip: ${error.message}`);
+    },
+  });
+  
+  const handleDelete = () => {
+    if (confirm("Are you sure you want to delete this trip? This action cannot be undone.")) {
+      deleteMutation.mutate({ id: tripId });
+    }
+  };
+  
+  const isOrganizer = user && trip && trip.organizerId === user.id;
 
   if (isLoading) {
     return (
@@ -92,7 +111,30 @@ export default function TripDetail() {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             <div>
-              <h1 className="text-4xl font-bold text-foreground mb-4">{trip.title}</h1>
+              <div className="flex items-start justify-between mb-4">
+                <h1 className="text-4xl font-bold text-foreground">{trip.title}</h1>
+                {isOrganizer && (
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" asChild>
+                      <Link href={`/edit-trip/${tripId}`}>
+                        <a className="flex items-center gap-2">
+                          <Edit className="h-4 w-4" />
+                          Edit
+                        </a>
+                      </Link>
+                    </Button>
+                    <Button 
+                      variant="destructive" 
+                      size="sm"
+                      onClick={handleDelete}
+                      disabled={deleteMutation.isPending}
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
+                    </Button>
+                  </div>
+                )}
+              </div>
               
               <div className="flex flex-wrap gap-3 mb-6">
                 <div className="flex items-center gap-2 text-muted-foreground">

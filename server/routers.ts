@@ -531,6 +531,43 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return await db.getShopReviews(input.shopId);
       }),
+
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        name: z.string().optional(),
+        description: z.string().optional(),
+        categories: z.array(z.enum(["mechanic", "fabrication", "parts", "tires", "suspension", "general", "other"])).optional(),
+        otherDescription: z.string().optional(),
+        address: z.string().optional(),
+        city: z.string().optional(),
+        state: z.string().optional(),
+        zipCode: z.string().optional(),
+        phone: z.string().optional(),
+        email: z.string().email().optional(),
+        website: z.string().optional(),
+        photos: z.array(z.string()).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { id, ...data } = input;
+        const shop = await db.getShopById(id);
+        if (!shop || shop.addedBy !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "You can only edit your own shops" });
+        }
+        await db.updateShop(id, data);
+        return { success: true };
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const shop = await db.getShopById(input.id);
+        if (!shop || shop.addedBy !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "You can only delete your own shops" });
+        }
+        await db.deleteShop(input.id);
+        return { success: true };
+      }),
   }),
 
   upload: router({

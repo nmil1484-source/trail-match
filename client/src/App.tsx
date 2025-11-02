@@ -9,6 +9,7 @@ import PostTrip from "./pages/PostTrip";
 import TripDetail from "./pages/TripDetail";
 import Profile from "./pages/Profile";
 import Shops from "./pages/Shops";
+import ShopDetail from "./pages/ShopDetail";
 import AddShop from "./pages/AddShop";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
@@ -22,6 +23,7 @@ function Router() {
       <Route path={"/trip/:id"} component={TripDetail} />
       <Route path={"/profile"} component={Profile} />
       <Route path={"/shops"} component={Shops} />
+      <Route path={"/shops/:id"} component={ShopDetail} />
       <Route path={"/shops/add"} component={AddShop} />
       <Route path={"/forgot-password"} component={ForgotPassword} />
       <Route path={"/reset-password"} component={ResetPassword} />
