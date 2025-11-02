@@ -1,8 +1,6 @@
 import { COOKIE_NAME } from "@shared/const";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import * as bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
@@ -18,126 +16,57 @@ export const appRouter = router({
     signup: publicProcedure
       .input(z.object({
         email: z.string().email(),
-        password: z.string().min(8),
+        password: z.string().min(6),
         name: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
-        // Check if user already exists
-        const existingUser = await db.getUserByEmail(input.email);
-        if (existingUser) {
-          throw new TRPCError({
-            code: "CONFLICT",
-            message: "Email already registered",
+        const { createEmailUser } = await import("./auth");
+        const { signToken } = await import("./_core/jwt");
+        
+        try {
+          const user = await createEmailUser(input.email, input.password, input.name);
+          
+          // Get full user data
+          const fullUser = await db.getUserByEmail(input.email);
+          if (!fullUser) throw new Error("User creation failed");
+          
+          // Create session token
+          const token = signToken({ userId: fullUser.id, email: fullUser.email! });
+          const cookieOptions = getSessionCookieOptions(ctx.req);
+          ctx.res.cookie(COOKIE_NAME, token, cookieOptions);
+          
+          return { success: true, user: fullUser };
+        } catch (error: any) {
+          throw new TRPCError({ 
+            code: "BAD_REQUEST", 
+            message: error.message || "Signup failed" 
           });
         }
-
-        // Hash password
-        const passwordHash = await bcrypt.hash(input.password, 10);
-
-        // Create user
-        const user = await db.createUserWithPassword({
-          email: input.email,
-          passwordHash,
-          name: input.name || input.email.split("@")[0],
-        });
-
-        // Create JWT token
-        const token = jwt.sign(
-          { userId: user.id, email: user.email },
-          ENV.jwtSecret,
-          { expiresIn: "7d" }
-        );
-
-        // Set cookie
-        const cookieOptions = getSessionCookieOptions(ctx.req);
-        ctx.res.cookie(COOKIE_NAME, token, cookieOptions);
-
-        return { success: true, user };
       }),
-
+    
     login: publicProcedure
       .input(z.object({
         email: z.string().email(),
         password: z.string(),
       }))
       .mutation(async ({ ctx, input }) => {
-        // Find user
-        const user = await db.getUserByEmail(input.email);
-        if (!user || !user.passwordHash) {
-          throw new TRPCError({
-            code: "UNAUTHORIZED",
-            message: "Invalid email or password",
+        const { authenticateEmailUser } = await import("./auth");
+        const { signToken } = await import("./_core/jwt");
+        
+        const user = await authenticateEmailUser(input.email, input.password);
+        if (!user) {
+          throw new TRPCError({ 
+            code: "UNAUTHORIZED", 
+            message: "Invalid email or password" 
           });
         }
-
-        // Verify password
-        const isValid = await bcrypt.compare(input.password, user.passwordHash);
-        if (!isValid) {
-          throw new TRPCError({
-            code: "UNAUTHORIZED",
-            message: "Invalid email or password",
-          });
-        }
-
-        // Create JWT token
-        const token = jwt.sign(
-          { userId: user.id, email: user.email },
-          ENV.jwtSecret,
-          { expiresIn: "7d" }
-        );
-
-        // Set cookie
+        
+        // Create session token
+        const token = signToken({ userId: user.id, email: user.email! });
         const cookieOptions = getSessionCookieOptions(ctx.req);
         ctx.res.cookie(COOKIE_NAME, token, cookieOptions);
-
-        return { success: true, user };
-      }),
-    
-    requestPasswordReset: publicProcedure
-      .input(z.object({
-        email: z.string().email(),
-      }))
-      .mutation(async ({ input }) => {
-        // Find user by email
-        const user = await db.getUserByEmail(input.email);
         
-        // Always return success to prevent email enumeration
-        if (!user) {
-          return { success: true };
-        }
-
-        // Create reset token
-        const resetToken = await db.createPasswordResetToken(user.id);
-
-        // Send reset email
-        const { sendPasswordResetEmail } = await import("./_core/email");
-        await sendPasswordResetEmail(user.email!, resetToken, user.name || undefined);
-
-        return { success: true };
-      }),
-
-    resetPassword: publicProcedure
-      .input(z.object({
-        token: z.string(),
-        newPassword: z.string().min(8),
-      }))
-      .mutation(async ({ input }) => {
-        // Verify token
-        const userId = await db.verifyPasswordResetToken(input.token);
-        if (!userId) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "Invalid or expired reset token",
-          });
-        }
-
-        // Hash new password
-        const passwordHash = await bcrypt.hash(input.newPassword, 10);
-
-        // Update user password
-        await db.updateUserPassword(userId, passwordHash);
-
-        return { success: true };
+        return { success: true, user };
       }),
     
     logout: publicProcedure.mutation(({ ctx }) => {
@@ -265,6 +194,11 @@ export const appRouter = router({
         photos: z.array(z.string()).optional(),
         itinerary: z.string().optional(),
         campingInfo: z.string().optional(),
+        communicationMethods: z.array(z.string()).optional(),
+        phoneNumber: z.string().optional(),
+        whatsappNumber: z.string().optional(),
+        facebookHandle: z.string().optional(),
+        instagramHandle: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         const tripId = await db.createTrip({
@@ -444,6 +378,11 @@ export const appRouter = router({
       .input(z.object({ tripId: z.number() }))
       .query(async ({ input }) => {
         return await db.getTripParticipants(input.tripId);
+      }),
+
+    myPendingRequests: protectedProcedure
+      .query(async ({ ctx }) => {
+        return await db.getPendingRequestsForOrganizer(ctx.user.id);
       }),
 
     updateStatus: protectedProcedure
