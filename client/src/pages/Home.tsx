@@ -53,13 +53,13 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-background">
       {/* Header */}
       <header className="border-b bg-card">
-        <div className="container py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-              <img src="/trailmatch-logo.png" alt="TrailMatch" className="h-10 w-10" />
-              <span className="text-2xl font-bold text-foreground">TrailMatch</span>
+        <div className="container py-3 md:py-4">
+          <div className="flex items-center justify-between gap-2">
+            <Link href="/" className="flex items-center gap-2 md:gap-3 hover:opacity-80 transition-opacity">
+              <img src="/trailmatch-logo.png" alt="TrailMatch" className="h-8 w-8 md:h-10 md:w-10" />
+              <span className="text-lg md:text-2xl font-bold text-foreground">TrailMatch</span>
             </Link>
-            <nav className="flex items-center gap-6">
+            <nav className="flex items-center gap-2 md:gap-6 text-sm md:text-base">
               <Link href="/" className="text-foreground hover:text-primary font-medium">
                 Find Trips
               </Link>

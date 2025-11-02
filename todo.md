@@ -202,3 +202,9 @@
 - [x] Created ShopDetail page with edit/delete buttons
 - [x] Added edit/delete buttons to TripDetail page
 
+
+
+## Current Issues
+- [x] Fix mobile header spacing - elements jammed together - Added responsive classes
+- [x] Add "My Trips" section to Profile page to manage posted and joined trips - Shows organized and joined trips
+

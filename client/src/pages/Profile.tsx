@@ -9,7 +9,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { SinglePhotoUpload } from "@/components/SinglePhotoUpload";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, Loader2, Plus, Trash2, Pencil } from "lucide-react";
+import { ArrowLeft, Loader2, Plus, Trash2, Pencil, Calendar, MapPin, Users } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Link, useLocation } from "wouter";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -61,6 +62,7 @@ export default function Profile() {
   const [editingVehicle, setEditingVehicle] = useState<any>(null);
 
   const { data: vehicles, isLoading: vehiclesLoading, refetch: refetchVehicles } = trpc.vehicles.list.useQuery();
+  const { data: myTrips, isLoading: tripsLoading } = trpc.trips.myTrips.useQuery();
 
   const createVehicleMutation = trpc.vehicles.create.useMutation({
     onSuccess: () => {
@@ -254,6 +256,116 @@ export default function Profile() {
               <Label>Email</Label>
               <p className="text-muted-foreground">{user?.email}</p>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* My Trips */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>My Trips</CardTitle>
+            <CardDescription>Trips you've organized or joined</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {tripsLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {/* Organized Trips */}
+                {myTrips?.organized && myTrips.organized.length > 0 && (
+                  <div>
+                    <h3 className="font-semibold text-lg mb-3">Organized by You</h3>
+                    <div className="space-y-3">
+                      {myTrips.organized.map((trip) => (
+                        <Link key={trip.id} href={`/trip/${trip.id}`}>
+                          <div className="border rounded-lg p-4 hover:bg-accent transition-colors cursor-pointer">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <h4 className="font-semibold text-lg mb-2">{trip.title}</h4>
+                                <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+                                  <div className="flex items-center gap-1">
+                                    <MapPin className="h-4 w-4" />
+                                    {trip.location}
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <Calendar className="h-4 w-4" />
+                                    {new Date(trip.startDate).toLocaleDateString()}
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <Users className="h-4 w-4" />
+                                    {trip.currentParticipants}/{trip.maxParticipants}
+                                  </div>
+                                </div>
+                                <div className="flex gap-2 mt-2">
+                                  <Badge variant="secondary" className="capitalize">
+                                    {trip.difficulty}
+                                  </Badge>
+                                  <Badge variant="outline">
+                                    {trip.status}
+                                  </Badge>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Joined Trips */}
+                {myTrips?.joined && myTrips.joined.length > 0 && (
+                  <div>
+                    <h3 className="font-semibold text-lg mb-3">Trips You've Joined</h3>
+                    <div className="space-y-3">
+                      {myTrips.joined.filter(trip => trip !== null).map((trip) => (
+                        <Link key={trip!.id} href={`/trip/${trip!.id}`}>
+                          <div className="border rounded-lg p-4 hover:bg-accent transition-colors cursor-pointer">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <h4 className="font-semibold text-lg mb-2">{trip!.title}</h4>
+                                <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+                                  <div className="flex items-center gap-1">
+                                    <MapPin className="h-4 w-4" />
+                                    {trip!.location}
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <Calendar className="h-4 w-4" />
+                                    {new Date(trip!.startDate).toLocaleDateString()}
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <Users className="h-4 w-4" />
+                                    {trip!.currentParticipants}/{trip!.maxParticipants}
+                                  </div>
+                                </div>
+                                <div className="flex gap-2 mt-2">
+                                  <Badge variant="secondary" className="capitalize">
+                                    {trip!.difficulty}
+                                  </Badge>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {(!myTrips?.organized || myTrips.organized.length === 0) && 
+                 (!myTrips?.joined || myTrips.joined.length === 0) && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p className="mb-4">You haven't organized or joined any trips yet.</p>
+                    <Button asChild>
+                      <Link href="/post-trip">
+                        <a>Post Your First Trip</a>
+                      </Link>
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
 
