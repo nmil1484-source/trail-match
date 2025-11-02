@@ -7,11 +7,14 @@ import { getLoginUrl } from "@/const";
 import { toast } from "sonner";
 import { Calendar, MapPin, Users, Mountain, ArrowLeft, Shield, Wrench, Edit, Trash2 } from "lucide-react";
 import { Link, useParams } from "wouter";
+import { JoinTripDialog } from "@/components/JoinTripDialog";
+import { useState } from "react";
 
 export default function TripDetail() {
   const { id } = useParams<{ id: string }>();
   const { user, isAuthenticated } = useAuth();
   const tripId = parseInt(id || "0");
+  const [joinDialogOpen, setJoinDialogOpen] = useState(false);
   
   const { data: trip, isLoading } = trpc.trips.getById.useQuery({ id: tripId });
   const { data: participants } = trpc.participants.listForTrip.useQuery({ tripId });
@@ -292,7 +295,11 @@ export default function TripDetail() {
               <CardContent className="pt-6">
                 {isAuthenticated ? (
                   <div className="space-y-3">
-                    <Button className="w-full" size="lg">
+                    <Button 
+                      className="w-full" 
+                      size="lg"
+                      onClick={() => setJoinDialogOpen(true)}
+                    >
                       Request to Join
                     </Button>
                     <p className="text-xs text-center text-muted-foreground">
@@ -314,6 +321,15 @@ export default function TripDetail() {
           </div>
         </div>
       </div>
+      
+      <JoinTripDialog 
+        open={joinDialogOpen} 
+        onOpenChange={setJoinDialogOpen}
+        tripId={tripId}
+        onSuccess={() => {
+          window.location.reload();
+        }}
+      />
     </div>
   );
 }

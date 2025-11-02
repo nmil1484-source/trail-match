@@ -217,7 +217,17 @@ export default function Home() {
                     <Button variant="outline" size="sm" className="flex-1" asChild>
                       <Link href={`/trip/${trip.id}`}>View Details</Link>
                     </Button>
-                    <Button size="sm" className="flex-1">
+                    <Button 
+                      size="sm" 
+                      className="flex-1"
+                      onClick={() => {
+                        if (!isAuthenticated) {
+                          setAuthModalOpen(true);
+                        } else {
+                          window.location.href = `/trip/${trip.id}`;
+                        }
+                      }}
+                    >
                       Express Interest
                     </Button>
                   </CardFooter>

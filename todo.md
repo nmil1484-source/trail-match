@@ -233,3 +233,6 @@
 ## Critical Bug
 - [x] Email/password login fails with "jwt.sign is not a function" error on live site - Fixed jwt import
 
+
+- [x] Express Interest button redirects to Manus OAuth even when user is logged in with email/password - Fixed to check isAuthenticated and show login dialog or join trip
+
