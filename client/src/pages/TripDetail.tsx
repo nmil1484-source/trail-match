@@ -227,6 +227,58 @@ export default function TripDetail() {
                 )}
               </CardContent>
             </Card>
+
+            {/* Communication Preferences */}
+            {trip.communicationMethods && (trip.communicationMethods as string[]).length > 0 ? (
+              <Card>
+                <CardHeader>
+                  <CardTitle>How to Connect</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <p className="text-sm text-muted-foreground mb-3">
+                    The trip organizer prefers to communicate via:
+                  </p>
+                  <div className="space-y-2">
+                    {(trip.communicationMethods as string[]).includes("text") && trip.phoneNumber && (
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline">Text/SMS</Badge>
+                        <span className="text-sm">{trip.phoneNumber}</span>
+                      </div>
+                    )}
+                    {(trip.communicationMethods as string[]).includes("email") && (
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline">Email</Badge>
+                        <span className="text-sm">Via profile</span>
+                      </div>
+                    )}
+                    {(trip.communicationMethods as string[]).includes("whatsapp") && trip.whatsappNumber && (
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline">WhatsApp</Badge>
+                        <span className="text-sm">{trip.whatsappNumber}</span>
+                      </div>
+                    )}
+                    {(trip.communicationMethods as string[]).includes("facebook") && trip.facebookHandle && (
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline">Facebook</Badge>
+                        <span className="text-sm">{trip.facebookHandle}</span>
+                      </div>
+                    )}
+                    {(trip.communicationMethods as string[]).includes("instagram") && trip.instagramHandle && (
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline">Instagram</Badge>
+                        <span className="text-sm">{trip.instagramHandle}</span>
+                      </div>
+                    )}
+                    {(trip.communicationMethods as string[]).includes("built_in") && (
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline">Built-in Messenger</Badge>
+                        <span className="text-sm">Coming soon</span>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ) : null}
           </div>
 
           {/* Sidebar */}

@@ -276,9 +276,16 @@ export default function Profile() {
 
         {/* My Trips */}
         <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>My Trips</CardTitle>
-            <CardDescription>Trips you've organized or joined</CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>My Trips</CardTitle>
+              <CardDescription>Trips you've organized or joined</CardDescription>
+            </div>
+            <Link href="/join-requests">
+              <Button variant="outline" size="sm">
+                Join Requests
+              </Button>
+            </Link>
           </CardHeader>
           <CardContent>
             {tripsLoading ? (

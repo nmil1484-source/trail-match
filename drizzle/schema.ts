@@ -107,6 +107,13 @@ export const trips = mysqlTable("trips", {
   itinerary: text("itinerary"),
   campingInfo: text("campingInfo"),
   
+  // Communication preferences
+  communicationMethods: json("communicationMethods"), // Array of preferred methods: ["text", "email", "whatsapp", "facebook", "instagram", "built_in"]
+  phoneNumber: varchar("phoneNumber", { length: 50 }),
+  whatsappNumber: varchar("whatsappNumber", { length: 50 }),
+  facebookHandle: varchar("facebookHandle", { length: 255 }),
+  instagramHandle: varchar("instagramHandle", { length: 255 }),
+  
   // Status
   status: mysqlEnum("status", ["open", "full", "completed", "cancelled"]).default("open").notNull(),
   

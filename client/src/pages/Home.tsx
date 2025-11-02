@@ -8,7 +8,7 @@ import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { Calendar, MapPin, Users, Mountain, Loader2, Star, Trophy } from "lucide-react";
 import { Link } from "wouter";
 import { useState } from "react";
-import { AuthModal } from "@/components/AuthModal";
+import { AuthDialog } from "@/components/AuthDialog";
 
 export default function Home() {
   const { user, isAuthenticated } = useAuth();
@@ -264,7 +264,7 @@ export default function Home() {
         </div>
       </footer>
       
-      <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
+      <AuthDialog open={authModalOpen} onOpenChange={setAuthModalOpen} />
     </div>
   );
 }
