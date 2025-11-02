@@ -163,8 +163,17 @@ export function PremiumTierDialog({ open, onOpenChange, tripId, onSuccess }: Pre
     setClientSecret(null);
   };
 
+  const handleDialogClose = (open: boolean) => {
+    // Only allow closing, don't trigger onSuccess
+    if (!open) {
+      onOpenChange(false);
+      setSelectedTier(null);
+      setClientSecret(null);
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleDialogClose}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -254,15 +263,17 @@ export function PremiumTierDialog({ open, onOpenChange, tripId, onSuccess }: Pre
 
         <div className="space-y-3 pt-4 border-t">
           <Button 
-            variant="outline" 
+            variant="default" 
             size="lg"
             onClick={() => {
               onSuccess();
               onOpenChange(false);
+              setSelectedTier(null);
+              setClientSecret(null);
             }}
-            className="w-full font-semibold"
+            className="w-full font-semibold bg-green-600 hover:bg-green-700 text-white"
           >
-            Skip - Post Free Trip Instead
+            Post Free Trip - Skip Premium
           </Button>
           <div className="text-xs text-muted-foreground text-center">
             💡 Premium listings expire after 30 days. You can renew anytime.

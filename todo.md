@@ -208,3 +208,16 @@
 - [x] Fix mobile header spacing - elements jammed together - Added responsive classes
 - [x] Add "My Trips" section to Profile page to manage posted and joined trips - Shows organized and joined trips
 
+
+
+## Urgent - Missing Pages
+- [x] Create EditTrip page (/edit-trip/:id) - Form to edit existing trips
+- [x] Create EditShop page (/edit-shop/:id) - Form to edit existing shops
+
+
+
+## Critical Bugs
+- [x] Premium dialog missing visible skip button on live site - Made green button "Post Free Trip - Skip Premium"
+- [x] Closing premium dialog (X button) still posts the trip - should cancel - Fixed to not post on X click
+- [x] Premium dialog gets stuck loading - Skip button now always visible and clickable
+

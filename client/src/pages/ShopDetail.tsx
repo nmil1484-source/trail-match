@@ -55,9 +55,9 @@ export default function ShopDetail() {
 
   return (
     <>
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card">
+      <div className="min-h-screen bg-background">
+        {/* Header */}
+        <header className="border-b bg-card">
         <div className="container py-4">
           <Link href="/shops">
             <Button variant="ghost" className="flex items-center gap-2">
@@ -237,7 +237,7 @@ export default function ShopDetail() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
     </>
   );
 }

@@ -6,11 +6,13 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import PostTrip from "./pages/PostTrip";
+import EditTrip from "./pages/EditTrip";
 import TripDetail from "./pages/TripDetail";
 import Profile from "./pages/Profile";
 import Shops from "./pages/Shops";
 import ShopDetail from "./pages/ShopDetail";
 import AddShop from "./pages/AddShop";
+import EditShop from "./pages/EditShop";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Admin from "./pages/Admin";
@@ -20,11 +22,13 @@ function Router() {
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/post-trip"} component={PostTrip} />
+      <Route path={"/edit-trip/:id"} component={EditTrip} />
       <Route path={"/trip/:id"} component={TripDetail} />
       <Route path={"/profile"} component={Profile} />
       <Route path={"/shops"} component={Shops} />
       <Route path={"/shops/:id"} component={ShopDetail} />
       <Route path={"/shops/add"} component={AddShop} />
+      <Route path={"/edit-shop/:id"} component={EditShop} />
       <Route path={"/forgot-password"} component={ForgotPassword} />
       <Route path={"/reset-password"} component={ResetPassword} />
       <Route path={"/admin"} component={Admin} />
