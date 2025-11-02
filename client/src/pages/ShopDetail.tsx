@@ -44,20 +44,16 @@ export default function ShopDetail() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
         <h2 className="text-2xl font-bold mb-2">Shop not found</h2>
-        <Button asChild>
-          <Link href="/shops">
-            <a>Back to Shops</a>
-          </Link>
-        </Button>
+        <Link href="/shops">
+          <Button>Back to Shops</Button>
+        </Link>
       </div>
     );
   }
 
   return (
-    <>
-      <div className="min-h-screen bg-background">
-        {/* Header */}
-        <header className="border-b bg-card">
+    <div className="min-h-screen bg-background">
+      <header className="border-b bg-card">
         <div className="container py-4">
           <Link href="/shops">
             <Button variant="ghost" className="flex items-center gap-2">
@@ -69,7 +65,7 @@ export default function ShopDetail() {
       </header>
 
       {/* Hero Image */}
-      {shop.photos && Array.isArray(shop.photos) && shop.photos.length > 0 && (
+      {shop.photos && Array.isArray(shop.photos) && shop.photos.length > 0 ? (
         <div className="w-full h-96 bg-muted relative overflow-hidden">
           <img
             src={(shop.photos as string[])[0]}
@@ -77,7 +73,7 @@ export default function ShopDetail() {
             className="w-full h-full object-cover"
           />
         </div>
-      )}
+      ) : null}
 
       <div className="container py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -88,14 +84,12 @@ export default function ShopDetail() {
                 <h1 className="text-4xl font-bold text-foreground">{shop.name}</h1>
                 {isOwner && (
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" asChild>
-                      <Link href={`/edit-shop/${shopId}`}>
-                        <a className="flex items-center gap-2">
-                          <Edit className="h-4 w-4" />
-                          Edit
-                        </a>
-                      </Link>
-                    </Button>
+                    <Link href={`/edit-shop/${shopId}`}>
+                      <Button variant="outline" size="sm" className="flex items-center gap-2">
+                        <Edit className="h-4 w-4" />
+                        Edit
+                      </Button>
+                    </Link>
                     <Button 
                       variant="destructive" 
                       size="sm"
@@ -237,8 +231,7 @@ export default function ShopDetail() {
           </div>
         </div>
       </div>
-      </div>
-    </>
+    </div>
   );
 }
 

@@ -59,6 +59,13 @@ export default function PostTrip() {
   const [photos, setPhotos] = useState<string[]>([]);
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
   const [createdTripId, setCreatedTripId] = useState<number | null>(null);
+  
+  // Communication preferences
+  const [communicationMethods, setCommunicationMethods] = useState<string[]>([]);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [whatsappNumber, setWhatsappNumber] = useState("");
+  const [facebookHandle, setFacebookHandle] = useState("");
+  const [instagramHandle, setInstagramHandle] = useState("");
 
   const createTripMutation = trpc.trips.create.useMutation({
     onSuccess: (data) => {
@@ -105,6 +112,11 @@ export default function PostTrip() {
       itinerary: itinerary || undefined,
       campingInfo: campingInfo || undefined,
       photos: photos.length > 0 ? photos : undefined,
+      communicationMethods: communicationMethods.length > 0 ? communicationMethods : undefined,
+      phoneNumber: phoneNumber || undefined,
+      whatsappNumber: whatsappNumber || undefined,
+      facebookHandle: facebookHandle || undefined,
+      instagramHandle: instagramHandle || undefined,
     });
   };
 
@@ -393,6 +405,172 @@ export default function PostTrip() {
                 <p className="text-sm text-muted-foreground mb-2">Add photos of the trail, terrain, or previous trips</p>
                 <PhotoUpload photos={photos} onPhotosChange={setPhotos} maxPhotos={5} />
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Communication Preferences */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Communication Preferences</CardTitle>
+              <p className="text-sm text-muted-foreground">How should participants contact you?</p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <Label>Preferred Methods (select all that apply)</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="comm-text"
+                      checked={communicationMethods.includes("text")}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setCommunicationMethods([...communicationMethods, "text"]);
+                        } else {
+                          setCommunicationMethods(communicationMethods.filter(m => m !== "text"));
+                        }
+                      }}
+                    />
+                    <label htmlFor="comm-text" className="text-sm font-medium cursor-pointer">
+                      Text/SMS
+                    </label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="comm-email"
+                      checked={communicationMethods.includes("email")}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setCommunicationMethods([...communicationMethods, "email"]);
+                        } else {
+                          setCommunicationMethods(communicationMethods.filter(m => m !== "email"));
+                        }
+                      }}
+                    />
+                    <label htmlFor="comm-email" className="text-sm font-medium cursor-pointer">
+                      Email
+                    </label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="comm-whatsapp"
+                      checked={communicationMethods.includes("whatsapp")}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setCommunicationMethods([...communicationMethods, "whatsapp"]);
+                        } else {
+                          setCommunicationMethods(communicationMethods.filter(m => m !== "whatsapp"));
+                        }
+                      }}
+                    />
+                    <label htmlFor="comm-whatsapp" className="text-sm font-medium cursor-pointer">
+                      WhatsApp
+                    </label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="comm-facebook"
+                      checked={communicationMethods.includes("facebook")}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setCommunicationMethods([...communicationMethods, "facebook"]);
+                        } else {
+                          setCommunicationMethods(communicationMethods.filter(m => m !== "facebook"));
+                        }
+                      }}
+                    />
+                    <label htmlFor="comm-facebook" className="text-sm font-medium cursor-pointer">
+                      Facebook Messenger
+                    </label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="comm-instagram"
+                      checked={communicationMethods.includes("instagram")}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setCommunicationMethods([...communicationMethods, "instagram"]);
+                        } else {
+                          setCommunicationMethods(communicationMethods.filter(m => m !== "instagram"));
+                        }
+                      }}
+                    />
+                    <label htmlFor="comm-instagram" className="text-sm font-medium cursor-pointer">
+                      Instagram DM
+                    </label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="comm-builtin"
+                      checked={communicationMethods.includes("built_in")}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setCommunicationMethods([...communicationMethods, "built_in"]);
+                        } else {
+                          setCommunicationMethods(communicationMethods.filter(m => m !== "built_in"));
+                        }
+                      }}
+                    />
+                    <label htmlFor="comm-builtin" className="text-sm font-medium cursor-pointer">
+                      Built-in Messenger
+                    </label>
+                  </div>
+                </div>
+              </div>
+              
+              {communicationMethods.includes("text") && (
+                <div>
+                  <Label htmlFor="phoneNumber">Phone Number</Label>
+                  <Input
+                    id="phoneNumber"
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    placeholder="(555) 123-4567"
+                  />
+                </div>
+              )}
+              
+              {communicationMethods.includes("whatsapp") && (
+                <div>
+                  <Label htmlFor="whatsappNumber">WhatsApp Number</Label>
+                  <Input
+                    id="whatsappNumber"
+                    type="tel"
+                    value={whatsappNumber}
+                    onChange={(e) => setWhatsappNumber(e.target.value)}
+                    placeholder="+1 (555) 123-4567"
+                  />
+                </div>
+              )}
+              
+              {communicationMethods.includes("facebook") && (
+                <div>
+                  <Label htmlFor="facebookHandle">Facebook Profile URL or Username</Label>
+                  <Input
+                    id="facebookHandle"
+                    value={facebookHandle}
+                    onChange={(e) => setFacebookHandle(e.target.value)}
+                    placeholder="facebook.com/yourname or @yourname"
+                  />
+                </div>
+              )}
+              
+              {communicationMethods.includes("instagram") && (
+                <div>
+                  <Label htmlFor="instagramHandle">Instagram Handle</Label>
+                  <Input
+                    id="instagramHandle"
+                    value={instagramHandle}
+                    onChange={(e) => setInstagramHandle(e.target.value)}
+                    placeholder="@yourhandle"
+                  />
+                </div>
+              )}
             </CardContent>
           </Card>
 
