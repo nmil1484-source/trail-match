@@ -143,6 +143,9 @@ export function PremiumTierDialog({ open, onOpenChange, tripId, onSuccess }: Pre
     },
     onError: (error) => {
       toast.error(`Failed to create payment: ${error.message}`);
+      // Reset to tier selection so user can try again or skip
+      setSelectedTier(null);
+      setClientSecret(null);
     },
   });
 
@@ -226,7 +229,15 @@ export function PremiumTierDialog({ open, onOpenChange, tripId, onSuccess }: Pre
           </div>
         ) : (
           <div className="py-4">
-            {clientSecret ? (
+            {createPaymentMutation.isError ? (
+              <div className="text-center py-8 space-y-4">
+                <p className="text-destructive">Payment system is currently unavailable.</p>
+                <p className="text-sm text-muted-foreground">Please try again later or post a free trip.</p>
+                <Button variant="outline" onClick={handleBack} className="w-full">
+                  Back to tier selection
+                </Button>
+              </div>
+            ) : clientSecret ? (
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
                   <div>

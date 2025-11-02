@@ -13,6 +13,7 @@ import { Link, useLocation, useParams } from "wouter";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { PhotoUpload } from "@/components/PhotoUpload";
+import { PremiumTierDialog } from "@/components/PremiumTierDialog";
 
 const OFF_ROAD_STYLES = [
   { value: "rock_crawling", label: "Rock Crawling" },
@@ -60,6 +61,7 @@ export default function EditTrip() {
   const [itinerary, setItinerary] = useState("");
   const [campingInfo, setCampingInfo] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
+  const [showPremiumDialog, setShowPremiumDialog] = useState(false);
 
   // Pre-fill form when trip data loads
   useEffect(() => {
@@ -88,12 +90,18 @@ export default function EditTrip() {
   const updateTripMutation = trpc.trips.update.useMutation({
     onSuccess: () => {
       toast.success("Trip updated successfully!");
-      setLocation(`/trip/${tripId}`);
+      // Show premium boost dialog after successful update
+      setShowPremiumDialog(true);
     },
     onError: (error) => {
       toast.error(`Failed to update trip: ${error.message}`);
     },
   });
+
+  const handlePremiumDialogSuccess = () => {
+    // Navigate to trip detail after premium dialog closes
+    setLocation(`/trip/${tripId}`);
+  };
 
   const handleStyleToggle = (style: string) => {
     setSelectedStyles(prev =>
@@ -452,6 +460,13 @@ export default function EditTrip() {
           </div>
         </form>
       </div>
+
+      <PremiumTierDialog
+        open={showPremiumDialog}
+        onOpenChange={setShowPremiumDialog}
+        tripId={tripId}
+        onSuccess={handlePremiumDialogSuccess}
+      />
     </div>
   );
 }

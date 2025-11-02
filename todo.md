@@ -221,3 +221,10 @@
 - [x] Closing premium dialog (X button) still posts the trip - should cancel - Fixed to not post on X click
 - [x] Premium dialog gets stuck loading - Skip button now always visible and clickable
 
+
+
+### New Issues
+- [x] Payment option keeps getting stuck loading - add error handling when Stripe fails - Shows error message and back button
+- [x] Add premium boost option after editing trips (like after posting new trips) - Premium dialog shows after edit
+- [x] Fix logout functionality on profile page - Added logout button to headere
+

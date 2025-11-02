@@ -64,6 +64,13 @@ export default function Profile() {
   const { data: vehicles, isLoading: vehiclesLoading, refetch: refetchVehicles } = trpc.vehicles.list.useQuery();
   const { data: myTrips, isLoading: tripsLoading } = trpc.trips.myTrips.useQuery();
 
+  const logoutMutation = trpc.auth.logout.useMutation({
+    onSuccess: () => {
+      toast.success("Logged out successfully");
+      window.location.href = "/";
+    },
+  });
+
   const createVehicleMutation = trpc.vehicles.create.useMutation({
     onSuccess: () => {
       toast.success("Vehicle added successfully!");
@@ -220,13 +227,21 @@ export default function Profile() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card">
-        <div className="container py-4">
+        <div className="container py-4 flex justify-between items-center">
           <Link href="/">
             <Button variant="ghost" className="flex items-center gap-2">
               <ArrowLeft className="h-4 w-4" />
               Back to Home
             </Button>
           </Link>
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              logoutMutation.mutate();
+            }}
+          >
+            Log Out
+          </Button>
         </div>
       </header>
 
