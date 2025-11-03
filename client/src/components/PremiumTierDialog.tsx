@@ -181,12 +181,40 @@ export function PremiumTierDialog({ open, onOpenChange, tripId, onSuccess }: Pre
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-amber-500" />
-            Upgrade to Premium Listing
+            Upgrade to Premium Listing (Optional)
           </DialogTitle>
           <DialogDescription>
-            Boost your trip's visibility and attract more participants
+            Boost your trip's visibility and attract more participants, or post for free
           </DialogDescription>
         </DialogHeader>
+
+        {/* Free Option - Prominent at top */}
+        <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="font-semibold text-green-900">Post for Free</h3>
+            <span className="text-2xl font-bold text-green-600">$0.00</span>
+          </div>
+          <p className="text-sm text-green-700 mb-3">
+            Your trip will be visible to all users. Upgrade anytime later.
+          </p>
+          <Button 
+            variant="default" 
+            size="lg"
+            onClick={() => {
+              onSuccess();
+              onOpenChange(false);
+              setSelectedTier(null);
+              setClientSecret(null);
+            }}
+            className="w-full font-semibold bg-green-600 hover:bg-green-700 text-white"
+          >
+            Post Free Trip
+          </Button>
+        </div>
+
+        <div className="text-center text-sm text-muted-foreground py-2">
+          Or upgrade for premium features:
+        </div>
 
         {!selectedTier ? (
           <div className="grid md:grid-cols-2 gap-4 py-4">
@@ -272,23 +300,8 @@ export function PremiumTierDialog({ open, onOpenChange, tripId, onSuccess }: Pre
           </div>
         )}
 
-        <div className="space-y-3 pt-4 border-t">
-          <Button 
-            variant="default" 
-            size="lg"
-            onClick={() => {
-              onSuccess();
-              onOpenChange(false);
-              setSelectedTier(null);
-              setClientSecret(null);
-            }}
-            className="w-full font-semibold bg-green-600 hover:bg-green-700 text-white"
-          >
-            Post Free Trip - Skip Premium
-          </Button>
-          <div className="text-xs text-muted-foreground text-center">
-            💡 Premium listings expire after 30 days. You can renew anytime.
-          </div>
+        <div className="text-xs text-muted-foreground text-center pt-4 border-t">
+          💡 Premium listings expire after 30 days. You can upgrade or renew anytime from your profile.
         </div>
       </DialogContent>
     </Dialog>
