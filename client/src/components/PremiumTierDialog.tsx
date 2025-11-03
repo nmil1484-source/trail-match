@@ -201,7 +201,7 @@ export function PremiumTierDialog({ open, onOpenChange, tripId, onSuccess }: Pre
 
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
-      <DialogContent className="max-w-4xl">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-amber-500" />
@@ -213,13 +213,13 @@ export function PremiumTierDialog({ open, onOpenChange, tripId, onSuccess }: Pre
         </DialogHeader>
 
         {!selectedTier ? (
-          <div className="grid md:grid-cols-3 gap-4 py-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 py-2 max-h-[70vh] overflow-y-auto">
             {TIER_OPTIONS.map((option) => {
               const Icon = option.icon;
               return (
                 <Card
                   key={option.id}
-                  className={`relative p-6 cursor-pointer transition-all hover:shadow-lg border-2 ${
+                  className={`relative p-4 md:p-6 cursor-pointer transition-all hover:shadow-lg border-2 ${
                     option.recommended ? option.borderColor : "border-border"
                   }`}
                   onClick={() => handleSelectTier(option.id)}
@@ -230,18 +230,18 @@ export function PremiumTierDialog({ open, onOpenChange, tripId, onSuccess }: Pre
                     </div>
                   )}
                   <div className="flex items-center justify-between mb-4">
-                    <Icon className={`h-8 w-8 ${option.color}`} />
+                    <Icon className={`h-6 w-6 md:h-8 md:w-8 ${option.color}`} />
                     <div className="text-right">
-                      <div className="text-3xl font-bold">{option.price}</div>
+                      <div className="text-2xl md:text-3xl font-bold">{option.price}</div>
                       <div className="text-xs text-muted-foreground">
                         {option.id === "free" ? "forever" : "one-time"}
                       </div>
                     </div>
                   </div>
-                  <h3 className="text-lg font-semibold mb-3">{option.name}</h3>
-                  <ul className="space-y-2 mb-4">
+                  <h3 className="text-base md:text-lg font-semibold mb-2">{option.name}</h3>
+                  <ul className="space-y-1 md:space-y-2 mb-3">
                     {option.features.map((feature, idx) => (
-                      <li key={idx} className="text-sm flex items-start gap-2">
+                      <li key={idx} className="text-xs md:text-sm flex items-start gap-2">
                         <span>{feature}</span>
                       </li>
                     ))}
