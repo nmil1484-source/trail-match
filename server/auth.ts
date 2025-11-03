@@ -25,12 +25,16 @@ export async function createEmailUser(email: string, password: string, name?: st
 
   const passwordHash = await hashPassword(password);
   
+  // Generate a unique openId for email users (use email-based hash)
+  const openId = `email_${Buffer.from(email).toString('base64').replace(/=/g, '')}`;
+  
   const [user] = await db.insert(users).values({
     email,
     passwordHash,
     name: name || email.split("@")[0],
     loginMethod: "email",
     role: "user",
+    openId,
   }).$returningId();
 
   return user;

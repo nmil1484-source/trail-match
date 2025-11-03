@@ -2,8 +2,9 @@ import jwt from "jsonwebtoken";
 import { ENV } from "./env";
 
 export interface JWTPayload {
-  userId: number;
-  email: string;
+  openId: string;
+  appId: string;
+  name: string;
 }
 
 export function signToken(payload: JWTPayload): string {

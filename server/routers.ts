@@ -31,8 +31,12 @@ export const appRouter = router({
           const fullUser = await db.getUserByEmail(input.email);
           if (!fullUser) throw new Error("User creation failed");
           
-          // Create session token
-          const token = signToken({ userId: fullUser.id, email: fullUser.email! });
+          // Create session token with required fields: openId, appId, name
+          const token = signToken({ 
+            openId: fullUser.openId!, 
+            appId: ENV.appId,
+            name: fullUser.name || fullUser.email || 'User'
+          });
           const cookieOptions = getSessionCookieOptions(ctx.req);
           ctx.res.cookie(COOKIE_NAME, token, cookieOptions);
           
@@ -61,8 +65,12 @@ export const appRouter = router({
           });
         }
         
-        // Create session token
-        const token = signToken({ userId: user.id, email: user.email! });
+        // Create session token with required fields: openId, appId, name
+        const token = signToken({ 
+          openId: user.openId!, 
+          appId: ENV.appId,
+          name: user.name || user.email || 'User'
+        });
         const cookieOptions = getSessionCookieOptions(ctx.req);
         ctx.res.cookie(COOKIE_NAME, token, cookieOptions);
         
@@ -609,3 +617,4 @@ export const appRouter = router({
 });
 
 export type AppRouter = typeof appRouter;
+
