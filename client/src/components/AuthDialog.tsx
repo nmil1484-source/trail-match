@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { Link } from "wouter";
 
 interface AuthDialogProps {
   open: boolean;
@@ -97,7 +98,20 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password">Password</Label>
+              {mode === "login" && (
+                <Link href="/forgot-password">
+                  <button
+                    type="button"
+                    className="text-xs text-orange-600 hover:text-orange-700 hover:underline"
+                    onClick={() => onOpenChange(false)}
+                  >
+                    Forgot password?
+                  </button>
+                </Link>
+              )}
+            </div>
             <Input
               id="password"
               type="password"
@@ -118,7 +132,8 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
             {mode === "login" ? "Sign In" : "Create Account"}
           </Button>
         </form>
-      <div className="text-center text-sm">
+
+        <div className="text-center text-sm">
           {mode === "login" ? (
             <p>
               Don't have an account?{" "}
@@ -149,4 +164,3 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
     </Dialog>
   );
 }
-
