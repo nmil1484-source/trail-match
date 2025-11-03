@@ -55,8 +55,18 @@ export async function authenticateEmailUser(email: string, password: string) {
     return null;
   }
 
-  // Update last signed in
-  await db.update(users).set({ lastSignedIn: new Date() }).where(eq(users.id, user.id));
+  // Generate openId if missing (for users created before openId was added)
+  if (!user.openId) {
+    const openId = `email_${Buffer.from(email).toString('base64').replace(/=/g, '')}`;
+    await db.update(users).set({ 
+      lastSignedIn: new Date(),
+      openId 
+    }).where(eq(users.id, user.id));
+    user.openId = openId;
+  } else {
+    // Update last signed in
+    await db.update(users).set({ lastSignedIn: new Date() }).where(eq(users.id, user.id));
+  }
 
   return user;
 }
