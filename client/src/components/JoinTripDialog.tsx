@@ -103,11 +103,21 @@ export function JoinTripDialog({ open, onOpenChange, tripId, onSuccess }: JoinTr
             </Button>
             <Button 
               onClick={handleJoin} 
-              disabled={!selectedVehicle || joinMutation.isPending}
+              disabled={!selectedVehicle || !vehicles || vehicles.length === 0 || joinMutation.isPending}
             >
               {joinMutation.isPending ? "Sending..." : "Send Request"}
             </Button>
           </div>
+          {(!vehicles || vehicles.length === 0) && (
+            <p className="text-sm text-destructive text-center">
+              You must add a vehicle to your profile before joining a trip
+            </p>
+          )}
+          {vehicles && vehicles.length > 0 && !selectedVehicle && (
+            <p className="text-sm text-muted-foreground text-center">
+              Please select a vehicle to continue
+            </p>
+          )}
         </div>
       </DialogContent>
     </Dialog>
