@@ -19,6 +19,21 @@ interface PremiumTierDialogProps {
 
 const TIER_OPTIONS = [
   {
+    id: "free" as const,
+    name: "Free Trip",
+    price: "$0.00",
+    icon: Check,
+    color: "text-green-600",
+    bgColor: "bg-green-50",
+    borderColor: "border-green-200",
+    features: [
+      "✓ Visible to all users",
+      "✓ Standard listing",
+      "✓ Join requests enabled",
+      "✓ Unlimited duration",
+    ],
+  },
+  {
     id: "featured" as const,
     name: "Featured Trip",
     price: "$0.99",
@@ -134,7 +149,7 @@ function PaymentForm({
 }
 
 export function PremiumTierDialog({ open, onOpenChange, tripId, onSuccess }: PremiumTierDialogProps) {
-  const [selectedTier, setSelectedTier] = useState<"featured" | "premium" | null>(null);
+  const [selectedTier, setSelectedTier] = useState<"free" | "featured" | "premium" | null>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
 
   const createPaymentMutation = trpc.trips.createPaymentIntent.useMutation({
@@ -143,15 +158,24 @@ export function PremiumTierDialog({ open, onOpenChange, tripId, onSuccess }: Pre
     },
     onError: (error) => {
       toast.error(`Failed to create payment: ${error.message}`);
-      // Reset to tier selection so user can try again or skip
+      // Reset to tier selection so user can try again or choose free
       setSelectedTier(null);
       setClientSecret(null);
     },
   });
 
-  const handleSelectTier = (tier: "featured" | "premium") => {
-    setSelectedTier(tier);
-    createPaymentMutation.mutate({ tripId, tier });
+  const handleSelectTier = (tier: "free" | "featured" | "premium") => {
+    if (tier === "free") {
+      // Free tier - just close and proceed
+      onSuccess();
+      onOpenChange(false);
+      setSelectedTier(null);
+      setClientSecret(null);
+    } else {
+      // Paid tier - initiate payment
+      setSelectedTier(tier);
+      createPaymentMutation.mutate({ tripId, tier });
+    }
   };
 
   const handleBack = () => {
@@ -177,47 +201,19 @@ export function PremiumTierDialog({ open, onOpenChange, tripId, onSuccess }: Pre
 
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-4xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-amber-500" />
-            Upgrade to Premium Listing (Optional)
+            Choose Your Listing Type
           </DialogTitle>
           <DialogDescription>
-            Boost your trip's visibility and attract more participants, or post for free
+            Select how you want to post your trip
           </DialogDescription>
         </DialogHeader>
 
-        {/* Free Option - Prominent at top */}
-        <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="font-semibold text-green-900">Post for Free</h3>
-            <span className="text-2xl font-bold text-green-600">$0.00</span>
-          </div>
-          <p className="text-sm text-green-700 mb-3">
-            Your trip will be visible to all users. Upgrade anytime later.
-          </p>
-          <Button 
-            variant="default" 
-            size="lg"
-            onClick={() => {
-              onSuccess();
-              onOpenChange(false);
-              setSelectedTier(null);
-              setClientSecret(null);
-            }}
-            className="w-full font-semibold bg-green-600 hover:bg-green-700 text-white"
-          >
-            Post Free Trip
-          </Button>
-        </div>
-
-        <div className="text-center text-sm text-muted-foreground py-2">
-          Or upgrade for premium features:
-        </div>
-
         {!selectedTier ? (
-          <div className="grid md:grid-cols-2 gap-4 py-4">
+          <div className="grid md:grid-cols-3 gap-4 py-4">
             {TIER_OPTIONS.map((option) => {
               const Icon = option.icon;
               return (
@@ -237,19 +233,24 @@ export function PremiumTierDialog({ open, onOpenChange, tripId, onSuccess }: Pre
                     <Icon className={`h-8 w-8 ${option.color}`} />
                     <div className="text-right">
                       <div className="text-3xl font-bold">{option.price}</div>
-                      <div className="text-xs text-muted-foreground">one-time</div>
+                      <div className="text-xs text-muted-foreground">
+                        {option.id === "free" ? "forever" : "one-time"}
+                      </div>
                     </div>
                   </div>
                   <h3 className="text-lg font-semibold mb-3">{option.name}</h3>
-                  <ul className="space-y-2">
+                  <ul className="space-y-2 mb-4">
                     {option.features.map((feature, idx) => (
                       <li key={idx} className="text-sm flex items-start gap-2">
                         <span>{feature}</span>
                       </li>
                     ))}
                   </ul>
-                  <Button className="w-full mt-4" variant={option.recommended ? "default" : "outline"}>
-                    Select {option.name}
+                  <Button 
+                    className="w-full mt-auto" 
+                    variant={option.id === "free" ? "default" : option.recommended ? "default" : "outline"}
+                  >
+                    {option.id === "free" ? "Post Free" : `Select ${option.name}`}
                   </Button>
                 </Card>
               );
@@ -261,9 +262,18 @@ export function PremiumTierDialog({ open, onOpenChange, tripId, onSuccess }: Pre
               <div className="text-center py-8 space-y-4">
                 <p className="text-destructive">Payment system is currently unavailable.</p>
                 <p className="text-sm text-muted-foreground">Please try again later or post a free trip.</p>
-                <Button variant="outline" onClick={handleBack} className="w-full">
-                  Back to tier selection
-                </Button>
+                <div className="flex gap-2 justify-center">
+                  <Button variant="outline" onClick={handleBack}>
+                    Back to options
+                  </Button>
+                  <Button 
+                    variant="default" 
+                    onClick={() => handleSelectTier("free")}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    Post Free Trip Instead
+                  </Button>
+                </div>
               </div>
             ) : clientSecret ? (
               <div className="space-y-4">
@@ -283,13 +293,13 @@ export function PremiumTierDialog({ open, onOpenChange, tripId, onSuccess }: Pre
                   <PaymentForm 
                     clientSecret={clientSecret} 
                     tripId={tripId} 
-                    tier={selectedTier} 
+                    tier={selectedTier as "featured" | "premium"} 
                     onSuccess={handleSuccessAndClose}
                   />
                 </Elements>
 
                 <Button variant="ghost" onClick={handleBack} className="w-full">
-                  Back to tier selection
+                  Back to options
                 </Button>
               </div>
             ) : (
