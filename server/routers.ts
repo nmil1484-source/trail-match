@@ -623,6 +623,25 @@ export const appRouter = router({
         await db.updateUserRole(input.userId, input.role);
         return { success: true };
       }),
+
+    // Setup: Promote specific email to admin (for initial setup)
+    setupPromoteAdmin: publicProcedure
+      .input(z.object({ email: z.string().email() }))
+      .mutation(async ({ input }) => {
+        // Only allow promoting nicholasmilward@gmail.com
+        if (input.email !== "nicholasmilward@gmail.com") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized" });
+        }
+        const user = await db.getUserByEmail(input.email);
+        if (!user) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+        }
+        if (user.role === "admin") {
+          return { success: true, message: "User is already an admin" };
+        }
+        await db.updateUserRole(user.id, "admin");
+        return { success: true, message: "User promoted to admin successfully" };
+      }),
   }),
 });
 

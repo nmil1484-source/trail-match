@@ -15,6 +15,7 @@ import AddShop from "./pages/AddShop";
 import EditShop from "./pages/EditShop";
 
 import Admin from "./pages/Admin";
+import AdminSetup from "./pages/AdminSetup";
 import JoinRequests from "./pages/JoinRequests";
 
 function Router() {
@@ -31,6 +32,7 @@ function Router() {
       <Route path={"/edit-shop/:id"} component={EditShop} />
 
       <Route path={"/admin"} component={Admin} />
+      <Route path={"/admin-setup"} component={AdminSetup} />
       <Route path={"/join-requests"} component={JoinRequests} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
