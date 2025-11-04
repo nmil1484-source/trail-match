@@ -229,6 +229,14 @@ export async function deleteTrip(tripId: number) {
   await db.delete(trips).where(eq(trips.id, tripId));
 }
 
+export async function deleteAllTrips() {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.delete(trips);
+  return result;
+}
+
 // ===== TRIP PARTICIPANT FUNCTIONS =====
 
 export async function requestJoinTrip(participant: InsertTripParticipant) {

@@ -600,6 +600,16 @@ export const appRouter = router({
         return { success: true };
       }),
 
+    // Clear all trips (admin only) - for production launch prep
+    clearAllTrips: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+        }
+        await db.deleteAllTrips();
+        return { success: true, message: "All trips have been deleted" };
+      }),
+
     // Update user role (admin only)
     updateUserRole: protectedProcedure
       .input(z.object({ 
