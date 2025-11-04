@@ -247,7 +247,7 @@ export function PremiumTierDialog({ open, onOpenChange, tripId, onSuccess }: Pre
                     ))}
                   </ul>
                   <Button 
-                    className="w-full mt-auto" 
+                    className={`w-full mt-auto ${option.id === "featured" ? "bg-orange-600 text-white hover:bg-orange-700" : ""}`}
                     variant={option.id === "free" ? "default" : option.recommended ? "default" : "outline"}
                   >
                     {option.id === "free" ? "Post Free" : `Select ${option.name}`}
