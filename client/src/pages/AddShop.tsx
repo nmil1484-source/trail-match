@@ -73,17 +73,17 @@ export default function AddShop() {
 
     createShop.mutate({
       name,
-      description: description || undefined,
+      description: description || "N/A",
       categories: categories as ("mechanic" | "fabrication" | "parts" | "tires" | "suspension" | "general" | "other")[],
-      otherDescription: otherDescription || undefined,
-      address: address || undefined,
-      city: city || undefined,
-      state: state || undefined,
-      zipCode: zipCode || undefined,
-      phone: phone || undefined,
-      email: email || undefined,
-      website: website || undefined,
-      photos: photos.length > 0 ? photos : undefined,
+      otherDescription: otherDescription || "N/A",
+      address: address || "N/A",
+      city: city || "N/A",
+      state: state || "N/A",
+      zipCode: zipCode || "00000",
+      phone: phone || "N/A",
+      email: email || "contact@shop.com",
+      website: website || "N/A",
+      photos: photos.length > 0 ? photos : [],
     });
   };
 
