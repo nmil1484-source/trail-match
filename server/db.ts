@@ -664,7 +664,7 @@ export async function fixShopsTableSchema(): Promise<void> {
   }
 
   // Run raw SQL to alter the table schema
-  const sql = `
+  await db.execute(sql.raw(`
     ALTER TABLE shops
     MODIFY COLUMN description TEXT NULL,
     MODIFY COLUMN otherDescription TEXT NULL,
@@ -675,8 +675,6 @@ export async function fixShopsTableSchema(): Promise<void> {
     MODIFY COLUMN phone VARCHAR(20) NULL,
     MODIFY COLUMN email VARCHAR(255) NULL,
     MODIFY COLUMN website VARCHAR(255) NULL,
-    MODIFY COLUMN photos JSON NULL;
-  `;
-
-  await db.execute(sql);
+    MODIFY COLUMN photos JSON NULL
+  `));
 }
