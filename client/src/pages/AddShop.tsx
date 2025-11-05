@@ -37,7 +37,7 @@ export default function AddShop() {
   const [email, setEmail] = useState("");
   const [website, setWebsite] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
-  const [useGoogleSearch, setUseGoogleSearch] = useState(true);
+  const [useGoogleSearch, setUseGoogleSearch] = useState(false);
 
   const handlePlaceSelected = (details: any) => {
     setName(details.name);
