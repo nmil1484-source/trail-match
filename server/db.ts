@@ -291,27 +291,35 @@ export async function createShop(shop: InsertShop) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  // Ensure all optional fields have explicit null values
-  const shopData = {
-    addedBy: shop.addedBy,
-    name: shop.name,
-    description: shop.description || null,
-    categories: shop.categories,
-    otherDescription: shop.otherDescription || null,
-    address: shop.address || null,
-    city: shop.city || null,
-    state: shop.state || null,
-    zipCode: shop.zipCode || null,
-    phone: shop.phone || null,
-    email: shop.email || null,
-    website: shop.website || null,
-    averageRating: shop.averageRating ?? 0,
-    totalReviews: shop.totalReviews ?? 0,
-    photos: shop.photos || null,
-  };
-
-  const result = await db.insert(shops).values(shopData);
-  return result[0].insertId;
+  // Use raw SQL to avoid Drizzle parameter binding issues
+  const categoriesJson = JSON.stringify(shop.categories);
+  const photosJson = shop.photos ? JSON.stringify(shop.photos) : '[]';
+  
+  const result = await db.execute(sql`
+    INSERT INTO shops (
+      addedBy, name, description, categories, otherDescription,
+      address, city, state, zipCode, phone, email, website,
+      averageRating, totalReviews, photos
+    ) VALUES (
+      ${shop.addedBy},
+      ${shop.name},
+      ${shop.description || 'N/A'},
+      ${categoriesJson},
+      ${shop.otherDescription || 'N/A'},
+      ${shop.address || 'N/A'},
+      ${shop.city || 'N/A'},
+      ${shop.state || 'N/A'},
+      ${shop.zipCode || '00000'},
+      ${shop.phone || 'N/A'},
+      ${shop.email || 'contact@shop.com'},
+      ${shop.website || 'N/A'},
+      ${shop.averageRating ?? 0},
+      ${shop.totalReviews ?? 0},
+      ${photosJson}
+    )
+  `);
+  
+  return (result as any).insertId || (result as any)[0]?.insertId;
 }
 
 export async function getShops(filters?: { categories?: string[]; state?: string; city?: string }) {
