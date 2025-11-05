@@ -471,23 +471,6 @@ export default function PostTrip() {
                   
                   <div className="flex items-center space-x-2">
                     <Checkbox
-                      id="comm-facebook"
-                      checked={communicationMethods.includes("facebook")}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setCommunicationMethods([...communicationMethods, "facebook"]);
-                        } else {
-                          setCommunicationMethods(communicationMethods.filter(m => m !== "facebook"));
-                        }
-                      }}
-                    />
-                    <label htmlFor="comm-facebook" className="text-sm font-medium cursor-pointer">
-                      Facebook Messenger
-                    </label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
                       id="comm-instagram"
                       checked={communicationMethods.includes("instagram")}
                       onCheckedChange={(checked) => {
@@ -500,23 +483,6 @@ export default function PostTrip() {
                     />
                     <label htmlFor="comm-instagram" className="text-sm font-medium cursor-pointer">
                       Instagram DM
-                    </label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="comm-builtin"
-                      checked={communicationMethods.includes("built_in")}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setCommunicationMethods([...communicationMethods, "built_in"]);
-                        } else {
-                          setCommunicationMethods(communicationMethods.filter(m => m !== "built_in"));
-                        }
-                      }}
-                    />
-                    <label htmlFor="comm-builtin" className="text-sm font-medium cursor-pointer">
-                      Built-in Messenger
                     </label>
                   </div>
                 </div>
