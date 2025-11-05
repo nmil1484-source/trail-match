@@ -421,16 +421,16 @@ export const appRouter = router({
     create: protectedProcedure
       .input(z.object({
         name: z.string(),
-        description: z.string().optional(),
+        description: z.string().transform(val => val || undefined).optional(),
         categories: z.array(z.enum(["mechanic", "fabrication", "parts", "tires", "suspension", "general", "other"])).min(1),
-        otherDescription: z.string().optional(),
-        address: z.string().optional(),
-        city: z.string().optional(),
-        state: z.string().optional(),
-        zipCode: z.string().optional(),
-        phone: z.string().optional(),
-        email: z.string().email().optional(),
-        website: z.string().optional(),
+        otherDescription: z.string().transform(val => val || undefined).optional(),
+        address: z.string().transform(val => val || undefined).optional(),
+        city: z.string().transform(val => val || undefined).optional(),
+        state: z.string().transform(val => val || undefined).optional(),
+        zipCode: z.string().transform(val => val || undefined).optional(),
+        phone: z.string().transform(val => val || undefined).optional(),
+        email: z.string().email().optional().or(z.literal('')).transform(val => val || undefined),
+        website: z.string().transform(val => val || undefined).optional(),
         photos: z.array(z.string()).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
