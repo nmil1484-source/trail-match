@@ -434,10 +434,23 @@ export const appRouter = router({
         photos: z.array(z.string()).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
-        const shopId = await db.createShop({
-          ...input,
+        // Convert empty strings to undefined
+        const cleanInput = {
+          name: input.name,
+          description: input.description || undefined,
+          categories: input.categories,
+          otherDescription: input.otherDescription || undefined,
+          address: input.address || undefined,
+          city: input.city || undefined,
+          state: input.state || undefined,
+          zipCode: input.zipCode || undefined,
+          phone: input.phone || undefined,
+          email: input.email || undefined,
+          website: input.website || undefined,
+          photos: input.photos,
           addedBy: ctx.user.id,
-        });
+        };
+        const shopId = await db.createShop(cleanInput);
         return { shopId };
       }),
 
