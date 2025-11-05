@@ -421,36 +421,24 @@ export const appRouter = router({
     create: protectedProcedure
       .input(z.object({
         name: z.string(),
-        description: z.string().transform(val => val || undefined).optional(),
+        description: z.string(),
         categories: z.array(z.enum(["mechanic", "fabrication", "parts", "tires", "suspension", "general", "other"])).min(1),
-        otherDescription: z.string().transform(val => val || undefined).optional(),
-        address: z.string().transform(val => val || undefined).optional(),
-        city: z.string().transform(val => val || undefined).optional(),
-        state: z.string().transform(val => val || undefined).optional(),
-        zipCode: z.string().transform(val => val || undefined).optional(),
-        phone: z.string().transform(val => val || undefined).optional(),
-        email: z.string().email().optional().or(z.literal('')).transform(val => val || undefined),
-        website: z.string().transform(val => val || undefined).optional(),
-        photos: z.array(z.string()).optional(),
+        otherDescription: z.string(),
+        address: z.string(),
+        city: z.string(),
+        state: z.string(),
+        zipCode: z.string(),
+        phone: z.string(),
+        email: z.string(),
+        website: z.string(),
+        photos: z.array(z.string()),
       }))
       .mutation(async ({ ctx, input }) => {
-        // Convert empty strings to undefined
-        const cleanInput = {
-          name: input.name,
-          description: input.description || undefined,
-          categories: input.categories,
-          otherDescription: input.otherDescription || undefined,
-          address: input.address || undefined,
-          city: input.city || undefined,
-          state: input.state || undefined,
-          zipCode: input.zipCode || undefined,
-          phone: input.phone || undefined,
-          email: input.email || undefined,
-          website: input.website || undefined,
-          photos: input.photos,
+        // Pass input directly without transformation
+        const shopId = await db.createShop({
+          ...input,
           addedBy: ctx.user.id,
-        };
-        const shopId = await db.createShop(cleanInput);
+        });
         return { shopId };
       }),
 
