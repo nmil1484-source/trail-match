@@ -654,3 +654,29 @@ export async function checkAndExpirePremiumTrips(): Promise<void> {
     );
 }
 
+/**
+ * Fix shops table schema to allow NULL values for optional fields
+ */
+export async function fixShopsTableSchema(): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    throw new Error("Database not available");
+  }
+
+  // Run raw SQL to alter the table schema
+  const sql = `
+    ALTER TABLE shops
+    MODIFY COLUMN description TEXT NULL,
+    MODIFY COLUMN otherDescription TEXT NULL,
+    MODIFY COLUMN address VARCHAR(255) NULL,
+    MODIFY COLUMN city VARCHAR(100) NULL,
+    MODIFY COLUMN state VARCHAR(50) NULL,
+    MODIFY COLUMN zipCode VARCHAR(20) NULL,
+    MODIFY COLUMN phone VARCHAR(20) NULL,
+    MODIFY COLUMN email VARCHAR(255) NULL,
+    MODIFY COLUMN website VARCHAR(255) NULL,
+    MODIFY COLUMN photos JSON NULL;
+  `;
+
+  await db.execute(sql);
+}

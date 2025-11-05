@@ -655,6 +655,16 @@ export const appRouter = router({
         await db.updateUserRole(user.id, "admin");
         return { success: true, message: "User promoted to admin successfully" };
       }),
+
+    // Fix shops table schema to allow NULL values
+    fixShopsSchema: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+        }
+        await db.fixShopsTableSchema();
+        return { success: true, message: "Shops table schema fixed successfully" };
+      }),
   }),
 });
 
