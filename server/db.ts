@@ -291,12 +291,26 @@ export async function createShop(shop: InsertShop) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  // Pass shop data directly without transformation
-  const result = await db.insert(shops).values({
-    ...shop,
+  // Ensure all optional fields have explicit null values
+  const shopData = {
+    addedBy: shop.addedBy,
+    name: shop.name,
+    description: shop.description || null,
+    categories: shop.categories,
+    otherDescription: shop.otherDescription || null,
+    address: shop.address || null,
+    city: shop.city || null,
+    state: shop.state || null,
+    zipCode: shop.zipCode || null,
+    phone: shop.phone || null,
+    email: shop.email || null,
+    website: shop.website || null,
     averageRating: shop.averageRating ?? 0,
     totalReviews: shop.totalReviews ?? 0,
-  });
+    photos: shop.photos || null,
+  };
+
+  const result = await db.insert(shops).values(shopData);
   return result[0].insertId;
 }
 
