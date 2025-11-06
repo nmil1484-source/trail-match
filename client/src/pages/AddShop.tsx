@@ -231,15 +231,15 @@ export default function AddShop() {
                 </div>
               </div>
 
-              {/* Photos */}
-              <div className="border-t pt-6">
+              {/* Photos - Temporarily hidden */}
+              {/* <div className="border-t pt-6">
                 <h3 className="text-lg font-semibold mb-4">Photos</h3>
                 <PhotoUpload
                   photos={photos}
                   onPhotosChange={setPhotos}
                   maxPhotos={5}
                 />
-              </div>
+              </div> */}
 
               {/* Submit */}
               <div className="flex gap-4 pt-6">
