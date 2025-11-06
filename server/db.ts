@@ -311,7 +311,7 @@ export async function createShop(shop: InsertShop) {
   
   const query = `
     INSERT INTO shops (
-      addedBy, name, description, category, otherDescription,
+      addedBy, name, description, categories, otherDescription,
       address, city, state, zipCode, phone, email, website,
       averageRating, totalReviews, photos
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -320,16 +320,16 @@ export async function createShop(shop: InsertShop) {
   const values = [
     shop.addedBy,
     shop.name,
-    shop.description || 'N/A',
+    shop.description || null,
     categoriesJson,
-    shop.otherDescription || 'N/A',
-    shop.address || 'N/A',
-    shop.city || 'N/A',
-    shop.state || 'N/A',
-    shop.zipCode || '00000',
-    shop.phone || 'N/A',
-    shop.email || 'contact@shop.com',
-    shop.website || 'N/A',
+    shop.otherDescription || null,
+    shop.address || null,
+    shop.city || null,
+    shop.state || null,
+    shop.zipCode || null,
+    shop.phone || null,
+    shop.email || null,
+    shop.website || null,
     shop.averageRating ?? 0,
     shop.totalReviews ?? 0,
     photosJson

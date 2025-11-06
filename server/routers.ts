@@ -637,6 +637,90 @@ export const appRouter = router({
         return { success: true };
       }),
 
+    // Migrate shops table schema (admin only)
+    migrateShopsSchema: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+        }
+        
+        const connection = await db.getRawConnection();
+        if (!connection) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection not available" });
+        }
+
+        const steps: string[] = [];
+
+        // Step 1: Add new 'categories' column as JSON
+        try {
+          await connection.execute(`ALTER TABLE shops ADD COLUMN categories JSON NULL`);
+          steps.push("✅ Added 'categories' column as JSON");
+        } catch (error: any) {
+          if (error.message.includes("Duplicate column name")) {
+            steps.push("⚠️ 'categories' column already exists, skipping");
+          } else {
+            throw error;
+          }
+        }
+
+        // Step 2: Migrate data from 'category' to 'categories'
+        try {
+          await connection.execute(`
+            UPDATE shops 
+            SET categories = JSON_ARRAY(category)
+            WHERE category IS NOT NULL AND categories IS NULL
+          `);
+          steps.push("✅ Migrated data from 'category' to 'categories'");
+        } catch (error: any) {
+          steps.push(`⚠️ Data migration: ${error.message}`);
+        }
+
+        // Step 3: Drop old 'category' column
+        try {
+          await connection.execute(`ALTER TABLE shops DROP COLUMN category`);
+          steps.push("✅ Dropped old 'category' column");
+        } catch (error: any) {
+          if (error.message.includes("Can't DROP")) {
+            steps.push("⚠️ 'category' column already dropped, skipping");
+          } else {
+            throw error;
+          }
+        }
+
+        // Step 4: Make 'categories' NOT NULL
+        try {
+          await connection.execute(`ALTER TABLE shops MODIFY COLUMN categories JSON NOT NULL`);
+          steps.push("✅ Made 'categories' column NOT NULL");
+        } catch (error: any) {
+          steps.push(`⚠️ Setting NOT NULL: ${error.message}`);
+        }
+
+        // Step 5: Make optional columns nullable
+        const optionalColumns = [
+          { name: 'description', type: 'TEXT' },
+          { name: 'otherDescription', type: 'TEXT' },
+          { name: 'address', type: 'TEXT' },
+          { name: 'city', type: 'VARCHAR(100)' },
+          { name: 'state', type: 'VARCHAR(50)' },
+          { name: 'zipCode', type: 'VARCHAR(20)' },
+          { name: 'phone', type: 'VARCHAR(50)' },
+          { name: 'email', type: 'VARCHAR(320)' },
+          { name: 'website', type: 'TEXT' },
+          { name: 'photos', type: 'JSON' },
+        ];
+
+        for (const col of optionalColumns) {
+          try {
+            await connection.execute(`ALTER TABLE shops MODIFY COLUMN ${col.name} ${col.type} NULL`);
+            steps.push(`✅ Made '${col.name}' nullable`);
+          } catch (error: any) {
+            steps.push(`⚠️ Making '${col.name}' nullable: ${error.message}`);
+          }
+        }
+
+        return { success: true, message: "Migration completed successfully", steps };
+      }),
+
     // Setup: Promote specific email to admin (for initial setup)
     setupPromoteAdmin: publicProcedure
       .input(z.object({ email: z.string().email() }))
