@@ -311,7 +311,7 @@ export async function createShop(shop: InsertShop) {
   
   const query = `
     INSERT INTO shops (
-      addedBy, name, description, categories, otherDescription,
+      addedBy, name, description, category, otherDescription,
       address, city, state, zipCode, phone, email, website,
       averageRating, totalReviews, photos
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
