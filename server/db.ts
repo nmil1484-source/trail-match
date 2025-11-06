@@ -1,10 +1,12 @@
 import { and, eq, gte, lte, sql, desc, ne, lt } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
+import mysql from "mysql2/promise";
 import { InsertTrip, InsertTripParticipant, InsertUser, InsertVehicle, InsertShop, InsertShopReview, InsertPasswordResetToken, tripParticipants, trips, users, vehicles, shops, shopReviews, passwordResetTokens } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import crypto from "crypto";
 
 let _db: ReturnType<typeof drizzle> | null = null;
+let _rawConnection: mysql.Connection | null = null;
 
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
@@ -16,6 +18,18 @@ export async function getDb() {
     }
   }
   return _db;
+}
+
+export async function getRawConnection() {
+  if (!_rawConnection && process.env.DATABASE_URL) {
+    try {
+      _rawConnection = await mysql.createConnection(process.env.DATABASE_URL);
+    } catch (error) {
+      console.warn("[Database] Failed to create raw connection:", error);
+      _rawConnection = null;
+    }
+  }
+  return _rawConnection;
 }
 
 // ===== USER FUNCTIONS =====
@@ -288,38 +302,41 @@ export async function getUserTrips(userId: number) {
 // ===== SHOP FUNCTIONS =====
 
 export async function createShop(shop: InsertShop) {
-  const db = await getDb();
-  if (!db) throw new Error("Database not available");
+  const connection = await getRawConnection();
+  if (!connection) throw new Error("Database not available");
 
-  // Use raw SQL to avoid Drizzle parameter binding issues
+  // Use raw mysql2 connection to bypass Drizzle completely
   const categoriesJson = JSON.stringify(shop.categories);
   const photosJson = shop.photos ? JSON.stringify(shop.photos) : '[]';
   
-  const result = await db.execute(sql`
+  const query = `
     INSERT INTO shops (
       addedBy, name, description, categories, otherDescription,
       address, city, state, zipCode, phone, email, website,
       averageRating, totalReviews, photos
-    ) VALUES (
-      ${shop.addedBy},
-      ${shop.name},
-      ${shop.description || 'N/A'},
-      ${categoriesJson},
-      ${shop.otherDescription || 'N/A'},
-      ${shop.address || 'N/A'},
-      ${shop.city || 'N/A'},
-      ${shop.state || 'N/A'},
-      ${shop.zipCode || '00000'},
-      ${shop.phone || 'N/A'},
-      ${shop.email || 'contact@shop.com'},
-      ${shop.website || 'N/A'},
-      ${shop.averageRating ?? 0},
-      ${shop.totalReviews ?? 0},
-      ${photosJson}
-    )
-  `);
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
   
-  return (result as any).insertId || (result as any)[0]?.insertId;
+  const values = [
+    shop.addedBy,
+    shop.name,
+    shop.description || 'N/A',
+    categoriesJson,
+    shop.otherDescription || 'N/A',
+    shop.address || 'N/A',
+    shop.city || 'N/A',
+    shop.state || 'N/A',
+    shop.zipCode || '00000',
+    shop.phone || 'N/A',
+    shop.email || 'contact@shop.com',
+    shop.website || 'N/A',
+    shop.averageRating ?? 0,
+    shop.totalReviews ?? 0,
+    photosJson
+  ];
+  
+  const [result] = await connection.execute(query, values);
+  return (result as any).insertId;
 }
 
 export async function getShops(filters?: { categories?: string[]; state?: string; city?: string }) {
