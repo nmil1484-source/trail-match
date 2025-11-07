@@ -29,6 +29,15 @@ export default function TripDetail() {
     },
   });
   
+  const createConversationMutation = trpc.messages.getOrCreateConversation.useMutation({
+    onSuccess: (convo) => {
+      window.location.href = `/messages?conversation=${convo.id}`;
+    },
+    onError: (error) => {
+      toast.error(`Failed to start conversation: ${error.message}`);
+    },
+  });
+  
   const handleDelete = () => {
     if (confirm("Are you sure you want to delete this trip? This action cannot be undone.")) {
       deleteMutation.mutate({ id: tripId });
@@ -93,21 +102,6 @@ export default function TripDetail() {
           </Link>
         </div>
       </header>
-
-      {/* Hero Image */}
-      <div className="w-full h-96 bg-muted relative overflow-hidden">
-        {trip.photos && (trip.photos as string[]).length > 0 ? (
-          <img
-            src={(trip.photos as string[])[0]}
-            alt={trip.title}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <Mountain className="h-24 w-24 text-muted-foreground" />
-          </div>
-        )}
-      </div>
 
       <div className="container py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -360,14 +354,14 @@ export default function TripDetail() {
                           variant="outline"
                           className="w-full" 
                           size="lg"
-                          onClick={async () => {
+                          onClick={() => {
                             if (!trip.organizerId) return;
-                            const convo = await trpc.messages.getOrCreateConversation.mutate({ otherUserId: trip.organizerId });
-                            window.location.href = `/messages?conversation=${convo.id}`;
+                            createConversationMutation.mutate({ otherUserId: trip.organizerId });
                           }}
+                          disabled={createConversationMutation.isPending}
                         >
                           <MessageCircle className="h-4 w-4 mr-2" />
-                          Message Organizer
+                          {createConversationMutation.isPending ? "Starting conversation..." : "Message Organizer"}
                         </Button>
                         <p className="text-xs text-center text-muted-foreground">
                           The trip organizer will review your request
