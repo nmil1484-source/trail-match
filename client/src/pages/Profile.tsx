@@ -44,6 +44,7 @@ export default function Profile() {
   const [hasSuspensionUpgrade, setHasSuspensionUpgrade] = useState(false);
   const [modsList, setModsList] = useState("");
   const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
+  const [vehiclePhoto, setVehiclePhoto] = useState<string | null>(null);
 
   // User profile state
   const [location, setUserLocation] = useState("");
@@ -88,6 +89,7 @@ export default function Profile() {
       setHasSuspensionUpgrade(false);
       setModsList("");
       setSelectedStyles([]);
+      setVehiclePhoto(null);
     },
     onError: (error) => {
       toast.error("Failed to add vehicle: " + error.message);
@@ -145,6 +147,7 @@ export default function Profile() {
       hasArmor,
       hasSuspensionUpgrade,
       modifications: modsList ? [modsList] : undefined,
+      photos: vehiclePhoto ? [vehiclePhoto] : undefined,
     });
   };
 
@@ -460,6 +463,16 @@ export default function Profile() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmitVehicle} className="space-y-6">
+              {/* Vehicle Photo */}
+              <div>
+                <Label>Vehicle Photo</Label>
+                <SinglePhotoUpload
+                  photo={vehiclePhoto}
+                  onPhotoChange={setVehiclePhoto}
+                  type="vehicle"
+                />
+              </div>
+              
               {/* Basic Info */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
