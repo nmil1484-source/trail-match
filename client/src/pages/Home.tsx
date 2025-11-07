@@ -9,6 +9,7 @@ import { Calendar, MapPin, Users, Mountain, Loader2, Star, Trophy } from "lucide
 import { Link } from "wouter";
 import { useState } from "react";
 import { AuthDialog } from "@/components/AuthDialog";
+import Footer from "@/components/Footer";
 
 export default function Home() {
   const { user, isAuthenticated } = useAuth();
@@ -273,14 +274,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t mt-auto bg-card">
-        <div className="container py-8">
-          <p className="text-center text-sm text-muted-foreground">
-            © 2025 TrailMatch. Find your trail crew.
-          </p>
-        </div>
-      </footer>
+      <Footer />
       
       <AuthDialog open={authModalOpen} onOpenChange={setAuthModalOpen} />
     </div>

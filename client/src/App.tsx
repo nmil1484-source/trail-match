@@ -21,6 +21,8 @@ import AdminMigration from "./pages/AdminMigration";
 import AdminMigratePrivate from "./pages/AdminMigratePrivate";
 import JoinRequests from "./pages/JoinRequests";
 import Messages from "./pages/Messages";
+import About from "./pages/About";
+import FAQ from "./pages/FAQ";
 
 function Router() {
   return (
@@ -42,6 +44,8 @@ function Router() {
       <Route path={"/admin/migrate-private"} component={AdminMigratePrivate} />
       <Route path={"/join-requests"} component={JoinRequests} />
       <Route path={"/messages"} component={Messages} />
+      <Route path={"/about"} component={About} />
+      <Route path={"/faq"} component={FAQ} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
