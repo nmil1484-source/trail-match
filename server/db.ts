@@ -211,7 +211,10 @@ export async function getAllTrips() {
   const allTrips = await db.select().from(trips).where(eq(trips.status, "open")).orderBy(sql`${trips.startDate} ASC`);
   
   // Filter out expired trips (endDate has passed)
-  return allTrips.filter(trip => new Date(trip.endDate) >= now);
+  // Temporarily disabled to test
+  console.log('getAllTrips: found', allTrips.length, 'trips');
+  return allTrips;
+  // return allTrips.filter(trip => new Date(trip.endDate) >= now);
 }
 
 export async function getTripById(tripId: number) {
