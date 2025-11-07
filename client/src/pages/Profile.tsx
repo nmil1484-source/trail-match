@@ -498,36 +498,38 @@ export default function Profile() {
                     </h3>
                     <div className="space-y-3">
                       {myRequests.filter(r => r.participant?.status === 'declined').map((request) => (
-                        <div key={request.participant?.id} className="border rounded-lg p-4 bg-red-50 dark:bg-red-950/20">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <h4 className="font-semibold text-lg mb-2">{request.trip?.title}</h4>
-                              <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
-                                <div className="flex items-center gap-1">
-                                  <MapPin className="h-4 w-4" />
-                                  {request.trip?.location}
+                        <Link key={request.participant?.id} href={`/trip/${request.trip?.id}`}>
+                          <div className="border rounded-lg p-4 bg-red-50 dark:bg-red-950/20 hover:bg-red-100 dark:hover:bg-red-950/30 transition-colors cursor-pointer">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <h4 className="font-semibold text-lg mb-2">{request.trip?.title}</h4>
+                                <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+                                  <div className="flex items-center gap-1">
+                                    <MapPin className="h-4 w-4" />
+                                    {request.trip?.location}
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <Calendar className="h-4 w-4" />
+                                    {request.trip?.startDate && new Date(request.trip.startDate).toLocaleDateString()}
+                                  </div>
                                 </div>
-                                <div className="flex items-center gap-1">
-                                  <Calendar className="h-4 w-4" />
-                                  {request.trip?.startDate && new Date(request.trip.startDate).toLocaleDateString()}
-                                </div>
+                                {request.participant?.denialReason && (
+                                  <div className="mt-3 p-3 bg-white dark:bg-gray-900 rounded border">
+                                    <p className="text-sm font-medium text-red-600 dark:text-red-400 mb-1">
+                                      Reason for decline:
+                                    </p>
+                                    <p className="text-sm text-foreground">
+                                      {request.participant.denialReason}
+                                    </p>
+                                  </div>
+                                )}
+                                <Badge variant="destructive" className="mt-2">
+                                  Declined
+                                </Badge>
                               </div>
-                              {request.participant?.denialReason && (
-                                <div className="mt-3 p-3 bg-white dark:bg-gray-900 rounded border">
-                                  <p className="text-sm font-medium text-red-600 dark:text-red-400 mb-1">
-                                    Reason for decline:
-                                  </p>
-                                  <p className="text-sm text-foreground">
-                                    {request.participant.denialReason}
-                                  </p>
-                                </div>
-                              )}
-                              <Badge variant="destructive" className="mt-2">
-                                Declined
-                              </Badge>
                             </div>
                           </div>
-                        </div>
+                        </Link>
                       ))}
                     </div>
                   </div>
