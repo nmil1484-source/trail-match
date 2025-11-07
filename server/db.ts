@@ -205,16 +205,24 @@ export async function createTrip(trip: InsertTrip) {
 
 export async function getAllTrips() {
   const db = await getDb();
-  if (!db) return [];
+  if (!db) {
+    console.log('getAllTrips: db is null');
+    return [];
+  }
 
-  const now = new Date();
-  const allTrips = await db.select().from(trips).where(eq(trips.status, "open")).orderBy(sql`${trips.startDate} ASC`);
-  
-  // Filter out expired trips (endDate has passed)
-  // Temporarily disabled to test
-  console.log('getAllTrips: found', allTrips.length, 'trips');
-  return allTrips;
-  // return allTrips.filter(trip => new Date(trip.endDate) >= now);
+  try {
+    const allTrips = await db.select().from(trips);
+    console.log('getAllTrips: found', allTrips.length, 'trips');
+    
+    // Filter for open trips only
+    const openTrips = allTrips.filter(trip => trip.status === 'open');
+    console.log('getAllTrips: open trips', openTrips.length);
+    
+    return openTrips;
+  } catch (error) {
+    console.error('getAllTrips error:', error);
+    return [];
+  }
 }
 
 export async function getTripById(tripId: number) {
