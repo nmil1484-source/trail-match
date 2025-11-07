@@ -229,7 +229,8 @@ export const appRouter = router({
       }).optional())
       .query(async ({ input }) => {
         // Check and expire premium trips first
-        await db.checkAndExpirePremiumTrips();
+        // Temporarily disabled - was causing infinite loading
+        // await db.checkAndExpirePremiumTrips();
         
         const allTrips = await db.getAllTrips();
         
