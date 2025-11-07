@@ -207,16 +207,23 @@ export const appRouter = router({
         whatsappNumber: z.string().optional(),
         facebookHandle: z.string().optional(),
         instagramHandle: z.string().optional(),
+        isPrivate: z.boolean().default(false),
       }))
       .mutation(async ({ ctx, input }) => {
+        // Generate share token for private trips
+        const shareToken = input.isPrivate 
+          ? Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+          : null;
+        
         const tripId = await db.createTrip({
           ...input,
           organizerId: ctx.user.id,
           currentParticipants: 1,
           styles: input.styles,
           photos: input.photos || [],
+          shareToken,
         });
-        return { tripId };
+        return { tripId, shareToken };
       }),
 
     list: publicProcedure

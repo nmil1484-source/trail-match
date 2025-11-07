@@ -59,6 +59,7 @@ export default function PostTrip() {
   const [photos, setPhotos] = useState<string[]>([]);
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
   const [createdTripId, setCreatedTripId] = useState<number | null>(null);
+  const [isPrivate, setIsPrivate] = useState(false);
   
   // Communication preferences
   const [communicationMethods, setCommunicationMethods] = useState<string[]>([]);
@@ -70,7 +71,20 @@ export default function PostTrip() {
   const createTripMutation = trpc.trips.create.useMutation({
     onSuccess: (data) => {
       setCreatedTripId(data.tripId);
-      toast.success("Trip posted successfully!");
+      
+      if (data.shareToken) {
+        const shareLink = `${window.location.origin}/trip/${data.tripId}?token=${data.shareToken}`;
+        toast.success(
+          <div>
+            <p>Private trip created! Share this link:</p>
+            <p className="text-xs mt-1 break-all">{shareLink}</p>
+          </div>,
+          { duration: 10000 }
+        );
+      } else {
+        toast.success("Trip posted successfully!");
+      }
+      
       // Show premium upgrade dialog
       setShowPremiumDialog(true);
     },
@@ -117,6 +131,7 @@ export default function PostTrip() {
       whatsappNumber: whatsappNumber || undefined,
       facebookHandle: facebookHandle || undefined,
       instagramHandle: instagramHandle || undefined,
+      isPrivate,
     });
   };
 
@@ -248,6 +263,17 @@ export default function PostTrip() {
                     required
                   />
                 </div>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="isPrivate"
+                  checked={isPrivate}
+                  onCheckedChange={(checked) => setIsPrivate(checked as boolean)}
+                />
+                <Label htmlFor="isPrivate" className="cursor-pointer">
+                  Make this trip private (only people with the link can see it)
+                </Label>
               </div>
             </CardContent>
           </Card>

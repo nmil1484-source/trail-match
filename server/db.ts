@@ -214,8 +214,8 @@ export async function getAllTrips() {
     const allTrips = await db.select().from(trips);
     console.log('getAllTrips: found', allTrips.length, 'trips');
     
-    // Filter for open trips only
-    const openTrips = allTrips.filter(trip => trip.status === 'open');
+    // Filter for open trips only (and not private)
+    const openTrips = allTrips.filter(trip => trip.status === 'open' && !trip.isPrivate);
     console.log('getAllTrips: open trips', openTrips.length);
     
     return openTrips;
