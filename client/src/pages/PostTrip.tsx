@@ -426,11 +426,13 @@ export default function PostTrip() {
                 />
               </div>
               
+              {/* Trip Photos - Temporarily hidden
               <div>
                 <Label>Trip Photos</Label>
                 <p className="text-sm text-muted-foreground mb-2">Add photos of the trail, terrain, or previous trips</p>
                 <PhotoUpload photos={photos} onPhotosChange={setPhotos} maxPhotos={5} />
               </div>
+              */}
             </CardContent>
           </Card>
 
