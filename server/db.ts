@@ -288,6 +288,40 @@ export async function getTripParticipants(tripId: number) {
     .where(eq(tripParticipants.tripId, tripId));
 }
 
+export async function getPendingRequestsForOrganizer(organizerId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  // Get all trips organized by this user
+  const organizerTrips = await db
+    .select({ id: trips.id })
+    .from(trips)
+    .where(eq(trips.organizerId, organizerId));
+
+  if (organizerTrips.length === 0) return [];
+
+  const tripIds = organizerTrips.map(t => t.id);
+
+  // Get all pending requests for those trips
+  return await db
+    .select({
+      participant: tripParticipants,
+      user: users,
+      vehicle: vehicles,
+      trip: trips,
+    })
+    .from(tripParticipants)
+    .leftJoin(users, eq(tripParticipants.userId, users.id))
+    .leftJoin(vehicles, eq(tripParticipants.vehicleId, vehicles.id))
+    .leftJoin(trips, eq(tripParticipants.tripId, trips.id))
+    .where(
+      and(
+        eq(tripParticipants.status, "pending"),
+        sql`${tripParticipants.tripId} IN (${sql.join(tripIds.map(id => sql`${id}`), sql`, `)})`
+      )
+    );
+}
+
 export async function updateParticipantStatus(participantId: number, status: "pending" | "accepted" | "declined", denialReason?: string) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
