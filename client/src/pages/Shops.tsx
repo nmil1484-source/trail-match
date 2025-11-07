@@ -23,6 +23,10 @@ export default function Shops() {
   const { user, isAuthenticated } = useAuth();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [searchState, setSearchState] = useState("");
+  const { data: notificationCount } = trpc.auth.notificationCount.useQuery(undefined, {
+    enabled: isAuthenticated,
+    refetchInterval: 30000,
+  });
 
   const { data: shops, isLoading } = trpc.shops.list.useQuery({
     categories: selectedCategories.length > 0 ? selectedCategories : undefined,
@@ -51,8 +55,13 @@ export default function Shops() {
                   <Link href="/post-trip" className="text-foreground hover:text-primary font-medium">
                     Post Trip
                   </Link>
-                  <Link href="/profile" className="text-foreground hover:text-primary font-medium">
+                  <Link href="/profile" className="text-foreground hover:text-primary font-medium relative">
                     My Profile
+                    {notificationCount && notificationCount > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                        {notificationCount}
+                      </span>
+                    )}
                   </Link>
                   {user?.role === "admin" && (
                     <Link href="/admin" className="text-foreground hover:text-primary font-medium">

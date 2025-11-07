@@ -15,6 +15,13 @@ export const appRouter = router({
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     
+    notificationCount: protectedProcedure.query(async ({ ctx }) => {
+      const pendingOrganizer = await db.getPendingRequestsForOrganizer(ctx.user.id);
+      const myRequests = await db.getUserTripRequests(ctx.user.id);
+      const pendingMyRequests = myRequests.filter(r => r.participant?.status === 'pending');
+      return pendingOrganizer.length + pendingMyRequests.length;
+    }),
+    
     signup: publicProcedure
       .input(z.object({
         email: z.string().email(),
@@ -399,6 +406,11 @@ export const appRouter = router({
     myPendingRequests: protectedProcedure
       .query(async ({ ctx }) => {
         return await db.getPendingRequestsForOrganizer(ctx.user.id);
+      }),
+
+    myRequests: protectedProcedure
+      .query(async ({ ctx }) => {
+        return await db.getUserTripRequests(ctx.user.id);
       }),
 
     updateStatus: protectedProcedure

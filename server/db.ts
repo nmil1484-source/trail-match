@@ -322,6 +322,23 @@ export async function getPendingRequestsForOrganizer(organizerId: number) {
     );
 }
 
+export async function getUserTripRequests(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select({
+      participant: tripParticipants,
+      trip: trips,
+      vehicle: vehicles,
+    })
+    .from(tripParticipants)
+    .leftJoin(trips, eq(tripParticipants.tripId, trips.id))
+    .leftJoin(vehicles, eq(tripParticipants.vehicleId, vehicles.id))
+    .where(eq(tripParticipants.userId, userId))
+    .orderBy(desc(tripParticipants.createdAt));
+}
+
 export async function updateParticipantStatus(participantId: number, status: "pending" | "accepted" | "declined", denialReason?: string) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

@@ -64,6 +64,7 @@ export default function Profile() {
 
   const { data: vehicles, isLoading: vehiclesLoading, refetch: refetchVehicles } = trpc.vehicles.list.useQuery();
   const { data: myTrips, isLoading: tripsLoading } = trpc.trips.myTrips.useQuery();
+  const { data: myRequests, isLoading: requestsLoading } = trpc.trips.myRequests.useQuery();
 
   const logoutMutation = trpc.auth.logout.useMutation({
     onSuccess: () => {
@@ -390,6 +391,152 @@ export default function Profile() {
                   </div>
                 )}
               </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Trip Requests */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Trip Requests</CardTitle>
+            <CardDescription>Your join requests for trips</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {requestsLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              </div>
+            ) : myRequests && myRequests.length > 0 ? (
+              <div className="space-y-6">
+                {/* Pending Requests */}
+                {myRequests.filter(r => r.participant?.status === 'pending').length > 0 && (
+                  <div>
+                    <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                      Pending Requests
+                      <Badge variant="secondary">
+                        {myRequests.filter(r => r.participant?.status === 'pending').length}
+                      </Badge>
+                    </h3>
+                    <div className="space-y-3">
+                      {myRequests.filter(r => r.participant?.status === 'pending').map((request) => (
+                        <div key={request.participant?.id} className="border rounded-lg p-4">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-lg mb-2">{request.trip?.title}</h4>
+                              <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+                                <div className="flex items-center gap-1">
+                                  <MapPin className="h-4 w-4" />
+                                  {request.trip?.location}
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Calendar className="h-4 w-4" />
+                                  {request.trip?.startDate && new Date(request.trip.startDate).toLocaleDateString()}
+                                </div>
+                              </div>
+                              {request.participant?.message && (
+                                <p className="text-sm mt-2 text-muted-foreground">
+                                  Your message: "{request.participant.message}"
+                                </p>
+                              )}
+                              <Badge variant="outline" className="mt-2">
+                                Pending
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Accepted Requests */}
+                {myRequests.filter(r => r.participant?.status === 'accepted').length > 0 && (
+                  <div>
+                    <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                      Accepted Requests
+                      <Badge variant="default" className="bg-green-500">
+                        {myRequests.filter(r => r.participant?.status === 'accepted').length}
+                      </Badge>
+                    </h3>
+                    <div className="space-y-3">
+                      {myRequests.filter(r => r.participant?.status === 'accepted').map((request) => (
+                        <Link key={request.participant?.id} href={`/trip/${request.trip?.id}`}>
+                          <div className="border rounded-lg p-4 hover:bg-accent transition-colors cursor-pointer">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <h4 className="font-semibold text-lg mb-2">{request.trip?.title}</h4>
+                                <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+                                  <div className="flex items-center gap-1">
+                                    <MapPin className="h-4 w-4" />
+                                    {request.trip?.location}
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <Calendar className="h-4 w-4" />
+                                    {request.trip?.startDate && new Date(request.trip.startDate).toLocaleDateString()}
+                                  </div>
+                                </div>
+                                <Badge variant="default" className="mt-2 bg-green-500">
+                                  Accepted
+                                </Badge>
+                              </div>
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Declined Requests */}
+                {myRequests.filter(r => r.participant?.status === 'declined').length > 0 && (
+                  <div>
+                    <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                      Declined Requests
+                      <Badge variant="destructive">
+                        {myRequests.filter(r => r.participant?.status === 'declined').length}
+                      </Badge>
+                    </h3>
+                    <div className="space-y-3">
+                      {myRequests.filter(r => r.participant?.status === 'declined').map((request) => (
+                        <div key={request.participant?.id} className="border rounded-lg p-4 bg-red-50 dark:bg-red-950/20">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-lg mb-2">{request.trip?.title}</h4>
+                              <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+                                <div className="flex items-center gap-1">
+                                  <MapPin className="h-4 w-4" />
+                                  {request.trip?.location}
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Calendar className="h-4 w-4" />
+                                  {request.trip?.startDate && new Date(request.trip.startDate).toLocaleDateString()}
+                                </div>
+                              </div>
+                              {request.participant?.denialReason && (
+                                <div className="mt-3 p-3 bg-white dark:bg-gray-900 rounded border">
+                                  <p className="text-sm font-medium text-red-600 dark:text-red-400 mb-1">
+                                    Reason for decline:
+                                  </p>
+                                  <p className="text-sm text-foreground">
+                                    {request.participant.denialReason}
+                                  </p>
+                                </div>
+                              )}
+                              <Badge variant="destructive" className="mt-2">
+                                Declined
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="text-muted-foreground text-center py-8">
+                You haven't requested to join any trips yet.
+              </p>
             )}
           </CardContent>
         </Card>
