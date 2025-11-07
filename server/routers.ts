@@ -406,13 +406,14 @@ export const appRouter = router({
         participantId: z.number(),
         tripId: z.number(),
         status: z.enum(["accepted", "declined"]),
+        denialReason: z.string().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         const trip = await db.getTripById(input.tripId);
         if (!trip || trip.organizerId !== ctx.user.id) {
           throw new TRPCError({ code: "FORBIDDEN" });
         }
-        await db.updateParticipantStatus(input.participantId, input.status);
+        await db.updateParticipantStatus(input.participantId, input.status, input.denialReason);
         
         // Update trip participant count if accepted
         if (input.status === "accepted") {

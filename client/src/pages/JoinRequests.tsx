@@ -7,11 +7,19 @@ import { ArrowLeft, Check, Loader2, Mountain, X } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { toast } from "sonner";
 import { getLoginUrl } from "@/const";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { useState } from "react";
 
 export default function JoinRequests() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
   const utils = trpc.useUtils();
+  
+  const [showDenialDialog, setShowDenialDialog] = useState(false);
+  const [denialReason, setDenialReason] = useState("");
+  const [pendingDenial, setPendingDenial] = useState<{ participantId: number; tripId: number } | null>(null);
 
   const { data: requests, isLoading } = trpc.participants.myPendingRequests.useQuery(undefined, {
     enabled: isAuthenticated,
@@ -36,11 +44,23 @@ export default function JoinRequests() {
   };
 
   const handleDecline = (participantId: number, tripId: number) => {
+    setPendingDenial({ participantId, tripId });
+    setShowDenialDialog(true);
+  };
+  
+  const confirmDenial = () => {
+    if (!pendingDenial) return;
+    
     updateStatusMutation.mutate({
-      participantId,
-      tripId,
+      participantId: pendingDenial.participantId,
+      tripId: pendingDenial.tripId,
       status: "declined",
+      denialReason: denialReason || undefined,
     });
+    
+    setShowDenialDialog(false);
+    setDenialReason("");
+    setPendingDenial(null);
   };
 
   if (authLoading || isLoading) {
@@ -170,6 +190,54 @@ export default function JoinRequests() {
           </div>
         )}
       </div>
+      
+      {/* Denial Reason Dialog */}
+      <Dialog open={showDenialDialog} onOpenChange={setShowDenialDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Decline Join Request</DialogTitle>
+            <DialogDescription>
+              Please provide a reason for declining this request. This will be sent to the user.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="denialReason">Reason (optional)</Label>
+              <Textarea
+                id="denialReason"
+                value={denialReason}
+                onChange={(e) => setDenialReason(e.target.value)}
+                placeholder="e.g., Trip is full, vehicle requirements not met, etc."
+                rows={4}
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowDenialDialog(false);
+                setDenialReason("");
+                setPendingDenial(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDenial}
+              disabled={updateStatusMutation.isPending}
+            >
+              {updateStatusMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : null}
+              Decline Request
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
