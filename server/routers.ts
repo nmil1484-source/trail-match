@@ -824,6 +824,66 @@ export const appRouter = router({
         return { success: true, message: "Shops table schema fixed successfully" };
       }),
   }),
+
+  messages: router({
+    // Get all conversations for the current user
+    getConversations: protectedProcedure
+      .query(async ({ ctx }) => {
+        return await db.getUserConversations(ctx.user.id);
+      }),
+
+    // Get or create a conversation with another user
+    getOrCreateConversation: protectedProcedure
+      .input(z.object({ otherUserId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        return await db.getOrCreateConversation(ctx.user.id, input.otherUserId);
+      }),
+
+    // Get messages in a conversation
+    getMessages: protectedProcedure
+      .input(z.object({ conversationId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        // Verify user is part of this conversation
+        const convos = await db.getUserConversations(ctx.user.id);
+        const isParticipant = convos.some(c => c.conversation.id === input.conversationId);
+        
+        if (!isParticipant) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Not authorized to view this conversation" });
+        }
+
+        return await db.getConversationMessages(input.conversationId);
+      }),
+
+    // Send a message
+    sendMessage: protectedProcedure
+      .input(z.object({
+        conversationId: z.number(),
+        receiverId: z.number(),
+        content: z.string().min(1),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return await db.sendMessage({
+          conversationId: input.conversationId,
+          senderId: ctx.user.id,
+          receiverId: input.receiverId,
+          content: input.content,
+        });
+      }),
+
+    // Mark messages as read
+    markAsRead: protectedProcedure
+      .input(z.object({ conversationId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        await db.markMessagesAsRead(input.conversationId, ctx.user.id);
+        return { success: true };
+      }),
+
+    // Get unread message count
+    getUnreadCount: protectedProcedure
+      .query(async ({ ctx }) => {
+        return await db.getUnreadMessageCount(ctx.user.id);
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

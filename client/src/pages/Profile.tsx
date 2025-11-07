@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { SinglePhotoUpload } from "@/components/SinglePhotoUpload";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, Loader2, Plus, Trash2, Pencil, Calendar, MapPin, Users } from "lucide-react";
+import { ArrowLeft, Loader2, Plus, Trash2, Pencil, Calendar, MapPin, Users, Copy, Lock, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Link, useLocation } from "wouter";
 import { useState, useEffect } from "react";
@@ -61,6 +61,9 @@ export default function Profile() {
   // Edit vehicle dialog state
   const [editVehicleOpen, setEditVehicleOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<any>(null);
+  
+  // Share link state
+  const [copiedTripId, setCopiedTripId] = useState<number | null>(null);
 
   const { data: vehicles, isLoading: vehiclesLoading, refetch: refetchVehicles } = trpc.vehicles.list.useQuery();
   const { data: myTrips, isLoading: tripsLoading } = trpc.trips.myTrips.useQuery();
@@ -201,6 +204,17 @@ export default function Profile() {
     });
   };
 
+  const handleCopyShareLink = (tripId: number, shareToken: string) => {
+    const shareUrl = `${window.location.origin}/trip/${tripId}?token=${shareToken}`;
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      setCopiedTripId(tripId);
+      toast.success("Share link copied to clipboard!");
+      setTimeout(() => setCopiedTripId(null), 2000);
+    }).catch(() => {
+      toast.error("Failed to copy link");
+    });
+  };
+
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -304,37 +318,71 @@ export default function Profile() {
                     <h3 className="font-semibold text-lg mb-3">Organized by You</h3>
                     <div className="space-y-3">
                       {myTrips.organized.map((trip) => (
-                        <Link key={trip.id} href={`/trip/${trip.id}`}>
-                          <div className="border rounded-lg p-4 hover:bg-accent transition-colors cursor-pointer">
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1">
-                                <h4 className="font-semibold text-lg mb-2">{trip.title}</h4>
-                                <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
-                                  <div className="flex items-center gap-1">
-                                    <MapPin className="h-4 w-4" />
-                                    {trip.location}
+                        <div key={trip.id} className="border rounded-lg p-4 hover:bg-accent transition-colors">
+                          <Link href={`/trip/${trip.id}`}>
+                            <div className="cursor-pointer">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <h4 className="font-semibold text-lg">{trip.title}</h4>
+                                    {trip.isPrivate && (
+                                      <Badge variant="secondary" className="flex items-center gap-1">
+                                        <Lock className="h-3 w-3" />
+                                        Private
+                                      </Badge>
+                                    )}
                                   </div>
-                                  <div className="flex items-center gap-1">
-                                    <Calendar className="h-4 w-4" />
-                                    {new Date(trip.startDate).toLocaleDateString()}
+                                  <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+                                    <div className="flex items-center gap-1">
+                                      <MapPin className="h-4 w-4" />
+                                      {trip.location}
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <Calendar className="h-4 w-4" />
+                                      {new Date(trip.startDate).toLocaleDateString()}
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <Users className="h-4 w-4" />
+                                      {trip.currentParticipants}/{trip.maxParticipants}
+                                    </div>
                                   </div>
-                                  <div className="flex items-center gap-1">
-                                    <Users className="h-4 w-4" />
-                                    {trip.currentParticipants}/{trip.maxParticipants}
+                                  <div className="flex gap-2 mt-2">
+                                    <Badge variant="secondary" className="capitalize">
+                                      {trip.difficulty}
+                                    </Badge>
+                                    <Badge variant="outline">
+                                      {trip.status}
+                                    </Badge>
                                   </div>
-                                </div>
-                                <div className="flex gap-2 mt-2">
-                                  <Badge variant="secondary" className="capitalize">
-                                    {trip.difficulty}
-                                  </Badge>
-                                  <Badge variant="outline">
-                                    {trip.status}
-                                  </Badge>
                                 </div>
                               </div>
                             </div>
-                          </div>
-                        </Link>
+                          </Link>
+                          {trip.isPrivate && trip.shareToken && (
+                            <div className="mt-3 pt-3 border-t" onClick={(e) => e.stopPropagation()}>
+                              <div className="flex items-center gap-2">
+                                <div className="flex-1 bg-muted rounded px-3 py-2 text-sm font-mono text-muted-foreground truncate">
+                                  {`${window.location.origin}/trip/${trip.id}?token=${trip.shareToken}`}
+                                </div>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleCopyShareLink(trip.id, trip.shareToken!)}
+                                  className="shrink-0"
+                                >
+                                  {copiedTripId === trip.id ? (
+                                    <><Check className="h-4 w-4 mr-1" /> Copied</>
+                                  ) : (
+                                    <><Copy className="h-4 w-4 mr-1" /> Copy Link</>
+                                  )}
+                                </Button>
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-2">
+                                Share this link to invite people to your private trip
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       ))}
                     </div>
                   </div>

@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { getLoginUrl } from "@/const";
 import { toast } from "sonner";
-import { Calendar, MapPin, Users, Mountain, ArrowLeft, Shield, Wrench, Edit, Trash2 } from "lucide-react";
+import { Calendar, MapPin, Users, Mountain, ArrowLeft, Shield, Wrench, Edit, Trash2, MessageCircle } from "lucide-react";
 import { Link, useParams } from "wouter";
 import { JoinTripDialog } from "@/components/JoinTripDialog";
 import { useState } from "react";
@@ -347,16 +347,33 @@ export default function TripDetail() {
               <CardContent className="pt-6">
                 {isAuthenticated ? (
                   <div className="space-y-3">
-                    <Button 
-                      className="w-full" 
-                      size="lg"
-                      onClick={() => setJoinDialogOpen(true)}
-                    >
-                      Request to Join
-                    </Button>
-                    <p className="text-xs text-center text-muted-foreground">
-                      The trip organizer will review your request
-                    </p>
+                    {!isOrganizer && (
+                      <>
+                        <Button 
+                          className="w-full" 
+                          size="lg"
+                          onClick={() => setJoinDialogOpen(true)}
+                        >
+                          Request to Join
+                        </Button>
+                        <Button 
+                          variant="outline"
+                          className="w-full" 
+                          size="lg"
+                          onClick={async () => {
+                            if (!trip.organizerId) return;
+                            const convo = await trpc.messages.getOrCreateConversation.mutate({ otherUserId: trip.organizerId });
+                            window.location.href = `/messages?conversation=${convo.id}`;
+                          }}
+                        >
+                          <MessageCircle className="h-4 w-4 mr-2" />
+                          Message Organizer
+                        </Button>
+                        <p className="text-xs text-center text-muted-foreground">
+                          The trip organizer will review your request
+                        </p>
+                      </>
+                    )}
                   </div>
                 ) : (
                   <div className="space-y-3">

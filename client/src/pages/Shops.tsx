@@ -27,6 +27,11 @@ export default function Shops() {
     enabled: isAuthenticated,
     refetchInterval: 30000,
   });
+  
+  const { data: unreadMessageCount } = trpc.messages.getUnreadCount.useQuery(undefined, {
+    enabled: isAuthenticated,
+    refetchInterval: 30000,
+  });
 
   const { data: shops, isLoading } = trpc.shops.list.useQuery({
     categories: selectedCategories.length > 0 ? selectedCategories : undefined,
@@ -54,6 +59,14 @@ export default function Shops() {
                 <>
                   <Link href="/post-trip" className="text-foreground hover:text-primary font-medium">
                     Post Trip
+                  </Link>
+                  <Link href="/messages" className="text-foreground hover:text-primary font-medium relative">
+                    Messages
+                    {unreadMessageCount && unreadMessageCount > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                        {unreadMessageCount}
+                      </span>
+                    )}
                   </Link>
                   <Link href="/profile" className="text-foreground hover:text-primary font-medium relative">
                     My Profile

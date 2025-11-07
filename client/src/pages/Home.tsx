@@ -19,6 +19,11 @@ export default function Home() {
     enabled: isAuthenticated,
     refetchInterval: 30000, // Refetch every 30 seconds
   });
+  
+  const { data: unreadMessageCount } = trpc.messages.getUnreadCount.useQuery(undefined, {
+    enabled: isAuthenticated,
+    refetchInterval: 30000, // Refetch every 30 seconds
+  });
 
   // Filter and sort trips: premium > featured > free, then by date
   const filteredTrips = trips
@@ -74,6 +79,14 @@ export default function Home() {
                 <>
                   <Link href="/post-trip" className="text-foreground hover:text-primary font-medium">
                     Post Trip
+                  </Link>
+                  <Link href="/messages" className="text-foreground hover:text-primary font-medium relative">
+                    Messages
+                    {unreadMessageCount && unreadMessageCount > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                        {unreadMessageCount}
+                      </span>
+                    )}
                   </Link>
                   <Link href="/profile" className="text-foreground hover:text-primary font-medium relative">
                     My Profile
@@ -159,19 +172,15 @@ export default function Home() {
                       : ""
                   }`}
                 >
-                  <div className="aspect-video bg-muted relative overflow-hidden">
-                    {trip.photos && (trip.photos as string[]).length > 0 ? (
+                  {trip.photos && (trip.photos as string[]).length > 0 && (
+                    <div className="aspect-video bg-muted relative overflow-hidden">
                       <img
                         src={(trip.photos as string[])[0]}
                         alt={trip.title}
                         className="w-full h-full object-cover"
                       />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Mountain className="h-12 w-12 text-muted-foreground" />
-                      </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                   
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between gap-2 mb-2">
@@ -222,13 +231,13 @@ export default function Home() {
                     </div>
                   </CardContent>
 
-                  <CardFooter className="pt-0 gap-2">
-                    <Button variant="outline" size="sm" className="flex-1" asChild>
+                  <CardFooter className="pt-3 pb-4 gap-2 flex-col sm:flex-row">
+                    <Button variant="outline" size="sm" className="w-full sm:flex-1" asChild>
                       <Link href={`/trip/${trip.id}`}>View Details</Link>
                     </Button>
                     <Button 
                       size="sm" 
-                      className="flex-1"
+                      className="w-full sm:flex-1"
                       onClick={() => {
                         if (!isAuthenticated) {
                           setAuthModalOpen(true);

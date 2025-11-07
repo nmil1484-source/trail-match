@@ -1,7 +1,7 @@
 import { and, eq, gte, lte, sql, desc, ne, lt } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
-import { InsertTrip, InsertTripParticipant, InsertUser, InsertVehicle, InsertShop, InsertShopReview, InsertPasswordResetToken, tripParticipants, trips, users, vehicles, shops, shopReviews, passwordResetTokens } from "../drizzle/schema";
+import { InsertTrip, InsertTripParticipant, InsertUser, InsertVehicle, InsertShop, InsertShopReview, InsertPasswordResetToken, InsertConversation, InsertMessage, tripParticipants, trips, users, vehicles, shops, shopReviews, passwordResetTokens, conversations, messages } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import crypto from "crypto";
 
@@ -769,4 +769,158 @@ export async function fixShopsTableSchema(): Promise<void> {
     MODIFY COLUMN website VARCHAR(255) NULL,
     MODIFY COLUMN photos JSON NULL
   `));
+}
+
+// ===== MESSAGING FUNCTIONS =====
+
+/**
+ * Get or create a conversation between two users
+ */
+export async function getOrCreateConversation(user1Id: number, user2Id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Ensure user1Id is always the smaller ID for consistency
+  const [smallerId, largerId] = user1Id < user2Id ? [user1Id, user2Id] : [user2Id, user1Id];
+
+  // Try to find existing conversation
+  const existing = await db
+    .select()
+    .from(conversations)
+    .where(
+      and(
+        eq(conversations.user1Id, smallerId),
+        eq(conversations.user2Id, largerId)
+      )
+    )
+    .limit(1);
+
+  if (existing.length > 0) {
+    return existing[0];
+  }
+
+  // Create new conversation
+  const [result] = await db
+    .insert(conversations)
+    .values({
+      user1Id: smallerId,
+      user2Id: largerId,
+    });
+
+  return {
+    id: (result as any).insertId,
+    user1Id: smallerId,
+    user2Id: largerId,
+    lastMessageAt: new Date(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+}
+
+/**
+ * Get all conversations for a user
+ */
+export async function getUserConversations(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const userConvos = await db
+    .select({
+      conversation: conversations,
+      otherUser: users,
+    })
+    .from(conversations)
+    .leftJoin(
+      users,
+      sql`CASE 
+        WHEN ${conversations.user1Id} = ${userId} THEN ${users.id} = ${conversations.user2Id}
+        ELSE ${users.id} = ${conversations.user1Id}
+      END`
+    )
+    .where(
+      sql`${conversations.user1Id} = ${userId} OR ${conversations.user2Id} = ${userId}`
+    )
+    .orderBy(desc(conversations.lastMessageAt));
+
+  return userConvos;
+}
+
+/**
+ * Send a message
+ */
+export async function sendMessage(data: InsertMessage) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Insert message
+  const [result] = await db.insert(messages).values(data);
+
+  // Update conversation's lastMessageAt
+  await db
+    .update(conversations)
+    .set({ lastMessageAt: new Date() })
+    .where(eq(conversations.id, data.conversationId));
+
+  return {
+    id: (result as any).insertId,
+    ...data,
+    createdAt: new Date(),
+  };
+}
+
+/**
+ * Get messages in a conversation
+ */
+export async function getConversationMessages(conversationId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select({
+      message: messages,
+      sender: users,
+    })
+    .from(messages)
+    .leftJoin(users, eq(messages.senderId, users.id))
+    .where(eq(messages.conversationId, conversationId))
+    .orderBy(messages.createdAt);
+}
+
+/**
+ * Mark messages as read
+ */
+export async function markMessagesAsRead(conversationId: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(messages)
+    .set({ isRead: true })
+    .where(
+      and(
+        eq(messages.conversationId, conversationId),
+        eq(messages.receiverId, userId),
+        eq(messages.isRead, false)
+      )
+    );
+}
+
+/**
+ * Get unread message count for a user
+ */
+export async function getUnreadMessageCount(userId: number) {
+  const db = await getDb();
+  if (!db) return 0;
+
+  const result = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(messages)
+    .where(
+      and(
+        eq(messages.receiverId, userId),
+        eq(messages.isRead, false)
+      )
+    );
+
+  return result[0]?.count || 0;
 }
