@@ -721,6 +721,59 @@ export const appRouter = router({
         return { success: true, message: "Migration completed successfully", steps };
       }),
 
+    // Migrate trips and participants tables for private trips and denial reasons
+    migratePrivateTripsAndDenials: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+        }
+        
+        const connection = await db.getRawConnection();
+        if (!connection) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection not available" });
+        }
+
+        const steps: string[] = [];
+
+        // Step 1: Add denialReason to tripParticipants
+        try {
+          await connection.execute(`ALTER TABLE tripParticipants ADD COLUMN denialReason TEXT NULL`);
+          steps.push("✅ Added 'denialReason' column to tripParticipants");
+        } catch (error: any) {
+          if (error.message.includes("Duplicate column name")) {
+            steps.push("⚠️ 'denialReason' column already exists, skipping");
+          } else {
+            throw error;
+          }
+        }
+
+        // Step 2: Add isPrivate to trips
+        try {
+          await connection.execute(`ALTER TABLE trips ADD COLUMN isPrivate BOOLEAN NOT NULL DEFAULT false`);
+          steps.push("✅ Added 'isPrivate' column to trips");
+        } catch (error: any) {
+          if (error.message.includes("Duplicate column name")) {
+            steps.push("⚠️ 'isPrivate' column already exists, skipping");
+          } else {
+            throw error;
+          }
+        }
+
+        // Step 3: Add shareToken to trips
+        try {
+          await connection.execute(`ALTER TABLE trips ADD COLUMN shareToken VARCHAR(64) NULL`);
+          steps.push("✅ Added 'shareToken' column to trips");
+        } catch (error: any) {
+          if (error.message.includes("Duplicate column name")) {
+            steps.push("⚠️ 'shareToken' column already exists, skipping");
+          } else {
+            throw error;
+          }
+        }
+
+        return { success: true, message: "Migration completed successfully", steps };
+      }),
+
     // Setup: Promote specific email to admin (for initial setup)
     setupPromoteAdmin: publicProcedure
       .input(z.object({ email: z.string().email() }))

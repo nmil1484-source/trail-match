@@ -117,6 +117,10 @@ export const trips = mysqlTable("trips", {
   // Status
   status: mysqlEnum("status", ["open", "full", "completed", "cancelled"]).default("open").notNull(),
   
+  // Privacy settings
+  isPrivate: boolean("isPrivate").default(false).notNull(), // If true, trip is only accessible via share link
+  shareToken: varchar("shareToken", { length: 64 }), // Unique token for private trip sharing
+  
   // Premium listing tiers
   premiumTier: mysqlEnum("premiumTier", ["free", "featured", "premium"]).default("free").notNull(),
   premiumExpiresAt: timestamp("premiumExpiresAt"),
@@ -139,6 +143,7 @@ export const tripParticipants = mysqlTable("tripParticipants", {
   
   status: mysqlEnum("status", ["pending", "accepted", "declined"]).default("pending").notNull(),
   message: text("message"), // Optional message when requesting to join
+  denialReason: text("denialReason"), // Optional reason when request is declined
   
   joinedAt: timestamp("joinedAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

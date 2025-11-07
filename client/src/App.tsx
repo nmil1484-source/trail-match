@@ -18,6 +18,7 @@ import Admin from "./pages/Admin";
 import AdminSetup from "./pages/AdminSetup";
 import AdminDatabaseFix from "./pages/AdminDatabaseFix";
 import AdminMigration from "./pages/AdminMigration";
+import AdminMigratePrivate from "./pages/AdminMigratePrivate";
 import JoinRequests from "./pages/JoinRequests";
 
 function Router() {
@@ -37,6 +38,7 @@ function Router() {
       <Route path={"/admin-setup"} component={AdminSetup} />
       <Route path={"/admin/fix-database"} component={AdminDatabaseFix} />
       <Route path={"/admin/migrate-shops"} component={AdminMigration} />
+      <Route path={"/admin/migrate-private"} component={AdminMigratePrivate} />
       <Route path={"/join-requests"} component={JoinRequests} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
