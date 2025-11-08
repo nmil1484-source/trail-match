@@ -831,10 +831,16 @@ export const appRouter = router({
           throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
         }
         
-        const { db: database } = await import("./db");
+        const { getDb } = await import("./db");
+        const { sql } = await import("drizzle-orm");
+        const database = await getDb();
+        
+        if (!database) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+        }
         
         // Create conversations table
-        await database.execute(`
+        await database.execute(sql.raw(`
           CREATE TABLE IF NOT EXISTS \`conversations\` (
             \`id\` int AUTO_INCREMENT PRIMARY KEY,
             \`user1Id\` int NOT NULL,
@@ -846,10 +852,10 @@ export const appRouter = router({
             INDEX \`idx_user2\` (\`user2Id\`),
             UNIQUE KEY \`unique_conversation\` (\`user1Id\`, \`user2Id\`)
           )
-        `);
+        `));
         
         // Create messages table
-        await database.execute(`
+        await database.execute(sql.raw(`
           CREATE TABLE IF NOT EXISTS \`messages\` (
             \`id\` int AUTO_INCREMENT PRIMARY KEY,
             \`conversationId\` int NOT NULL,
@@ -863,7 +869,7 @@ export const appRouter = router({
             INDEX \`idx_receiver\` (\`receiverId\`),
             FOREIGN KEY (\`conversationId\`) REFERENCES \`conversations\`(\`id\`) ON DELETE CASCADE
           )
-        `);
+        `));
         
         return { success: true, message: "Messaging tables created successfully" };
       }),
