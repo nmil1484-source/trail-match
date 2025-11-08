@@ -23,6 +23,7 @@ import JoinRequests from "./pages/JoinRequests";
 import Messages from "./pages/Messages";
 import About from "./pages/About";
 import FAQ from "./pages/FAQ";
+import AdminMessagingMigration from "./pages/AdminMessagingMigration";
 
 function Router() {
   return (
@@ -42,6 +43,7 @@ function Router() {
       <Route path={"/admin/fix-database"} component={AdminDatabaseFix} />
       <Route path={"/admin/migrate-shops"} component={AdminMigration} />
       <Route path={"/admin/migrate-private"} component={AdminMigratePrivate} />
+      <Route path={"/admin/migrate-messaging"} component={AdminMessagingMigration} />
       <Route path={"/join-requests"} component={JoinRequests} />
       <Route path={"/messages"} component={Messages} />
       <Route path={"/about"} component={About} />
