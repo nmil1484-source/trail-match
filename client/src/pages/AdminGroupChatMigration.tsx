@@ -8,6 +8,7 @@ import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
 export default function AdminGroupChatMigration() {
+  const { user, isAuthenticated, loading } = useAuth();
   const [result, setResult] = useState<string>("");
 
   const migrationMutation = trpc.admin.runGroupChatMigration.useMutation({
@@ -25,6 +26,50 @@ export default function AdminGroupChatMigration() {
     setResult("");
     migrationMutation.mutate();
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="max-w-md">
+          <CardHeader>
+            <CardTitle>Authentication Required</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground mb-4">
+              You must be logged in as an admin to access this page.
+            </p>
+            <Button onClick={() => window.location.href = "/"}>Go to Home</Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (user?.role !== "admin") {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="max-w-md">
+          <CardHeader>
+            <CardTitle>Admin Access Required</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground mb-4">
+              You must be an admin to access this page.
+            </p>
+            <Button onClick={() => window.location.href = "/"}>Go to Home</Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
