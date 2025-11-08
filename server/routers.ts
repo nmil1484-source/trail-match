@@ -890,25 +890,55 @@ export const appRouter = router({
         }
         
         // Make user1Id and user2Id nullable
-        await database.execute(sql.raw(`
-          ALTER TABLE \`conversations\`
-            MODIFY COLUMN \`user1Id\` int NULL,
-            MODIFY COLUMN \`user2Id\` int NULL
-        `));
+        try {
+          await database.execute(sql.raw(`
+            ALTER TABLE \`conversations\`
+              MODIFY COLUMN \`user1Id\` int NULL,
+              MODIFY COLUMN \`user2Id\` int NULL
+          `));
+        } catch (error) {
+          console.log("Columns already nullable or error:", error);
+        }
         
-        // Add new columns for group chats
-        await database.execute(sql.raw(`
-          ALTER TABLE \`conversations\`
-            ADD COLUMN IF NOT EXISTS \`tripId\` int NULL,
-            ADD COLUMN IF NOT EXISTS \`isGroup\` boolean NOT NULL DEFAULT false,
-            ADD COLUMN IF NOT EXISTS \`title\` varchar(255) NULL
-        `));
+        // Add tripId column
+        try {
+          await database.execute(sql.raw(`
+            ALTER TABLE \`conversations\`
+              ADD COLUMN \`tripId\` int NULL
+          `));
+        } catch (error) {
+          console.log("tripId column may already exist");
+        }
+        
+        // Add isGroup column
+        try {
+          await database.execute(sql.raw(`
+            ALTER TABLE \`conversations\`
+              ADD COLUMN \`isGroup\` boolean NOT NULL DEFAULT false
+          `));
+        } catch (error) {
+          console.log("isGroup column may already exist");
+        }
+        
+        // Add title column
+        try {
+          await database.execute(sql.raw(`
+            ALTER TABLE \`conversations\`
+              ADD COLUMN \`title\` varchar(255) NULL
+          `));
+        } catch (error) {
+          console.log("title column may already exist");
+        }
         
         // Add index on tripId
-        await database.execute(sql.raw(`
-          ALTER TABLE \`conversations\`
-            ADD INDEX IF NOT EXISTS \`idx_trip\` (\`tripId\`)
-        `));
+        try {
+          await database.execute(sql.raw(`
+            ALTER TABLE \`conversations\`
+              ADD INDEX \`idx_trip\` (\`tripId\`)
+          `));
+        } catch (error) {
+          console.log("Index may already exist");
+        }
         
         // Try to drop unique constraint (may not exist if already dropped)
         try {
@@ -917,7 +947,6 @@ export const appRouter = router({
               DROP INDEX \`unique_conversation\`
           `));
         } catch (error) {
-          // Ignore error if constraint doesn't exist
           console.log("Unique constraint already removed or doesn't exist");
         }
         
