@@ -205,12 +205,31 @@ export default function TripDetail() {
                           </span>
                         </div>
                         <div className="flex-1">
-                          <p className="font-medium text-foreground">{p.user?.name || "Unknown"}</p>
+                          <Link href={`/user/${p.user?.id}`}>
+                            <p className="font-medium text-foreground hover:text-primary cursor-pointer">
+                              {p.user?.name || "Unknown"}
+                            </p>
+                          </Link>
                           <p className="text-sm text-muted-foreground">
                             {p.vehicle?.year} {p.vehicle?.make} {p.vehicle?.model}
                           </p>
                         </div>
-                        <Badge variant="outline">{p.vehicle?.buildLevel}</Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline">{p.vehicle?.buildLevel}</Badge>
+                          {user && user.id !== p.user?.id && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                if (!p.user?.id) return;
+                                createConversationMutation.mutate({ otherUserId: p.user.id });
+                              }}
+                              disabled={createConversationMutation.isPending}
+                            >
+                              <MessageCircle className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>

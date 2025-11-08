@@ -24,6 +24,7 @@ import Messages from "./pages/Messages";
 import About from "./pages/About";
 import FAQ from "./pages/FAQ";
 import AdminMessagingMigration from "./pages/AdminMessagingMigration";
+import UserProfile from "./pages/UserProfile";
 
 function Router() {
   return (
@@ -33,6 +34,7 @@ function Router() {
       <Route path={"/edit-trip/:id"} component={EditTrip} />
       <Route path={"/trip/:id"} component={TripDetail} />
       <Route path={"/profile"} component={Profile} />
+      <Route path={"/user/:id"} component={UserProfile} />
       <Route path={"/shops"} component={Shops} />
       <Route path={"/shops/add"} component={AddShop} />
       <Route path={"/shops/:id"} component={ShopDetail} />

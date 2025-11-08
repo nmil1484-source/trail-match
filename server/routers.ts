@@ -928,6 +928,23 @@ export const appRouter = router({
         return await db.getUnreadMessageCount(ctx.user.id);
       }),
   }),
+
+  users: router({  
+    // Get public user profile
+    getProfile: publicProcedure
+      .input(z.object({ userId: z.number() }))
+      .query(async ({ input }) => {
+        const user = await db.getUserById(input.userId);
+        if (!user) return null;
+        
+        // Return only public information
+        return {
+          id: user.id,
+          name: user.name,
+          createdAt: user.createdAt,
+        };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;
