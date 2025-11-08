@@ -873,6 +873,56 @@ export const appRouter = router({
         
         return { success: true, message: "Messaging tables created successfully" };
       }),
+
+    // Run group chat migration (admin only)
+    runGroupChatMigration: protectedProcedure
+      .mutation(async ({ ctx }) => {  
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+        }
+        
+        const { getDb } = await import("./db");
+        const { sql } = await import("drizzle-orm");
+        const database = await getDb();
+        
+        if (!database) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+        }
+        
+        // Make user1Id and user2Id nullable
+        await database.execute(sql.raw(`
+          ALTER TABLE \`conversations\`
+            MODIFY COLUMN \`user1Id\` int NULL,
+            MODIFY COLUMN \`user2Id\` int NULL
+        `));
+        
+        // Add new columns for group chats
+        await database.execute(sql.raw(`
+          ALTER TABLE \`conversations\`
+            ADD COLUMN IF NOT EXISTS \`tripId\` int NULL,
+            ADD COLUMN IF NOT EXISTS \`isGroup\` boolean NOT NULL DEFAULT false,
+            ADD COLUMN IF NOT EXISTS \`title\` varchar(255) NULL
+        `));
+        
+        // Add index on tripId
+        await database.execute(sql.raw(`
+          ALTER TABLE \`conversations\`
+            ADD INDEX IF NOT EXISTS \`idx_trip\` (\`tripId\`)
+        `));
+        
+        // Try to drop unique constraint (may not exist if already dropped)
+        try {
+          await database.execute(sql.raw(`
+            ALTER TABLE \`conversations\`
+              DROP INDEX \`unique_conversation\`
+          `));
+        } catch (error) {
+          // Ignore error if constraint doesn't exist
+          console.log("Unique constraint already removed or doesn't exist");
+        }
+        
+        return { success: true, message: "Group chat schema updated successfully" };
+      }),
   }),
 
   messages: router({

@@ -24,6 +24,7 @@ import Messages from "./pages/Messages";
 import About from "./pages/About";
 import FAQ from "./pages/FAQ";
 import AdminMessagingMigration from "./pages/AdminMessagingMigration";
+import AdminGroupChatMigration from "./pages/AdminGroupChatMigration";
 import UserProfile from "./pages/UserProfile";
 
 function Router() {
@@ -46,6 +47,7 @@ function Router() {
       <Route path={"/admin/migrate-shops"} component={AdminMigration} />
       <Route path={"/admin/migrate-private"} component={AdminMigratePrivate} />
       <Route path={"/admin/migrate-messaging"} component={AdminMessagingMigration} />
+      <Route path={"/admin/migrate-groupchat"} component={AdminGroupChatMigration} />
       <Route path={"/join-requests"} component={JoinRequests} />
       <Route path={"/messages"} component={Messages} />
       <Route path={"/about"} component={About} />
