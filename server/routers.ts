@@ -933,6 +933,45 @@ export const appRouter = router({
       .query(async ({ ctx }) => {
         return await db.getUnreadMessageCount(ctx.user.id);
       }),
+
+    // Get or create trip group chat
+    getTripGroupChat: protectedProcedure
+      .input(z.object({ tripId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        // Verify user is participant
+        const isParticipant = await db.isUserTripParticipant(ctx.user.id, input.tripId);
+        if (!isParticipant) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "You must be a trip participant to access group chat" });
+        }
+        return await db.getOrCreateTripGroupChat(input.tripId);
+      }),
+
+    // Get trip group messages
+    getTripGroupMessages: protectedProcedure
+      .input(z.object({ tripId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        // Verify user is participant
+        const isParticipant = await db.isUserTripParticipant(ctx.user.id, input.tripId);
+        if (!isParticipant) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "You must be a trip participant to view group chat" });
+        }
+        return await db.getTripGroupMessages(input.tripId);
+      }),
+
+    // Send message to trip group chat
+    sendTripGroupMessage: protectedProcedure
+      .input(z.object({ 
+        tripId: z.number(),
+        content: z.string().min(1)
+      }))
+      .mutation(async ({ ctx, input }) => {
+        // Verify user is participant
+        const isParticipant = await db.isUserTripParticipant(ctx.user.id, input.tripId);
+        if (!isParticipant) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "You must be a trip participant to send messages" });
+        }
+        return await db.sendTripGroupMessage(input.tripId, ctx.user.id, input.content);
+      }),
   }),
 
   users: router({  

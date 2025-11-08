@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { Calendar, MapPin, Users, Mountain, ArrowLeft, Shield, Wrench, Edit, Trash2, MessageCircle } from "lucide-react";
 import { Link, useParams } from "wouter";
 import { JoinTripDialog } from "@/components/JoinTripDialog";
+import TripGroupChat from "@/components/TripGroupChat";
 import { useState } from "react";
 
 export default function TripDetail() {
@@ -240,6 +241,11 @@ export default function TripDetail() {
                 )}
               </CardContent>
             </Card>
+
+            {/* Group Chat - Only for participants and organizer */}
+            {user && (isOrganizer || isParticipant) && (
+              <TripGroupChat tripId={tripId} tripTitle={trip.title} />
+            )}
 
             {/* Communication Preferences */}
             {trip.communicationMethods && (trip.communicationMethods as string[]).length > 0 ? (

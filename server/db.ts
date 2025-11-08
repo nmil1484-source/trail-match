@@ -924,3 +924,154 @@ export async function getUnreadMessageCount(userId: number) {
 
   return result[0]?.count || 0;
 }
+
+/**
+ * Get or create a group conversation for a trip
+ */
+export async function getOrCreateTripGroupChat(tripId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Try to find existing group chat for this trip
+  const existing = await db
+    .select()
+    .from(conversations)
+    .where(
+      and(
+        eq(conversations.tripId, tripId),
+        eq(conversations.isGroup, true)
+      )
+    )
+    .limit(1);
+
+  if (existing.length > 0) {
+    return existing[0];
+  }
+
+  // Get trip details for the title
+  const trip = await getTripById(tripId);
+  const title = trip ? `${trip.title} - Group Chat` : `Trip #${tripId} - Group Chat`;
+
+  // Create new group conversation
+  const [result] = await db.insert(conversations).values({
+    tripId,
+    isGroup: true,
+    title,
+    user1Id: null,
+    user2Id: null,
+    lastMessageAt: new Date(),
+  });
+
+  return {
+    id: (result as any).insertId,
+    tripId,
+    isGroup: true,
+    title,
+    user1Id: null,
+    user2Id: null,
+    lastMessageAt: new Date(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+}
+
+/**
+ * Get trip group chat messages
+ */
+export async function getTripGroupMessages(tripId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  // First get the conversation
+  const convo = await db
+    .select()
+    .from(conversations)
+    .where(
+      and(
+        eq(conversations.tripId, tripId),
+        eq(conversations.isGroup, true)
+      )
+    )
+    .limit(1);
+
+  if (convo.length === 0) return [];
+
+  // Get messages
+  const msgs = await db
+    .select({
+      message: messages,
+      sender: users,
+    })
+    .from(messages)
+    .leftJoin(users, eq(messages.senderId, users.id))
+    .where(eq(messages.conversationId, convo[0].id))
+    .orderBy(messages.createdAt);
+
+  return msgs.map(m => ({
+    ...m.message,
+    senderName: m.sender?.name || "Unknown",
+  }));
+}
+
+/**
+ * Send message to trip group chat
+ */
+export async function sendTripGroupMessage(tripId: number, senderId: number, content: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Get or create group chat
+  const conversation = await getOrCreateTripGroupChat(tripId);
+
+  // Insert message (receiverId is 0 for group messages)
+  const [result] = await db.insert(messages).values({
+    conversationId: conversation.id,
+    senderId,
+    receiverId: 0, // 0 indicates group message
+    content,
+    isRead: false,
+  });
+
+  // Update conversation's lastMessageAt
+  await db
+    .update(conversations)
+    .set({ lastMessageAt: new Date() })
+    .where(eq(conversations.id, conversation.id));
+
+  return {
+    id: (result as any).insertId,
+    conversationId: conversation.id,
+    senderId,
+    receiverId: 0,
+    content,
+    isRead: false,
+    createdAt: new Date(),
+  };
+}
+
+/**
+ * Check if user is participant in trip (for group chat access)
+ */
+export async function isUserTripParticipant(userId: number, tripId: number): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+
+  // Check if user is trip organizer
+  const trip = await getTripById(tripId);
+  if (trip?.userId === userId) return true;
+
+  // Check if user is accepted participant
+  const participant = await db
+    .select()
+    .from(tripParticipants)
+    .where(
+      and(
+        eq(tripParticipants.tripId, tripId),
+        eq(tripParticipants.userId, userId),
+        eq(tripParticipants.status, "accepted")
+      )
+    )
+    .limit(1);
+
+  return participant.length > 0;
+}

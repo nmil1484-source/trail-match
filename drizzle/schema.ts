@@ -232,8 +232,11 @@ export type InsertPasswordResetToken = typeof passwordResetTokens.$inferInsert;
  */
 export const conversations = mysqlTable("conversations", {
   id: int("id").autoincrement().primaryKey(),
-  user1Id: int("user1Id").notNull(), // First participant
-  user2Id: int("user2Id").notNull(), // Second participant
+  user1Id: int("user1Id"), // First participant (null for group chats)
+  user2Id: int("user2Id"), // Second participant (null for group chats)
+  tripId: int("tripId"), // Trip this conversation is about (null for direct messages)
+  isGroup: boolean("isGroup").default(false).notNull(), // True for trip group chats
+  title: varchar("title", { length: 255 }), // Optional title for group chats
   lastMessageAt: timestamp("lastMessageAt").defaultNow().notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),

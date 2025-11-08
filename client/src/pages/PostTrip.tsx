@@ -53,7 +53,7 @@ export default function PostTrip() {
   const [minTireSize, setMinTireSize] = useState("");
   const [requiresWinch, setRequiresWinch] = useState(false);
   const [requiresLockers, setRequiresLockers] = useState(false);
-  const [vehicleRequirement, setVehicleRequirement] = useState<string>("");
+  const [vehicleRequirements, setVehicleRequirements] = useState<string[]>([]);
   const [itinerary, setItinerary] = useState("");
   const [campingInfo, setCampingInfo] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
@@ -122,7 +122,7 @@ export default function PostTrip() {
       minTireSize: minTireSize || undefined,
       requiresWinch,
       requiresLockers,
-      vehicleRequirement: vehicleRequirement as any || undefined,
+      vehicleRequirement: vehicleRequirements.length > 0 ? vehicleRequirements : undefined,
       itinerary: itinerary || undefined,
       campingInfo: campingInfo || undefined,
       photos: photos.length > 0 ? photos : undefined,
@@ -341,19 +341,30 @@ export default function PostTrip() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="vehicleRequirement">Vehicle Requirement</Label>
-                <Select value={vehicleRequirement} onValueChange={(value: string) => setVehicleRequirement(value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select requirement..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {VEHICLE_REQUIREMENTS.map((req) => (
-                      <SelectItem key={req.value} value={req.value}>
+                <Label>Vehicle Requirements (select all that apply)</Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
+                  {VEHICLE_REQUIREMENTS.map((req) => (
+                    <div key={req.value} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`vehicle-${req.value}`}
+                        checked={vehicleRequirements.includes(req.value)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setVehicleRequirements([...vehicleRequirements, req.value]);
+                          } else {
+                            setVehicleRequirements(vehicleRequirements.filter(v => v !== req.value));
+                          }
+                        }}
+                      />
+                      <label
+                        htmlFor={`vehicle-${req.value}`}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      >
                         {req.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                      </label>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div>
