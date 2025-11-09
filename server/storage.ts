@@ -10,12 +10,17 @@ const R2_BUCKET_NAME = process.env.R2_BUCKET_NAME || "";
 
 const USE_LOCAL_STORAGE = !R2_ACCOUNT_ID || !R2_ACCESS_KEY_ID || !R2_SECRET_ACCESS_KEY || !R2_BUCKET_NAME;
 
+// Determine uploads directory - use /tmp in production for Railway compatibility
+const UPLOADS_DIR = process.env.NODE_ENV === "production" 
+  ? "/tmp/uploads" 
+  : path.join(process.cwd(), "uploads");
+
 if (USE_LOCAL_STORAGE) {
   console.warn("[Storage] R2 credentials not configured. Using local file storage.");
+  console.log(`[Storage] Uploads directory: ${UPLOADS_DIR}`);
   // Create uploads directory if it doesn't exist
-  const uploadsDir = path.join(process.cwd(), "uploads");
-  if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
+  if (!fs.existsSync(UPLOADS_DIR)) {
+    fs.mkdirSync(UPLOADS_DIR, { recursive: true });
   }
 }
 
@@ -50,7 +55,7 @@ export async function storagePut(
 
   if (USE_LOCAL_STORAGE) {
     // Store locally
-    const filePath = path.join(process.cwd(), "uploads", key);
+    const filePath = path.join(UPLOADS_DIR, key);
     const dir = path.dirname(filePath);
     
     // Create directory if it doesn't exist
