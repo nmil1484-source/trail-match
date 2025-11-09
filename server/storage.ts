@@ -22,6 +22,10 @@ if (USE_LOCAL_STORAGE) {
   if (!fs.existsSync(UPLOADS_DIR)) {
     fs.mkdirSync(UPLOADS_DIR, { recursive: true });
   }
+} else {
+  console.log("[Storage] Using Cloudflare R2 storage");
+  console.log(`[Storage] Bucket: ${R2_BUCKET_NAME}`);
+  console.log(`[Storage] Account ID: ${R2_ACCOUNT_ID}`);
 }
 
 const s3Client = new S3Client({
@@ -71,19 +75,25 @@ export async function storagePut(
     return { key, url };
   }
 
-  const command = new PutObjectCommand({
-    Bucket: R2_BUCKET_NAME,
-    Key: key,
-    Body: body,
-    ContentType: contentType,
-  });
+  try {
+    const command = new PutObjectCommand({
+      Bucket: R2_BUCKET_NAME,
+      Key: key,
+      Body: body,
+      ContentType: contentType,
+    });
 
-  await s3Client.send(command);
+    await s3Client.send(command);
+    console.log(`[Storage] Successfully uploaded to R2: ${key}`);
 
-  // Construct public URL (you'll need to enable public access or use a custom domain)
-  const url = `https://pub-${R2_ACCOUNT_ID}.r2.dev/${key}`;
-  
-  return { key, url };
+    // Use the public dev URL format for R2
+    const url = `https://pub-${R2_BUCKET_NAME}.r2.dev/${key}`;
+    
+    return { key, url };
+  } catch (error) {
+    console.error("[Storage] R2 upload failed:", error);
+    throw error;
+  }
 }
 
 export async function storageGet(relKey: string): Promise<{ key: string; url: string }> {
@@ -94,7 +104,7 @@ export async function storageGet(relKey: string): Promise<{ key: string; url: st
     return { key, url };
   }
   
-  const url = `https://pub-${R2_ACCOUNT_ID}.r2.dev/${key}`;
+  const url = `https://pub-${R2_BUCKET_NAME}.r2.dev/${key}`;
   return { key, url };
 }
 
