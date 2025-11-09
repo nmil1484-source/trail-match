@@ -1,13 +1,22 @@
-// Cloudflare R2 storage implementation
+// Cloudflare R2 storage implementation with local fallback
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import * as fs from "fs";
+import * as path from "path";
 
 const R2_ACCOUNT_ID = process.env.R2_ACCOUNT_ID || "";
 const R2_ACCESS_KEY_ID = process.env.R2_ACCESS_KEY_ID || "";
 const R2_SECRET_ACCESS_KEY = process.env.R2_SECRET_ACCESS_KEY || "";
 const R2_BUCKET_NAME = process.env.R2_BUCKET_NAME || "";
 
-if (!R2_ACCOUNT_ID || !R2_ACCESS_KEY_ID || !R2_SECRET_ACCESS_KEY || !R2_BUCKET_NAME) {
-  console.warn("[Storage] R2 credentials not configured. Photo uploads will fail.");
+const USE_LOCAL_STORAGE = !R2_ACCOUNT_ID || !R2_ACCESS_KEY_ID || !R2_SECRET_ACCESS_KEY || !R2_BUCKET_NAME;
+
+if (USE_LOCAL_STORAGE) {
+  console.warn("[Storage] R2 credentials not configured. Using local file storage.");
+  // Create uploads directory if it doesn't exist
+  const uploadsDir = path.join(process.cwd(), "uploads");
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
 }
 
 const s3Client = new S3Client({
@@ -39,6 +48,24 @@ export async function storagePut(
     body = data;
   }
 
+  if (USE_LOCAL_STORAGE) {
+    // Store locally
+    const filePath = path.join(process.cwd(), "uploads", key);
+    const dir = path.dirname(filePath);
+    
+    // Create directory if it doesn't exist
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    
+    // Write file
+    fs.writeFileSync(filePath, body);
+    
+    // Return URL relative to server
+    const url = `/uploads/${key}`;
+    return { key, url };
+  }
+
   const command = new PutObjectCommand({
     Bucket: R2_BUCKET_NAME,
     Key: key,
@@ -56,6 +83,12 @@ export async function storagePut(
 
 export async function storageGet(relKey: string): Promise<{ key: string; url: string }> {
   const key = normalizeKey(relKey);
+  
+  if (USE_LOCAL_STORAGE) {
+    const url = `/uploads/${key}`;
+    return { key, url };
+  }
+  
   const url = `https://pub-${R2_ACCOUNT_ID}.r2.dev/${key}`;
   return { key, url };
 }
