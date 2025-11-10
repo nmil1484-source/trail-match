@@ -62,9 +62,15 @@ async function startServer() {
     ? parseInt(process.env.PORT || "3000")
     : await findAvailablePort(parseInt(process.env.PORT || "3000"));
 
+  console.log(`[Server] NODE_ENV: ${process.env.NODE_ENV}`);
+  console.log(`[Server] PORT from env: ${process.env.PORT}`);
+  console.log(`[Server] Using port: ${port}`);
+  console.log(`[Server] Binding to: 0.0.0.0`);
+
   server.listen(port, "0.0.0.0", () => {
-    console.log(`Server running on http://0.0.0.0:${port}/`);
-    console.log(`Environment: ${process.env.NODE_ENV}`);
+    console.log(`✅ Server running on http://0.0.0.0:${port}/`);
+    console.log(`✅ Environment: ${process.env.NODE_ENV}`);
+    console.log(`✅ Server is ready to accept connections`);
   });
 }
 
