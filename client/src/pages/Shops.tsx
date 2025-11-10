@@ -1,6 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import ImageLightbox from "@/components/ImageLightbox";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -162,7 +163,7 @@ export default function Shops() {
                 <div>
                   <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
                   {shop.photos && Array.isArray(shop.photos) && shop.photos.length > 0 ? (
-                    <img
+                    <ImageLightbox
                       src={(shop.photos as string[])[0]}
                       alt={shop.name}
                       className="w-full h-48 object-cover rounded-t-lg"

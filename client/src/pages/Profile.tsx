@@ -1,6 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import ImageLightbox from "@/components/ImageLightbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -284,10 +285,10 @@ export default function Profile() {
             <div className="flex items-start gap-6">
               {user?.profilePhoto && (
                 <div className="flex-shrink-0">
-                  <img 
-                    src={user.profilePhoto} 
-                    alt="Profile" 
-                    className="w-24 h-24 rounded-full object-cover border-2 border-border"
+                  <ImageLightbox
+                    src={user.profilePhoto}
+                    alt="Profile"
+                    className="w-24 h-24 rounded-full object-cover border-2 border-border cursor-pointer hover:opacity-80 transition-opacity"
                   />
                 </div>
               )}

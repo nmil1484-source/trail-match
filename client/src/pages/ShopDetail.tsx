@@ -1,6 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import ImageLightbox from "@/components/ImageLightbox";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { MapPin, Phone, Mail, Globe, Star, ArrowLeft, Edit, Trash2, Plus } from "lucide-react";
@@ -103,7 +104,7 @@ export default function ShopDetail() {
       {/* Hero Image */}
       {shop.photos && Array.isArray(shop.photos) && shop.photos.length > 0 ? (
         <div className="w-full h-96 bg-muted relative overflow-hidden">
-          <img
+          <ImageLightbox
             src={(shop.photos as string[])[0]}
             alt={shop.name}
             className="w-full h-full object-cover"

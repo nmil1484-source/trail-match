@@ -1,6 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import ImageLightbox from "@/components/ImageLightbox";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
@@ -103,28 +104,28 @@ export default function Home() {
               <img src="/trailmatch-logo.png" alt="TrailMatch" className="h-8 w-8 md:h-10 md:w-10" />
               <span className="text-lg md:text-2xl font-bold text-foreground">TrailMatch</span>
             </Link>
-            <nav className="flex items-center gap-2 md:gap-6 text-sm md:text-base">
-              <Link href="/" className="text-foreground hover:text-primary font-medium">
-                Find Trips
+            <nav className="flex items-center gap-1 sm:gap-3 md:gap-6 text-xs sm:text-sm md:text-base flex-wrap">
+              <Link href="/" className="text-foreground hover:text-primary font-medium whitespace-nowrap">
+                <span className="hidden sm:inline">Find </span>Trips
               </Link>
-              <Link href="/shops" className="text-foreground hover:text-primary font-medium">
+              <Link href="/shops" className="text-foreground hover:text-primary font-medium whitespace-nowrap">
                 Shops
               </Link>
               {isAuthenticated ? (
                 <>
-                  <Link href="/post-trip" className="text-foreground hover:text-primary font-medium">
-                    Post Trip
+                  <Link href="/post-trip" className="text-foreground hover:text-primary font-medium whitespace-nowrap">
+                    <span className="hidden sm:inline">Post </span>Trip
                   </Link>
-                  <Link href="/messages" className="text-foreground hover:text-primary font-medium relative">
-                    Messages
+                  <Link href="/messages" className="text-foreground hover:text-primary font-medium relative whitespace-nowrap">
+                    <span className="hidden sm:inline">Messages</span><span className="sm:hidden">Msgs</span>
                     {unreadMessageCount && unreadMessageCount > 0 && (
                       <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
                         {unreadMessageCount}
                       </span>
                     )}
                   </Link>
-                  <Link href="/profile" className="text-foreground hover:text-primary font-medium relative">
-                    My Profile
+                  <Link href="/profile" className="text-foreground hover:text-primary font-medium relative whitespace-nowrap">
+                    <span className="hidden sm:inline">My </span>Profile
                     {notificationCount && notificationCount > 0 && (
                       <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
                         {notificationCount}
@@ -260,7 +261,7 @@ export default function Home() {
                 >
                   {trip.photos && (trip.photos as string[]).length > 0 && (
                     <div className="aspect-video bg-muted relative overflow-hidden">
-                      <img
+                      <ImageLightbox
                         src={(trip.photos as string[])[0]}
                         alt={trip.title}
                         className="w-full h-full object-cover"
