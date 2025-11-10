@@ -1130,3 +1130,38 @@ export async function getOrganizerReviews(organizerId: number) {
     .where(eq(tripReviews.organizerId, organizerId))
     .orderBy(desc(tripReviews.createdAt));
 }
+
+export async function updateShopReview(reviewId: number, data: {
+  rating?: number;
+  reviewText?: string;
+  serviceType?: string;
+  wouldRecommend?: boolean;
+}) {
+  const result = await db
+    .update(shopReviews)
+    .set({
+      ...data,
+      updatedAt: new Date(),
+    })
+    .where(eq(shopReviews.id, reviewId))
+    .returning();
+  return result[0];
+}
+
+export async function updateTripReview(reviewId: number, data: {
+  rating?: number;
+  reviewText?: string;
+  organizationRating?: number;
+  communicationRating?: number;
+  wouldJoinAgain?: boolean;
+}) {
+  const result = await db
+    .update(tripReviews)
+    .set({
+      ...data,
+      updatedAt: new Date(),
+    })
+    .where(eq(tripReviews.id, reviewId))
+    .returning();
+  return result[0];
+}

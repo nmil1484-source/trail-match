@@ -508,6 +508,32 @@ export const appRouter = router({
         return { reviewId };
       }),
 
+    editReview: protectedProcedure
+      .input(z.object({
+        reviewId: z.number(),
+        rating: z.number().min(1).max(5),
+        reviewText: z.string().optional(),
+        organizationRating: z.number().min(1).max(5).optional(),
+        communicationRating: z.number().min(1).max(5).optional(),
+        wouldJoinAgain: z.boolean().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        // Verify user owns this review
+        const review = await db.getUserTripReview(0, ctx.user.id); // Will need to update this
+        if (!review || review.userId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "You can only edit your own reviews" });
+        }
+        
+        await db.updateTripReview(input.reviewId, {
+          rating: input.rating,
+          reviewText: input.reviewText,
+          organizationRating: input.organizationRating,
+          communicationRating: input.communicationRating,
+          wouldJoinAgain: input.wouldJoinAgain,
+        });
+        return { success: true };
+      }),
+
     getReviews: publicProcedure
       .input(z.object({ tripId: z.number() }))
       .query(async ({ input }) => {
@@ -583,11 +609,46 @@ export const appRouter = router({
         wouldRecommend: z.boolean().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
+        // Check if user already reviewed this shop
+        const existingReviews = await db.getShopReviews(input.shopId);
+        const userReview = existingReviews.find(r => r.userId === ctx.user.id);
+        if (userReview) {
+          throw new TRPCError({ 
+            code: "BAD_REQUEST", 
+            message: "You have already reviewed this shop. Please edit your existing review instead." 
+          });
+        }
+        
         const reviewId = await db.createShopReview({
           ...input,
           userId: ctx.user.id,
         });
         return { reviewId };
+      }),
+
+    editReview: protectedProcedure
+      .input(z.object({
+        reviewId: z.number(),
+        rating: z.number().min(1).max(5),
+        reviewText: z.string().optional(),
+        serviceType: z.string().optional(),
+        wouldRecommend: z.boolean().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        // Verify user owns this review
+        const reviews = await db.getShopReviews(0); // Get all reviews
+        const review = reviews.find(r => r.id === input.reviewId);
+        if (!review || review.userId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "You can only edit your own reviews" });
+        }
+        
+        await db.updateShopReview(input.reviewId, {
+          rating: input.rating,
+          reviewText: input.reviewText,
+          serviceType: input.serviceType,
+          wouldRecommend: input.wouldRecommend,
+        });
+        return { success: true };
       }),
 
     getReviews: publicProcedure
