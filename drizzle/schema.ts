@@ -183,6 +183,14 @@ export const shops = mysqlTable("shops", {
   // Photos
   photos: json("photos"), // Array of photo URLs
   
+  // Verification and Premium Features
+  isVerified: boolean("isVerified").default(false), // Admin-approved verification badge
+  verifiedAt: timestamp("verifiedAt"), // When shop was verified
+  verifiedBy: int("verifiedBy"), // Admin user ID who verified
+  
+  premiumTier: mysqlEnum("premiumTier", ["none", "featured", "premium"]).default("none"),
+  premiumExpiresAt: timestamp("premiumExpiresAt"), // When premium subscription expires
+  
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

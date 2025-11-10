@@ -422,15 +422,42 @@ export async function getShops(filters?: { categories?: string[]; state?: string
     query = query.where(and(...conditions)) as any;
   }
   
-  const results = await query;
+  let results = await query;
   
   // Filter by categories in-memory
   if (filters?.categories && filters.categories.length > 0) {
-    return results.filter(shop => {
+    results = results.filter(shop => {
       const shopCategories = shop.categories as string[];
       return filters.categories!.some(cat => shopCategories.includes(cat));
     });
   }
+  
+  // Sort: Premium first, then Featured, then regular shops
+  // Also check if premium hasn't expired
+  const now = new Date();
+  results.sort((a, b) => {
+    // Check if premium is expired
+    const aIsActivePremium = a.premiumTier !== 'none' && 
+      (!a.premiumExpiresAt || new Date(a.premiumExpiresAt) > now);
+    const bIsActivePremium = b.premiumTier !== 'none' && 
+      (!b.premiumExpiresAt || new Date(b.premiumExpiresAt) > now);
+    
+    // Priority: premium > featured > none
+    const aPriority = aIsActivePremium ? (a.premiumTier === 'premium' ? 3 : 2) : 0;
+    const bPriority = bIsActivePremium ? (b.premiumTier === 'premium' ? 3 : 2) : 0;
+    
+    if (aPriority !== bPriority) {
+      return bPriority - aPriority; // Higher priority first
+    }
+    
+    // Within same tier, verified shops come first
+    if (a.isVerified !== b.isVerified) {
+      return a.isVerified ? -1 : 1;
+    }
+    
+    // Finally sort by rating
+    return (b.averageRating || 0) - (a.averageRating || 0);
+  });
   
   return results;
 }
@@ -1164,4 +1191,56 @@ export async function updateTripReview(reviewId: number, data: {
     .where(eq(tripReviews.id, reviewId))
     .returning();
   return result[0];
+}
+
+// ===== SHOP VERIFICATION & PREMIUM FUNCTIONS =====
+
+/**
+ * Update shop verification status (admin only)
+ */
+export async function updateShopVerification(shopId: number, isVerified: boolean, adminId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(shops).set({
+    isVerified,
+    verifiedAt: isVerified ? new Date() : null,
+    verifiedBy: isVerified ? adminId : null,
+  }).where(eq(shops.id, shopId));
+}
+
+/**
+ * Update shop premium tier (admin only)
+ */
+export async function updateShopPremiumTier(shopId: number, premiumTier: "none" | "featured" | "premium", expiresAt: Date | null): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(shops).set({
+    premiumTier,
+    premiumExpiresAt: expiresAt,
+  }).where(eq(shops.id, shopId));
+}
+
+/**
+ * Check and expire premium shops (run periodically)
+ */
+export async function checkAndExpirePremiumShops(): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  const now = new Date();
+  
+  // Find expired premium shops
+  await db.update(shops)
+    .set({
+      premiumTier: "none",
+      premiumExpiresAt: null,
+    })
+    .where(
+      and(
+        ne(shops.premiumTier, "none"),
+        lt(shops.premiumExpiresAt, now)
+      )
+    );
 }

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { trpc } from "@/lib/trpc";
-import { MapPin, Phone, Mail, Globe, Star, Plus } from "lucide-react";
+import { MapPin, Phone, Mail, Globe, Star, Plus, CheckCircle, Crown } from "lucide-react";
 import { Link } from "wouter";
 import { useState } from "react";
 
@@ -161,7 +161,11 @@ export default function Shops() {
             {shops.map((shop) => (
               <Link key={shop.id} href={`/shops/${shop.id}`}>
                 <div>
-                  <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
+                  <Card className={`hover:shadow-lg transition-shadow cursor-pointer h-full ${
+                    shop.premiumTier === 'premium' ? 'border-2 border-yellow-400 shadow-xl' :
+                    shop.premiumTier === 'featured' ? 'border-2 border-orange-300' :
+                    ''
+                  }`}>
                   {shop.photos && Array.isArray(shop.photos) && shop.photos.length > 0 ? (
                     <ImageLightbox
                       src={(shop.photos as string[])[0]}
@@ -171,7 +175,15 @@ export default function Shops() {
                   ) : null}
                   <CardHeader>
                     <div className="flex justify-between items-start">
-                      <CardTitle className="text-xl">{shop.name}</CardTitle>
+                      <div className="flex items-center gap-2">
+                        <CardTitle className="text-xl">{shop.name}</CardTitle>
+                        {shop.isVerified && (
+                          <CheckCircle className="h-5 w-5 text-blue-500 fill-blue-500" title="Verified Shop" />
+                        )}
+                        {shop.premiumTier === 'premium' && (
+                          <Crown className="h-5 w-5 text-yellow-500 fill-yellow-500" title="Premium Shop" />
+                        )}
+                      </div>
                       <div className="flex flex-wrap gap-1">
                         {(shop.categories as string[]).map((cat) => (
                           <span key={cat} className="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full capitalize">

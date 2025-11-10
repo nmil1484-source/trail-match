@@ -1096,6 +1096,118 @@ export const appRouter = router({
         
         return { success: true, message: "Group chat schema updated successfully" };
       }),
+
+    // Verify shop (admin only)
+    verifyShop: protectedProcedure
+      .input(z.object({ 
+        shopId: z.number(),
+        isVerified: z.boolean(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+        }
+        await db.updateShopVerification(input.shopId, input.isVerified, ctx.user.id);
+        return { success: true };
+      }),
+
+    // Set shop premium tier (admin only)
+    setShopPremiumTier: protectedProcedure
+      .input(z.object({ 
+        shopId: z.number(),
+        premiumTier: z.enum(["none", "featured", "premium"]),
+        durationDays: z.number().optional(), // How many days to extend (default 30)
+      }))
+      .mutation(async ({ ctx, input }) => {
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+        }
+        
+        const days = input.durationDays || 30;
+        const expiresAt = input.premiumTier === "none" 
+          ? null 
+          : new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+        
+        await db.updateShopPremiumTier(input.shopId, input.premiumTier, expiresAt);
+        return { success: true, expiresAt };
+      }),
+
+    // Migrate shops table for verification fields (admin only)
+    migrateShopsVerification: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+        }
+        
+        const connection = await db.getRawConnection();
+        if (!connection) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection not available" });
+        }
+
+        const steps: string[] = [];
+
+        // Add isVerified column
+        try {
+          await connection.execute(`ALTER TABLE shops ADD COLUMN isVerified BOOLEAN NOT NULL DEFAULT false`);
+          steps.push("✅ Added 'isVerified' column");
+        } catch (error: any) {
+          if (error.message.includes("Duplicate column name")) {
+            steps.push("⚠️ 'isVerified' column already exists, skipping");
+          } else {
+            throw error;
+          }
+        }
+
+        // Add verifiedAt column
+        try {
+          await connection.execute(`ALTER TABLE shops ADD COLUMN verifiedAt TIMESTAMP NULL`);
+          steps.push("✅ Added 'verifiedAt' column");
+        } catch (error: any) {
+          if (error.message.includes("Duplicate column name")) {
+            steps.push("⚠️ 'verifiedAt' column already exists, skipping");
+          } else {
+            throw error;
+          }
+        }
+
+        // Add verifiedBy column
+        try {
+          await connection.execute(`ALTER TABLE shops ADD COLUMN verifiedBy INT NULL`);
+          steps.push("✅ Added 'verifiedBy' column");
+        } catch (error: any) {
+          if (error.message.includes("Duplicate column name")) {
+            steps.push("⚠️ 'verifiedBy' column already exists, skipping");
+          } else {
+            throw error;
+          }
+        }
+
+        // Add premiumTier column
+        try {
+          await connection.execute(`ALTER TABLE shops ADD COLUMN premiumTier ENUM('none', 'featured', 'premium') NOT NULL DEFAULT 'none'`);
+          steps.push("✅ Added 'premiumTier' column");
+        } catch (error: any) {
+          if (error.message.includes("Duplicate column name")) {
+            steps.push("⚠️ 'premiumTier' column already exists, skipping");
+          } else {
+            throw error;
+          }
+        }
+
+        // Add premiumExpiresAt column
+        try {
+          await connection.execute(`ALTER TABLE shops ADD COLUMN premiumExpiresAt TIMESTAMP NULL`);
+          steps.push("✅ Added 'premiumExpiresAt' column");
+        } catch (error: any) {
+          if (error.message.includes("Duplicate column name")) {
+            steps.push("⚠️ 'premiumExpiresAt' column already exists, skipping");
+          } else {
+            throw error;
+          }
+        }
+
+        return { success: true, message: "Shop verification migration completed successfully", steps };
+      }),
   }),
 
   messages: router({

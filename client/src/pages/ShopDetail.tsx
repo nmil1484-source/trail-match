@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ImageLightbox from "@/components/ImageLightbox";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { MapPin, Phone, Mail, Globe, Star, ArrowLeft, Edit, Trash2, Plus } from "lucide-react";
+import { MapPin, Phone, Mail, Globe, Star, ArrowLeft, Edit, Trash2, Plus, CheckCircle, Crown } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -118,7 +118,15 @@ export default function ShopDetail() {
           <div className="lg:col-span-2 space-y-6">
             <div>
               <div className="flex items-start justify-between mb-4">
-                <h1 className="text-4xl font-bold text-foreground">{shop.name}</h1>
+                <div className="flex items-center gap-3">
+                  <h1 className="text-4xl font-bold text-foreground">{shop.name}</h1>
+                  {shop.isVerified && (
+                    <CheckCircle className="h-8 w-8 text-blue-500 fill-blue-500" title="Verified Shop" />
+                  )}
+                  {shop.premiumTier === 'premium' && (
+                    <Crown className="h-8 w-8 text-yellow-500 fill-yellow-500" title="Premium Shop" />
+                  )}
+                </div>
                 {isOwner && (
                   <div className="flex gap-2">
                     <Link href={`/edit-shop/${shopId}`}>

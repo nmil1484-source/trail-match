@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { Link, useLocation } from "wouter";
-import { Users, MapPin, Store, Trash2, Shield, ShieldOff, ArrowLeft } from "lucide-react";
+import { Users, MapPin, Store, Trash2, Shield, ShieldOff, ArrowLeft, CheckCircle, XCircle, Crown } from "lucide-react";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -89,6 +89,26 @@ export default function Admin() {
     },
   });
 
+  const verifyShop = trpc.admin.verifyShop.useMutation({
+    onSuccess: () => {
+      toast.success("Shop verification updated");
+      utils.admin.getAllShops.invalidate();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to update shop verification");
+    },
+  });
+
+  const setShopPremiumTier = trpc.admin.setShopPremiumTier.useMutation({
+    onSuccess: () => {
+      toast.success("Shop premium tier updated");
+      utils.admin.getAllShops.invalidate();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to update premium tier");
+    },
+  });
+
   // Check if user is admin
   if (loading) {
     return (
@@ -138,6 +158,14 @@ export default function Admin() {
   const handleToggleAdmin = (userId: number, currentRole: string) => {
     const newRole = currentRole === "admin" ? "user" : "admin";
     updateUserRole.mutate({ userId, role: newRole });
+  };
+
+  const handleToggleVerification = (shopId: number, isVerified: boolean) => {
+    verifyShop.mutate({ shopId, isVerified });
+  };
+
+  const handleSetPremiumTier = (shopId: number, premiumTier: "none" | "featured" | "premium") => {
+    setShopPremiumTier.mutate({ shopId, premiumTier, durationDays: 30 });
   };
 
   return (
@@ -346,22 +374,49 @@ export default function Admin() {
                 {shopsLoading ? (
                   <p>Loading shops...</p>
                 ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Location</TableHead>
-                        <TableHead>Added By</TableHead>
-                        <TableHead>Date Added</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Name</TableHead>
+                          <TableHead>Location</TableHead>
+                          <TableHead>Verified</TableHead>
+                          <TableHead>Premium</TableHead>
+                          <TableHead>Added By</TableHead>
+                          <TableHead>Date Added</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
                     <TableBody>
                       {shops.map((shop) => (
                         <TableRow key={shop.id}>
                           <TableCell className="font-medium">{shop.name}</TableCell>
                           <TableCell>
                             {shop.city && shop.state ? `${shop.city}, ${shop.state}` : "N/A"}
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              variant={shop.isVerified ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => handleToggleVerification(shop.id, !shop.isVerified)}
+                              className="flex items-center gap-1"
+                            >
+                              {shop.isVerified ? (
+                                <><CheckCircle className="h-3 w-3" /> Verified</>
+                              ) : (
+                                <><XCircle className="h-3 w-3" /> Unverified</>
+                              )}
+                            </Button>
+                          </TableCell>
+                          <TableCell>
+                            <select
+                              value={shop.premiumTier || 'none'}
+                              onChange={(e) => handleSetPremiumTier(shop.id, e.target.value as any)}
+                              className="border rounded px-2 py-1 text-sm"
+                            >
+                              <option value="none">None</option>
+                              <option value="featured">Featured</option>
+                              <option value="premium">Premium</option>
+                            </select>
                           </TableCell>
                           <TableCell>{shop.addedByUser?.name || "Unknown"}</TableCell>
                           <TableCell>
