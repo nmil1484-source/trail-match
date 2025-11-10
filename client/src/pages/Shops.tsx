@@ -109,6 +109,48 @@ export default function Shops() {
         </div>
       </div>
 
+      {/* Premium Shop Promotion Banner */}
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        <Card className="bg-gradient-to-r from-orange-50 to-yellow-50 border-2 border-orange-200">
+          <CardContent className="py-6">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <Crown className="h-6 w-6 text-yellow-600" />
+                  <h2 className="text-2xl font-bold text-gray-900">Promote Your Shop</h2>
+                </div>
+                <p className="text-gray-700 mb-3">
+                  Get more visibility with Premium or Featured listings! Stand out with special badges, priority placement, and enhanced visibility.
+                </p>
+                <div className="flex flex-wrap gap-4 text-sm">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-blue-500" />
+                    <span><strong>Verified Badge</strong> - Build trust</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Crown className="h-4 w-4 text-yellow-500" />
+                    <span><strong>Premium Badge</strong> - Stand out</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Star className="h-4 w-4 text-orange-500" />
+                    <span><strong>Top Placement</strong> - Get noticed first</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col gap-3">
+                <a href="mailto:contact@trail-match.com?subject=Premium Shop Listing Inquiry" className="inline-block">
+                  <Button size="lg" className="bg-orange-600 hover:bg-orange-700 text-white">
+                    <Mail className="mr-2 h-5 w-5" />
+                    Contact Us for Pricing
+                  </Button>
+                </a>
+                <p className="text-xs text-gray-600 text-center">Starting at $XX/month</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Filters */}
       <div className="max-w-7xl mx-auto px-4 py-6">
         <Card>
