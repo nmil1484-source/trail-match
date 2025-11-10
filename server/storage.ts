@@ -87,7 +87,8 @@ export async function storagePut(
     console.log(`[Storage] Successfully uploaded to R2: ${key}`);
 
     // Use the public dev URL format for R2
-    const url = `https://pub-${R2_BUCKET_NAME}.r2.dev/${key}`;
+    // Format: https://pub-<hash>.r2.dev/<key>
+    const url = `https://pub-${R2_ACCOUNT_ID}.r2.dev/${key}`;
     
     return { key, url };
   } catch (error) {
