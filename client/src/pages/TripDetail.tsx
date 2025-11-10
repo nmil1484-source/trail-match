@@ -157,6 +157,20 @@ export default function TripDetail() {
               </div>
             </div>
 
+            {/* Trip Photos */}
+            {trip.photos && trip.photos.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {trip.photos.map((photo, index) => (
+                  <img
+                    key={index}
+                    src={photo}
+                    alt={`Trip photo ${index + 1}`}
+                    className="w-full h-48 object-cover rounded-lg border border-border"
+                  />
+                ))}
+              </div>
+            )}
+
             {trip.description && (
               <Card>
                 <CardHeader>
@@ -200,11 +214,19 @@ export default function TripDetail() {
                   <div className="space-y-3">
                     {acceptedParticipants.map((p) => (
                       <div key={p.participant.id} className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                          <span className="font-semibold text-primary">
-                            {p.user?.name?.charAt(0) || "?"}
-                          </span>
-                        </div>
+                        {p.user?.profilePhoto ? (
+                          <img
+                            src={p.user.profilePhoto}
+                            alt={p.user.name || "User"}
+                            className="h-10 w-10 rounded-full object-cover border border-border"
+                          />
+                        ) : (
+                          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                            <span className="font-semibold text-primary">
+                              {p.user?.name?.charAt(0) || "?"}
+                            </span>
+                          </div>
+                        )}
                         <div className="flex-1">
                           <Link href={`/user/${p.user?.id}`}>
                             <p className="font-medium text-foreground hover:text-primary cursor-pointer">

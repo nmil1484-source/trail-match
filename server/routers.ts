@@ -394,6 +394,23 @@ export const appRouter = router({
           message: input.message,
           status: "pending",
         });
+        
+        // Send email notification to trip organizer
+        const trip = await db.getTripById(input.tripId);
+        if (trip) {
+          const organizer = await db.getUserById(trip.organizerId);
+          if (organizer?.email) {
+            const { sendTripJoinRequestEmail } = await import("./_core/email");
+            await sendTripJoinRequestEmail(
+              organizer.email,
+              organizer.name || "Organizer",
+              ctx.user.name || "A user",
+              trip.title,
+              trip.id
+            );
+          }
+        }
+        
         return { participantId };
       }),
 
@@ -432,9 +449,75 @@ export const appRouter = router({
           await db.updateTrip(input.tripId, {
             currentParticipants: (trip.currentParticipants || 0) + 1,
           });
+          
+          // Send email notification to requester
+          const participants = await db.getTripParticipants(input.tripId);
+          const participant = participants.find(p => p.participant?.id === input.participantId);
+          if (participant?.user?.email) {
+            const organizer = await db.getUserById(trip.organizerId);
+            const { sendTripRequestAcceptedEmail } = await import("./_core/email");
+            await sendTripRequestAcceptedEmail(
+              participant.user.email,
+              participant.user.name || "User",
+              organizer?.name || "Organizer",
+              trip.title,
+              trip.id
+            );
+          }
         }
         
         return { success: true };
+      }),
+
+    addReview: protectedProcedure
+      .input(z.object({
+        tripId: z.number(),
+        rating: z.number().min(1).max(5),
+        reviewText: z.string().optional(),
+        organizationRating: z.number().min(1).max(5).optional(),
+        communicationRating: z.number().min(1).max(5).optional(),
+        wouldJoinAgain: z.boolean().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        // Verify trip is in the past
+        const trip = await db.getTripById(input.tripId);
+        if (!trip) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Trip not found" });
+        }
+        if (new Date(trip.endDate) > new Date()) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Can only review past trips" });
+        }
+        
+        // Verify user was a participant
+        const isParticipant = await db.isUserTripParticipant(ctx.user.id, input.tripId);
+        if (!isParticipant && trip.organizerId !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "You must have participated in this trip to review it" });
+        }
+        
+        // Check if user already reviewed this trip
+        const existingReview = await db.getUserTripReview(input.tripId, ctx.user.id);
+        if (existingReview) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "You have already reviewed this trip" });
+        }
+        
+        const reviewId = await db.createTripReview({
+          ...input,
+          userId: ctx.user.id,
+          organizerId: trip.organizerId,
+        });
+        return { reviewId };
+      }),
+
+    getReviews: publicProcedure
+      .input(z.object({ tripId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getTripReviews(input.tripId);
+      }),
+
+    getOrganizerReviews: publicProcedure
+      .input(z.object({ organizerId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getOrganizerReviews(input.organizerId);
       }),
   }),
 

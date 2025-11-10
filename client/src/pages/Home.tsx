@@ -14,6 +14,10 @@ import Footer from "@/components/Footer";
 export default function Home() {
   const { user, isAuthenticated } = useAuth();
   const [locationFilter, setLocationFilter] = useState("");
+  const [difficultyFilter, setDifficultyFilter] = useState<string>("");
+  const [styleFilter, setStyleFilter] = useState<string>("");
+  const [dateFilter, setDateFilter] = useState<string>("");
+  const [showFilters, setShowFilters] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const { data: trips, isLoading } = trpc.trips.list.useQuery();
   const { data: notificationCount } = trpc.auth.notificationCount.useQuery(undefined, {
@@ -28,9 +32,39 @@ export default function Home() {
 
   // Filter and sort trips: premium > featured > free, then by date
   const filteredTrips = trips
-    ?.filter(trip => 
-      !locationFilter || trip.location.toLowerCase().includes(locationFilter.toLowerCase())
-    )
+    ?.filter(trip => {
+      // Location filter
+      if (locationFilter && !trip.location.toLowerCase().includes(locationFilter.toLowerCase())) {
+        return false;
+      }
+      // Difficulty filter
+      if (difficultyFilter && trip.difficulty !== difficultyFilter) {
+        return false;
+      }
+      // Style filter
+      if (styleFilter) {
+        const tripStyles = trip.styles as string[] || [];
+        if (!tripStyles.includes(styleFilter)) {
+          return false;
+        }
+      }
+      // Date filter
+      if (dateFilter) {
+        const tripDate = new Date(trip.startDate);
+        const now = new Date();
+        if (dateFilter === "this_week") {
+          const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+          if (tripDate > weekFromNow) return false;
+        } else if (dateFilter === "this_month") {
+          const monthFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+          if (tripDate > monthFromNow) return false;
+        } else if (dateFilter === "next_3_months") {
+          const threeMonthsFromNow = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
+          if (tripDate > threeMonthsFromNow) return false;
+        }
+      }
+      return true;
+    })
     .sort((a, b) => {
       // Sort by premium tier first
       const tierOrder = { premium: 3, featured: 2, free: 1 };
@@ -126,19 +160,70 @@ export default function Home() {
             </p>
             
             {/* Search Bar */}
-            <div className="flex gap-3 max-w-xl">
-              <div className="flex-1 relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input
-                  placeholder="Location"
-                  value={locationFilter}
-                  onChange={(e) => setLocationFilter(e.target.value)}
-                  className="pl-10"
-                />
+            <div className="space-y-4">
+              <div className="flex gap-3 max-w-xl">
+                <div className="flex-1 relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    placeholder="Location"
+                    value={locationFilter}
+                    onChange={(e) => setLocationFilter(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Button size="lg" className="px-8" onClick={() => setShowFilters(!showFilters)}>
+                  {showFilters ? "Hide Filters" : "Show Filters"}
+                </Button>
               </div>
-              <Button size="lg" className="px-8">
-                SEARCH
-              </Button>
+              
+              {/* Advanced Filters */}
+              {showFilters && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-card rounded-lg border">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Difficulty</label>
+                    <select
+                      value={difficultyFilter}
+                      onChange={(e) => setDifficultyFilter(e.target.value)}
+                      className="w-full p-2 border rounded-md bg-background"
+                    >
+                      <option value="">All Levels</option>
+                      <option value="beginner">Beginner</option>
+                      <option value="intermediate">Intermediate</option>
+                      <option value="advanced">Advanced</option>
+                      <option value="expert">Expert</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Style</label>
+                    <select
+                      value={styleFilter}
+                      onChange={(e) => setStyleFilter(e.target.value)}
+                      className="w-full p-2 border rounded-md bg-background"
+                    >
+                      <option value="">All Styles</option>
+                      <option value="rock_crawling">Rock Crawling</option>
+                      <option value="overland">Overland</option>
+                      <option value="desert">Desert</option>
+                      <option value="jeeping">Jeeping</option>
+                      <option value="pre_running">Pre-Running</option>
+                      <option value="long_travel_only">Long Travel</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Timeframe</label>
+                    <select
+                      value={dateFilter}
+                      onChange={(e) => setDateFilter(e.target.value)}
+                      className="w-full p-2 border rounded-md bg-background"
+                    >
+                      <option value="">All Dates</option>
+                      <option value="this_week">This Week</option>
+                      <option value="this_month">This Month</option>
+                      <option value="next_3_months">Next 3 Months</option>
+                    </select>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

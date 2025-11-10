@@ -228,6 +228,30 @@ export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
 export type InsertPasswordResetToken = typeof passwordResetTokens.$inferInsert;
 
 /**
+ * Trip reviews table - reviews for completed trips
+ */
+export const tripReviews = mysqlTable("tripReviews", {
+  id: int("id").autoincrement().primaryKey(),
+  tripId: int("tripId").notNull(),
+  userId: int("userId").notNull(), // User who wrote the review
+  organizerId: int("organizerId").notNull(), // Trip organizer being reviewed
+  
+  rating: int("rating").notNull(), // 1-5 stars
+  reviewText: text("reviewText"),
+  
+  // Review categories
+  organizationRating: int("organizationRating"), // 1-5 for trip organization
+  communicationRating: int("communicationRating"), // 1-5 for communication
+  wouldJoinAgain: boolean("wouldJoinAgain").default(true),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type TripReview = typeof tripReviews.$inferSelect;
+export type InsertTripReview = typeof tripReviews.$inferInsert;
+
+/**
  * Conversations table - represents a conversation between two users
  */
 export const conversations = mysqlTable("conversations", {

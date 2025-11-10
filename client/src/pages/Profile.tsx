@@ -281,13 +281,26 @@ export default function Profile() {
             </Button>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div>
-              <Label>Name</Label>
-              <p className="text-lg font-medium">{user?.name}</p>
-            </div>
-            <div>
-              <Label>Email</Label>
-              <p className="text-muted-foreground">{user?.email}</p>
+            <div className="flex items-start gap-6">
+              {user?.profilePhoto && (
+                <div className="flex-shrink-0">
+                  <img 
+                    src={user.profilePhoto} 
+                    alt="Profile" 
+                    className="w-24 h-24 rounded-full object-cover border-2 border-border"
+                  />
+                </div>
+              )}
+              <div className="flex-1 space-y-4">
+                <div>
+                  <Label>Name</Label>
+                  <p className="text-lg font-medium">{user?.name}</p>
+                </div>
+                <div>
+                  <Label>Email</Label>
+                  <p className="text-muted-foreground">{user?.email}</p>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>

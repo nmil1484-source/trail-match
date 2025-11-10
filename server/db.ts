@@ -1,7 +1,7 @@
 import { and, eq, gte, lte, sql, desc, ne, lt } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
-import { InsertTrip, InsertTripParticipant, InsertUser, InsertVehicle, InsertShop, InsertShopReview, InsertPasswordResetToken, InsertConversation, InsertMessage, tripParticipants, trips, users, vehicles, shops, shopReviews, passwordResetTokens, conversations, messages } from "../drizzle/schema";
+import { InsertTrip, InsertTripParticipant, InsertUser, InsertVehicle, InsertShop, InsertShopReview, InsertTripReview, InsertPasswordResetToken, InsertConversation, InsertMessage, tripParticipants, trips, users, vehicles, shops, shopReviews, tripReviews, passwordResetTokens, conversations, messages } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import crypto from "crypto";
 
@@ -1074,4 +1074,59 @@ export async function isUserTripParticipant(userId: number, tripId: number): Pro
     .limit(1);
 
   return participant.length > 0;
+}
+
+// ===== TRIP REVIEW FUNCTIONS =====
+
+export async function createTripReview(review: InsertTripReview) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(tripReviews).values(review);
+  return result[0].insertId;
+}
+
+export async function getTripReviews(tripId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select({
+      review: tripReviews,
+      user: users,
+    })
+    .from(tripReviews)
+    .leftJoin(users, eq(tripReviews.userId, users.id))
+    .where(eq(tripReviews.tripId, tripId))
+    .orderBy(desc(tripReviews.createdAt));
+}
+
+export async function getUserTripReview(tripId: number, userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+
+  const result = await db
+    .select()
+    .from(tripReviews)
+    .where(and(eq(tripReviews.tripId, tripId), eq(tripReviews.userId, userId)))
+    .limit(1);
+
+  return result[0] || null;
+}
+
+export async function getOrganizerReviews(organizerId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select({
+      review: tripReviews,
+      user: users,
+      trip: trips,
+    })
+    .from(tripReviews)
+    .leftJoin(users, eq(tripReviews.userId, users.id))
+    .leftJoin(trips, eq(tripReviews.tripId, trips.id))
+    .where(eq(tripReviews.organizerId, organizerId))
+    .orderBy(desc(tripReviews.createdAt));
 }
