@@ -1,6 +1,6 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import ImageLightbox from "@/components/ImageLightbox";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
