@@ -9,9 +9,16 @@ export const APP_LOGO =
 export const GOOGLE_PLACES_API_KEY = import.meta.env.VITE_GOOGLE_PLACES_API_KEY || "";
 
 // Generate login URL at runtime so redirect URI reflects the current origin.
+// Returns home page if OAuth is not configured (for apps using their own auth)
 export const getLoginUrl = () => {
   const oauthPortalUrl = import.meta.env.VITE_OAUTH_PORTAL_URL;
   const appId = import.meta.env.VITE_APP_ID;
+  
+  // If OAuth is not configured, redirect to home page (app uses its own auth dialog)
+  if (!oauthPortalUrl || !appId) {
+    return "/";
+  }
+  
   const redirectUri = `${window.location.origin}/api/oauth/callback`;
   const state = btoa(redirectUri);
 
