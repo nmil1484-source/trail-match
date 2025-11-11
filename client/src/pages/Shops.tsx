@@ -49,28 +49,32 @@ export default function Shops() {
               <img src="/trailmatch-logo.png" alt="TrailMatch" className="h-10 w-10" />
               <span className="text-2xl font-bold text-foreground">TrailMatch</span>
             </Link>
-            <nav className="flex items-center gap-6">
-              <Link href="/" className="text-foreground hover:text-primary font-medium">
-                Find Trips
+            <nav className="flex items-center gap-2 sm:gap-4 md:gap-6">
+              <Link href="/" className="text-foreground hover:text-primary font-medium text-sm sm:text-base">
+                <span className="hidden sm:inline">Find Trips</span>
+                <span className="sm:hidden">Trips</span>
               </Link>
-              <Link href="/shops" className="text-foreground hover:text-primary font-medium">
+              <Link href="/shops" className="text-foreground hover:text-primary font-medium text-sm sm:text-base">
                 Shops
               </Link>
               {isAuthenticated && (
                 <>
-                  <Link href="/post-trip" className="text-foreground hover:text-primary font-medium">
-                    Post Trip
-                  </Link>
-                  <Link href="/messages" className="text-foreground hover:text-primary font-medium relative">
-                    Messages
+              <Link href="/post-trip" className="text-foreground hover:text-primary font-medium text-sm sm:text-base">
+                <span className="hidden sm:inline">Post Trip</span>
+                <span className="sm:hidden">Post</span>
+              </Link>
+                  <Link href="/messages" className="text-foreground hover:text-primary font-medium text-sm sm:text-base relative">
+                    <span className="hidden sm:inline">Messages</span>
+                    <span className="sm:hidden">Msgs</span>
                     {unreadMessageCount && unreadMessageCount > 0 && (
                       <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
                         {unreadMessageCount}
                       </span>
                     )}
                   </Link>
-                  <Link href="/profile" className="text-foreground hover:text-primary font-medium relative">
-                    My Profile
+                  <Link href="/profile" className="text-foreground hover:text-primary font-medium text-sm sm:text-base relative">
+                    <span className="hidden sm:inline">My Profile</span>
+                    <span className="sm:hidden">Profile</span>
                     {notificationCount && notificationCount > 0 && (
                       <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
                         {notificationCount}
@@ -78,7 +82,7 @@ export default function Shops() {
                     )}
                   </Link>
                   {user?.role === "admin" && (
-                    <Link href="/admin" className="text-foreground hover:text-primary font-medium">
+                    <Link href="/admin" className="text-foreground hover:text-primary font-medium text-sm sm:text-base">
                       Admin
                     </Link>
                   )}
