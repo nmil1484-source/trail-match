@@ -26,6 +26,8 @@ import FAQ from "./pages/FAQ";
 import AdminMessagingMigration from "./pages/AdminMessagingMigration";
 import AdminGroupChatMigration from "./pages/AdminGroupChatMigration";
 import UserProfile from "./pages/UserProfile";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 function Router() {
   return (
@@ -52,6 +54,8 @@ function Router() {
       <Route path={"/messages"} component={Messages} />
       <Route path={"/about"} component={About} />
       <Route path={"/faq"} component={FAQ} />
+      <Route path={"/forgot-password"} component={ForgotPassword} />
+      <Route path={"/reset-password"} component={ResetPassword} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
