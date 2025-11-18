@@ -67,6 +67,12 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
+          {/* Subtle Beta Banner */}
+          <div className="bg-gradient-to-r from-orange-50 to-amber-50 border-b border-orange-100 py-2 px-4 text-center">
+            <p className="text-xs text-orange-700">
+              <span className="font-semibold">Beta</span> · We're in early access. Your feedback helps us improve!
+            </p>
+          </div>
           <Toaster />
           <Router />
         </TooltipProvider>
