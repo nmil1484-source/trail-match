@@ -9,6 +9,7 @@ import { trpc } from "@/lib/trpc";
 import { MapPin, Phone, Mail, Globe, Star, Plus, CheckCircle, Crown } from "lucide-react";
 import { Link } from "wouter";
 import { useState } from "react";
+import ShopUpgradeModal from "@/components/ShopUpgradeModal";
 
 const SHOP_CATEGORIES = [
   { value: "mechanic", label: "Mechanic" },
@@ -24,6 +25,7 @@ export default function Shops() {
   const { user, isAuthenticated } = useAuth();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [searchState, setSearchState] = useState("");
+  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const { data: notificationCount } = trpc.auth.notificationCount.useQuery(undefined, {
     enabled: isAuthenticated,
     refetchInterval: 30000,
@@ -142,13 +144,29 @@ export default function Shops() {
                 </div>
               </div>
               <div className="flex flex-col gap-3">
-                <a href="mailto:contact@trail-match.com?subject=Premium Shop Listing Inquiry" className="inline-block">
-                  <Button size="lg" className="bg-orange-600 hover:bg-orange-700 text-white">
-                    <Mail className="mr-2 h-5 w-5" />
-                    Contact Us for Pricing
-                  </Button>
-                </a>
-                <p className="text-xs text-gray-600 text-center">Starting at $5/month</p>
+                {isAuthenticated ? (
+                  <>
+                    <Button 
+                      size="lg" 
+                      className="bg-orange-600 hover:bg-orange-700 text-white"
+                      onClick={() => setUpgradeModalOpen(true)}
+                    >
+                      <Crown className="mr-2 h-5 w-5" />
+                      Upgrade Your Shop
+                    </Button>
+                    <p className="text-xs text-gray-600 text-center">Starting at $5/month</p>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/login">
+                      <Button size="lg" className="bg-orange-600 hover:bg-orange-700 text-white">
+                        <Crown className="mr-2 h-5 w-5" />
+                        Sign In to Upgrade
+                      </Button>
+                    </Link>
+                    <p className="text-xs text-gray-600 text-center">Starting at $5/month</p>
+                  </>
+                )}
               </div>
             </div>
           </CardContent>
@@ -286,6 +304,12 @@ export default function Shops() {
           </Card>
         )}
       </div>
+
+      {/* Shop Upgrade Modal */}
+      <ShopUpgradeModal 
+        open={upgradeModalOpen} 
+        onOpenChange={setUpgradeModalOpen}
+      />
     </div>
   );
 }

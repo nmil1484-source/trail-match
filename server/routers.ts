@@ -600,6 +600,19 @@ export const appRouter = router({
         return await db.getShopById(input.shopId);
       }),
 
+    myShops: protectedProcedure
+      .query(async ({ ctx }) => {
+        const connection = await db.getRawConnection();
+        if (!connection) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection not available" });
+        }
+        const result = await connection.execute(
+          `SELECT * FROM shops WHERE addedBy = ?`,
+          [ctx.user.id]
+        );
+        return result[0] as any[];
+      }),
+
     addReview: protectedProcedure
       .input(z.object({
         shopId: z.number(),
@@ -692,6 +705,69 @@ export const appRouter = router({
         }
         await db.deleteShop(input.id);
         return { success: true };
+      }),
+
+    // Create subscription for shop
+    createSubscription: protectedProcedure
+      .input(z.object({
+        shopId: z.number(),
+        tier: z.enum(["featured", "premium"]),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const shop = await db.getShopById(input.shopId);
+        if (!shop || shop.addedBy !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "You can only manage your own shops" });
+        }
+
+        const { createShopSubscription } = await import("./_core/stripe");
+        const result = await createShopSubscription(
+          input.shopId,
+          ctx.user.id,
+          input.tier,
+          ctx.user.email
+        );
+
+        return {
+          sessionId: result.sessionId,
+          url: result.url,
+        };
+      }),
+
+    // Cancel subscription
+    cancelSubscription: protectedProcedure
+      .input(z.object({ shopId: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const shop = await db.getShopById(input.shopId);
+        if (!shop || shop.addedBy !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "You can only manage your own shops" });
+        }
+
+        const connection = await db.getRawConnection();
+        if (!connection) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection not available" });
+        }
+
+        // Get subscription ID from database
+        const result = await connection.execute(
+          `SELECT stripeSubscriptionId FROM shops WHERE id = ?`,
+          [input.shopId]
+        );
+        const rows = result[0] as any[];
+        if (!rows || rows.length === 0 || !rows[0].stripeSubscriptionId) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "No active subscription found" });
+        }
+
+        const { cancelShopSubscription } = await import("./_core/stripe");
+        const success = await cancelShopSubscription(rows[0].stripeSubscriptionId);
+
+        if (success) {
+          await connection.execute(
+            `UPDATE shops SET subscriptionStatus = 'canceled', premiumTier = 'none' WHERE id = ?`,
+            [input.shopId]
+          );
+        }
+
+        return { success };
       }),
   }),
 
