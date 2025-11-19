@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
 import { Crown, Star, CheckCircle, Loader2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 interface ShopUpgradeModalProps {
   open: boolean;
@@ -12,7 +12,6 @@ interface ShopUpgradeModalProps {
 }
 
 export default function ShopUpgradeModal({ open, onOpenChange }: ShopUpgradeModalProps) {
-  const { toast } = useToast();
   const [selectedShop, setSelectedShop] = useState<number | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -27,21 +26,13 @@ export default function ShopUpgradeModal({ open, onOpenChange }: ShopUpgradeModa
     },
     onError: (error) => {
       setIsProcessing(false);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to create subscription",
-        variant: "destructive",
-      });
+      toast.error(error.message || "Failed to create subscription");
     },
   });
 
   const handleUpgrade = async (tier: "featured" | "premium") => {
     if (!selectedShop) {
-      toast({
-        title: "Select a shop",
-        description: "Please select which shop you want to upgrade",
-        variant: "destructive",
-      });
+      toast.error("Please select which shop you want to upgrade");
       return;
     }
 
