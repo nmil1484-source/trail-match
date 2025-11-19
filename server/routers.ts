@@ -1208,6 +1208,67 @@ export const appRouter = router({
 
         return { success: true, message: "Shop verification migration completed successfully", steps };
       }),
+
+    // Add subscription fields to shops table (admin only)
+    addSubscriptionFields: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+        }
+        
+        const connection = await db.getRawConnection();
+        if (!connection) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database connection not available" });
+        }
+
+        const steps: string[] = [];
+
+        // Add stripeCustomerId column
+        try {
+          await connection.execute(`ALTER TABLE shops ADD COLUMN stripeCustomerId VARCHAR(255) NULL`);
+          steps.push("✅ Added 'stripeCustomerId' column");
+        } catch (error: any) {
+          if (error.message.includes("Duplicate column name")) {
+            steps.push("⚠️ 'stripeCustomerId' column already exists, skipping");
+          } else {
+            throw error;
+          }
+        }
+
+        // Add stripeSubscriptionId column
+        try {
+          await connection.execute(`ALTER TABLE shops ADD COLUMN stripeSubscriptionId VARCHAR(255) NULL`);
+          steps.push("✅ Added 'stripeSubscriptionId' column");
+        } catch (error: any) {
+          if (error.message.includes("Duplicate column name")) {
+            steps.push("⚠️ 'stripeSubscriptionId' column already exists, skipping");
+          } else {
+            throw error;
+          }
+        }
+
+        // Add subscriptionStatus column
+        try {
+          await connection.execute(`ALTER TABLE shops ADD COLUMN subscriptionStatus VARCHAR(50) DEFAULT 'none'`);
+          steps.push("✅ Added 'subscriptionStatus' column");
+        } catch (error: any) {
+          if (error.message.includes("Duplicate column name")) {
+            steps.push("⚠️ 'subscriptionStatus' column already exists, skipping");
+          } else {
+            throw error;
+          }
+        }
+
+        // Update existing shops to have 'none' status
+        try {
+          await connection.execute(`UPDATE shops SET subscriptionStatus = 'none' WHERE subscriptionStatus IS NULL`);
+          steps.push("✅ Updated existing shops with 'none' status");
+        } catch (error: any) {
+          steps.push(`⚠️ Updating status: ${error.message}`);
+        }
+
+        return { success: true, message: "Subscription fields migration completed successfully", steps };
+      }),
   }),
 
   messages: router({

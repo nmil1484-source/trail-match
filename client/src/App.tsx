@@ -28,6 +28,7 @@ import AdminGroupChatMigration from "./pages/AdminGroupChatMigration";
 import UserProfile from "./pages/UserProfile";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import AdminSubscriptionMigration from "./pages/AdminSubscriptionMigration";
 
 function Router() {
   return (
@@ -50,6 +51,7 @@ function Router() {
       <Route path={"/admin/migrate-private"} component={AdminMigratePrivate} />
       <Route path={"/admin/migrate-messaging"} component={AdminMessagingMigration} />
       <Route path={"/admin/migrate-groupchat"} component={AdminGroupChatMigration} />
+      <Route path={"/admin/add-subscription-fields"} component={AdminSubscriptionMigration} />
       <Route path={"/join-requests"} component={JoinRequests} />
       <Route path={"/messages"} component={Messages} />
       <Route path={"/about"} component={About} />
