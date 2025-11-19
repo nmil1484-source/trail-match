@@ -148,7 +148,7 @@ export default function Shops() {
                     Contact Us for Pricing
                   </Button>
                 </a>
-                <p className="text-xs text-gray-600 text-center">Starting at $XX/month</p>
+                <p className="text-xs text-gray-600 text-center">Starting at $5/month</p>
               </div>
             </div>
           </CardContent>

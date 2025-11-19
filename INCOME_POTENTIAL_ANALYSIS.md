@@ -28,11 +28,11 @@ We recommend a three-tiered pricing model to cater to different shop budgets and
 | Tier | Price (Monthly) | Features |
 | :--- | :--- | :--- |
 | **Basic** | Free | Basic listing with name, address, phone, and categories. |
-| **Featured** | $35 | Everything in Basic, plus:
+| **Featured** | $5 | Everything in Basic, plus:
 - Prominent "Featured" badge
 - Higher placement in search results
 - Ability to add photos and detailed description |
-| **Premium** | $99 | Everything in Featured, plus:
+| **Premium** | $15 | Everything in Featured, plus:
 - "Premium" crown badge
 - Top placement in all search results
 - Link to website and social media
@@ -44,9 +44,9 @@ Revenue projections are based on the number of paying shops. Here are three pote
 
 | Scenario | Paying Shops | Monthly Revenue | Annual Revenue |
 | :--- | :--- | :--- | :--- |
-| **Early Stage** | 25 (20 Featured, 5 Premium) | $1,195 | $14,340 |
-| **Growth Stage** | 100 (75 Featured, 25 Premium) | $5,100 | $61,200 |
-| **Mature Stage** | 500 (350 Featured, 150 Premium) | $27,100 | $325,200 |
+| **Early Stage** | 25 (20 Featured, 5 Premium) | $175 | $2,100 |
+| **Growth Stage** | 100 (75 Featured, 25 Premium) | $750 | $9,000 |
+| **Mature Stage** | 500 (350 Featured, 150 Premium) | $4,000 | $48,000 |
 
 **Note:** These projections are based on a conservative adoption rate. With over 500,000 aftermarket auto businesses in the U.S., capturing even a small fraction can lead to significant revenue.
 
