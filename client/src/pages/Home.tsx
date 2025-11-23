@@ -119,7 +119,7 @@ export default function Home() {
               <img src="/trailmatch-logo.png" alt="TrailMatch" className="h-8 w-8 md:h-10 md:w-10" />
               <span className="text-lg md:text-2xl font-bold text-foreground">TrailMatch</span>
             </Link>
-            <nav className="flex items-center gap-1 sm:gap-3 md:gap-6 text-xs sm:text-sm md:text-base flex-wrap">
+            <nav className="flex items-center gap-2 sm:gap-3 md:gap-6 text-xs sm:text-sm md:text-base flex-shrink-0">
               <Link href="/" className="text-foreground hover:text-primary font-medium whitespace-nowrap">
                 <span className="hidden sm:inline">Find </span>Trips
               </Link>
@@ -265,7 +265,7 @@ export default function Home() {
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {filteredTrips?.map((trip) => (
                 <Card 
                   key={trip.id} 
@@ -387,7 +387,7 @@ export default function Home() {
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-3xl font-bold text-foreground">Past Trips</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {pastTrips.slice(0, 8).map((trip) => (
                 <Card 
                   key={trip.id} 
