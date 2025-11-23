@@ -46,6 +46,7 @@ export default function TripDetail() {
   };
   
   const isOrganizer = user && trip && trip.organizerId === user.id;
+  const isParticipant = user && participants?.some(p => p.participant.userId === user.id && p.participant.status === "accepted");
 
   if (isLoading) {
     return (
