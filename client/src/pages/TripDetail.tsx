@@ -205,6 +205,25 @@ export default function TripDetail() {
               </Card>
             )}
 
+            {trip.gpxFile && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>GPS Navigation</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">
+                    Download the GPX file to use with onX Offroad, Gaia GPS, or other navigation apps.
+                  </p>
+                  <Button asChild className="w-full sm:w-auto">
+                    <a href={trip.gpxFile} download>
+                      <Mountain className="mr-2 h-4 w-4" />
+                      Download GPX File
+                    </a>
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Participants */}
             <Card>
               <CardHeader>

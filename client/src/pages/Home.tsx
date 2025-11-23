@@ -32,8 +32,13 @@ export default function Home() {
     refetchInterval: 30000, // Refetch every 30 seconds
   });
 
+  // Split trips into upcoming and past
+  const now = new Date();
+  const upcomingTrips = trips?.filter(trip => new Date(trip.endDate) >= now) || [];
+  const pastTrips = trips?.filter(trip => new Date(trip.endDate) < now) || [];
+
   // Filter and sort trips: premium > featured > free, then by date
-  const filteredTrips = trips
+  const filteredTrips = upcomingTrips
     ?.filter(trip => {
       // Location filter
       if (locationFilter && !matchesLocation(trip.location, locationFilter)) {
@@ -365,6 +370,47 @@ export default function Home() {
           )}
         </div>
       </section>
+
+      {/* Past Trips Section */}
+      {pastTrips && pastTrips.length > 0 && (
+        <section className="py-12 bg-muted/30">
+          <div className="container">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-3xl font-bold text-foreground">Past Trips</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {pastTrips.slice(0, 8).map((trip) => (
+                <Card 
+                  key={trip.id} 
+                  className="overflow-hidden opacity-75 hover:opacity-100 transition-opacity"
+                >
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg line-clamp-2">{trip.title}</CardTitle>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <MapPin className="h-4 w-4" />
+                      <span>{trip.location}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Calendar className="h-4 w-4" />
+                      <span>{formatDate(trip.startDate)} - {formatDate(trip.endDate)}</span>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pb-3">
+                    <Badge className={getDifficultyColor(trip.difficulty)}>
+                      {trip.difficulty}
+                    </Badge>
+                  </CardContent>
+                  <CardFooter className="pt-3 pb-4">
+                    <Button variant="outline" size="sm" className="w-full" asChild>
+                      <Link href={`/trip/${trip.id}`}>View Details</Link>
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <Footer />
       

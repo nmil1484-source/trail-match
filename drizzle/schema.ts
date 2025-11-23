@@ -109,6 +109,7 @@ export const trips = mysqlTable("trips", {
   photos: json("photos"), // Array of photo URLs
   itinerary: text("itinerary"),
   campingInfo: text("campingInfo"),
+  gpxFile: text("gpxFile"), // URL to GPX file for GPS navigation
   
   // Communication preferences
   communicationMethods: json("communicationMethods"), // Array of preferred methods: ["text", "email", "whatsapp", "facebook", "instagram", "built_in"]

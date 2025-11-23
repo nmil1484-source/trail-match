@@ -57,6 +57,7 @@ export default function PostTrip() {
   const [itinerary, setItinerary] = useState("");
   const [campingInfo, setCampingInfo] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
+  const [gpxFile, setGpxFile] = useState<string>("");
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
   const [createdTripId, setCreatedTripId] = useState<number | null>(null);
   const [isPrivate, setIsPrivate] = useState(false);
@@ -126,6 +127,7 @@ export default function PostTrip() {
       itinerary: itinerary || undefined,
       campingInfo: campingInfo || undefined,
       photos: photos.length > 0 ? photos : undefined,
+      gpxFile: gpxFile || undefined,
       communicationMethods: communicationMethods.length > 0 ? communicationMethods : undefined,
       phoneNumber: phoneNumber || undefined,
       whatsappNumber: whatsappNumber || undefined,
@@ -435,6 +437,28 @@ export default function PostTrip() {
                   placeholder="Where will the group stay? Camping, hotels, etc."
                   rows={3}
                 />
+              </div>
+
+              <div>
+                <Label htmlFor="gpxFile">GPX File (Optional)</Label>
+                <p className="text-sm text-muted-foreground mb-2">Upload a GPX file for participants to use in onX, Gaia GPS, or other navigation apps</p>
+                <Input
+                  id="gpxFile"
+                  type="file"
+                  accept=".gpx"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      // For now, just store filename - in production, upload to S3
+                      setGpxFile(file.name);
+                      toast.success("GPX file selected: " + file.name);
+                    }
+                  }}
+                  className="cursor-pointer"
+                />
+                {gpxFile && (
+                  <p className="text-sm text-green-600 mt-2">✓ {gpxFile}</p>
+                )}
               </div>
               
               {/* Trip Photos - Temporarily hidden
