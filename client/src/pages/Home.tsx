@@ -11,6 +11,7 @@ import { Link } from "wouter";
 import { useState } from "react";
 import { AuthDialog } from "@/components/AuthDialog";
 import Footer from "@/components/Footer";
+import { matchesLocation } from "@/lib/locationUtils";
 
 export default function Home() {
   const { user, isAuthenticated } = useAuth();
@@ -35,7 +36,7 @@ export default function Home() {
   const filteredTrips = trips
     ?.filter(trip => {
       // Location filter
-      if (locationFilter && !trip.location.toLowerCase().includes(locationFilter.toLowerCase())) {
+      if (locationFilter && !matchesLocation(trip.location, locationFilter)) {
         return false;
       }
       // Difficulty filter
@@ -165,12 +166,12 @@ export default function Home() {
               <div className="flex gap-3 max-w-xl">
                 <div className="flex-1 relative">
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                  <Input
-                    placeholder="Location"
-                    value={locationFilter}
-                    onChange={(e) => setLocationFilter(e.target.value)}
-                    className="pl-10"
-                  />
+              <Input
+                placeholder="City or area (e.g., Mojave, Moab, Drummond)"
+                value={locationFilter}
+                onChange={(e) => setLocationFilter(e.target.value)}
+                className="max-w-md"
+              />
                 </div>
                 <Button size="lg" className="px-8" onClick={() => setShowFilters(!showFilters)}>
                   {showFilters ? "Hide Filters" : "Show Filters"}
@@ -346,7 +347,9 @@ export default function Home() {
               <Mountain className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-foreground mb-2">No trips found</h3>
               <p className="text-muted-foreground mb-6">
-                {locationFilter ? "Try adjusting your search filters" : "Be the first to post a trip!"}
+                {locationFilter 
+                  ? `No trips found for "${locationFilter}". Try searching by city or area name (e.g., Mojave, Moab).` 
+                  : "Be the first to post a trip!"}
               </p>
               {isAuthenticated && (
                 <Button asChild>

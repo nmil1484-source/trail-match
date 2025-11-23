@@ -74,6 +74,8 @@ export const trips = mysqlTable("trips", {
   description: text("description"),
   location: varchar("location", { length: 255 }).notNull(),
   state: varchar("state", { length: 50 }),
+  latitude: decimal("latitude", { precision: 10, scale: 7 }),
+  longitude: decimal("longitude", { precision: 10, scale: 7 }),
   
   // Dates
   startDate: timestamp("startDate").notNull(),
