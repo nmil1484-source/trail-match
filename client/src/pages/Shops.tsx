@@ -10,6 +10,7 @@ import { MapPin, Phone, Mail, Globe, Star, Plus, CheckCircle, Crown } from "luci
 import { Link } from "wouter";
 import { useState } from "react";
 import ShopUpgradeModal from "@/components/ShopUpgradeModal";
+import ManageSubscriptionModal from "@/components/ManageSubscriptionModal";
 
 const SHOP_CATEGORIES = [
   { value: "mechanic", label: "Mechanic" },
@@ -26,6 +27,7 @@ export default function Shops() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [searchState, setSearchState] = useState("");
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
+  const [manageSubModalOpen, setManageSubModalOpen] = useState(false);
   const { data: notificationCount } = trpc.auth.notificationCount.useQuery(undefined, {
     enabled: isAuthenticated,
     refetchInterval: 30000,
@@ -153,6 +155,13 @@ export default function Shops() {
                     >
                       <Crown className="mr-2 h-5 w-5" />
                       Upgrade Your Shop
+                    </Button>
+                    <Button 
+                      size="lg" 
+                      variant="outline"
+                      onClick={() => setManageSubModalOpen(true)}
+                    >
+                      Manage Subscriptions
                     </Button>
                     <p className="text-xs text-gray-600 text-center">Starting at $5/month</p>
                   </>
@@ -309,6 +318,12 @@ export default function Shops() {
       <ShopUpgradeModal 
         open={upgradeModalOpen} 
         onOpenChange={setUpgradeModalOpen}
+      />
+
+      {/* Manage Subscription Modal */}
+      <ManageSubscriptionModal 
+        open={manageSubModalOpen} 
+        onOpenChange={setManageSubModalOpen}
       />
     </div>
   );
