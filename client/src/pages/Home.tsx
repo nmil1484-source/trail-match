@@ -34,8 +34,17 @@ export default function Home() {
 
   // Split trips into upcoming and past
   const now = new Date();
-  const upcomingTrips = trips?.filter(trip => new Date(trip.endDate) >= now) || [];
-  const pastTrips = trips?.filter(trip => new Date(trip.endDate) < now) || [];
+  now.setHours(0, 0, 0, 0); // Reset to start of day for fair comparison
+  const upcomingTrips = trips?.filter(trip => {
+    const endDate = new Date(trip.endDate);
+    endDate.setHours(23, 59, 59, 999); // Set to end of day
+    return endDate >= now;
+  }) || [];
+  const pastTrips = trips?.filter(trip => {
+    const endDate = new Date(trip.endDate);
+    endDate.setHours(23, 59, 59, 999); // Set to end of day
+    return endDate < now;
+  }) || [];
 
   // Filter and sort trips: premium > featured > free, then by date
   const filteredTrips = upcomingTrips
