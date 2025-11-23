@@ -13,6 +13,7 @@ import Shops from "./pages/Shops";
 import ShopDetail from "./pages/ShopDetail";
 import AddShop from "./pages/AddShop";
 import EditShop from "./pages/EditShop";
+import MyShops from "./pages/MyShops";
 
 import Admin from "./pages/Admin";
 import AdminSetup from "./pages/AdminSetup";
@@ -40,6 +41,7 @@ function Router() {
       <Route path={"/profile"} component={Profile} />
       <Route path={"/user/:id"} component={UserProfile} />
       <Route path={"/shops"} component={Shops} />
+      <Route path={"/my-shops"} component={MyShops} />
       <Route path={"/shops/add"} component={AddShop} />
       <Route path={"/shops/:id"} component={ShopDetail} />
       <Route path={"/edit-shop/:id"} component={EditShop} />

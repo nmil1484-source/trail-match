@@ -114,6 +114,9 @@ export default function Home() {
               </Link>
               {isAuthenticated ? (
                 <>
+                  <Link href="/my-shops" className="text-foreground hover:text-primary font-medium whitespace-nowrap">
+                    <span className="hidden sm:inline">My </span>Shops
+                  </Link>
                   <Link href="/post-trip" className="text-foreground hover:text-primary font-medium whitespace-nowrap">
                     <span className="hidden sm:inline">Post </span>Trip
                   </Link>
