@@ -794,6 +794,27 @@ export const appRouter = router({
         
         return { url: result.url, key: result.key };
       }),
+
+    uploadGpx: protectedProcedure
+      .input(z.object({
+        file: z.string(), // base64 encoded GPX file
+        fileName: z.string(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { storagePut } = await import("./storage");
+        
+        // Decode base64
+        const buffer = Buffer.from(input.file, "base64");
+        
+        // Generate unique file name
+        const timestamp = Date.now();
+        const key = `gpx/${ctx.user.id}/${timestamp}.gpx`;
+        
+        // Upload to S3
+        const result = await storagePut(key, buffer, "application/gpx+xml");
+        
+        return { url: result.url, key: result.key };
+      }),
   }),
 
   admin: router({

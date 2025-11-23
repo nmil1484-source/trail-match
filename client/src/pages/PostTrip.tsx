@@ -58,6 +58,10 @@ export default function PostTrip() {
   const [campingInfo, setCampingInfo] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [gpxFile, setGpxFile] = useState<string>("");
+  const [gpxFileName, setGpxFileName] = useState<string>("");
+  const [uploadingGpx, setUploadingGpx] = useState(false);
+
+  const uploadGpxMutation = trpc.upload.uploadGpx.useMutation();
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
   const [createdTripId, setCreatedTripId] = useState<number | null>(null);
   const [isPrivate, setIsPrivate] = useState(false);
@@ -449,15 +453,49 @@ export default function PostTrip() {
                   onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      // For now, just store filename - in production, upload to S3
-                      setGpxFile(file.name);
-                      toast.success("GPX file selected: " + file.name);
+                      setGpxFileName(file.name);
+                      setUploadingGpx(true);
+                      
+                      try {
+                        // Read file as base64
+                        const reader = new FileReader();
+                        reader.onload = async (event) => {
+                          const base64 = event.target?.result as string;
+                          const base64Data = base64.split(',')[1]; // Remove data:application/gpx+xml;base64, prefix
+                          
+                          try {
+                            const result = await uploadGpxMutation.mutateAsync({
+                              file: base64Data,
+                              fileName: file.name,
+                            });
+                            
+                            setGpxFile(result.url);
+                            toast.success("GPX file uploaded successfully!");
+                          } catch (error) {
+                            toast.error("Failed to upload GPX file");
+                            console.error(error);
+                          } finally {
+                            setUploadingGpx(false);
+                          }
+                        };
+                        reader.readAsDataURL(file);
+                      } catch (error) {
+                        toast.error("Failed to read GPX file");
+                        setUploadingGpx(false);
+                      }
                     }
                   }}
                   className="cursor-pointer"
+                  disabled={uploadingGpx}
                 />
-                {gpxFile && (
-                  <p className="text-sm text-green-600 mt-2">✓ {gpxFile}</p>
+                {uploadingGpx && (
+                  <p className="text-sm text-blue-600 mt-2 flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Uploading {gpxFileName}...
+                  </p>
+                )}
+                {gpxFile && !uploadingGpx && (
+                  <p className="text-sm text-green-600 mt-2">✓ {gpxFileName} uploaded</p>
                 )}
               </div>
               
