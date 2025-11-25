@@ -280,11 +280,9 @@ export async function getTripParticipants(tripId: number) {
     .select({
       participant: tripParticipants,
       user: users,
-      vehicle: vehicles,
     })
     .from(tripParticipants)
     .leftJoin(users, eq(tripParticipants.userId, users.id))
-    .leftJoin(vehicles, eq(tripParticipants.vehicleId, vehicles.id))
     .where(eq(tripParticipants.tripId, tripId));
 }
 
@@ -307,12 +305,10 @@ export async function getPendingRequestsForOrganizer(organizerId: number) {
     .select({
       participant: tripParticipants,
       user: users,
-      vehicle: vehicles,
       trip: trips,
     })
     .from(tripParticipants)
     .leftJoin(users, eq(tripParticipants.userId, users.id))
-    .leftJoin(vehicles, eq(tripParticipants.vehicleId, vehicles.id))
     .leftJoin(trips, eq(tripParticipants.tripId, trips.id))
     .where(
       and(
@@ -330,11 +326,9 @@ export async function getUserTripRequests(userId: number) {
     .select({
       participant: tripParticipants,
       trip: trips,
-      vehicle: vehicles,
     })
     .from(tripParticipants)
     .leftJoin(trips, eq(tripParticipants.tripId, trips.id))
-    .leftJoin(vehicles, eq(tripParticipants.vehicleId, vehicles.id))
     .where(eq(tripParticipants.userId, userId))
     .orderBy(desc(tripParticipants.createdAt));
 }
