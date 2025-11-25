@@ -333,16 +333,11 @@ export async function getUserTripRequests(userId: number) {
     .orderBy(desc(tripParticipants.createdAt));
 }
 
-export async function updateParticipantStatus(participantId: number, status: "pending" | "accepted" | "declined", denialReason?: string) {
+export async function updateParticipantStatus(participantId: number, status: "pending" | "accepted" | "declined") {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const updateData: any = { status };
-  if (status === "declined" && denialReason) {
-    updateData.denialReason = denialReason;
-  }
-
-  await db.update(tripParticipants).set(updateData).where(eq(tripParticipants.id, participantId));
+  await db.update(tripParticipants).set({ status }).where(eq(tripParticipants.id, participantId));
 }
 
 export async function getUserTrips(userId: number) {

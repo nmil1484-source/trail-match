@@ -126,7 +126,6 @@ export const tripParticipants = mysqlTable("tripParticipants", {
   
   status: mysqlEnum("status", ["pending", "accepted", "declined"]).default("pending").notNull(),
   message: text("message"), // Optional message when requesting to join
-  denialReason: text("denialReason"), // Optional reason when request is declined
   
   joinedAt: timestamp("joinedAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
