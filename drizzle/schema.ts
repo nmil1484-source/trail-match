@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, json, decimal } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, json } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -75,8 +75,6 @@ export const trips = mysqlTable("trips", {
   description: text("description"),
   location: varchar("location", { length: 255 }).notNull(),
   state: varchar("state", { length: 50 }),
-  latitude: decimal("latitude", { precision: 10, scale: 7 }),
-  longitude: decimal("longitude", { precision: 10, scale: 7 }),
   
   // Dates
   startDate: timestamp("startDate").notNull(),
