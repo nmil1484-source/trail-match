@@ -38,16 +38,6 @@ export const vehicles = mysqlTable("vehicles", {
   model: varchar("model", { length: 100 }).notNull(),
   year: int("year").notNull(),
   
-  // Build details
-  buildLevel: mysqlEnum("buildLevel", ["stock", "mild", "moderate", "heavy"]).default("stock").notNull(),
-  liftHeight: varchar("liftHeight", { length: 50 }), // e.g., "3.5 inches"
-  tireSize: varchar("tireSize", { length: 50 }), // e.g., "35x12.5"
-  
-  // Modifications (boolean flags)
-  hasWinch: boolean("hasWinch").default(false),
-  hasLockers: boolean("hasLockers").default(false),
-  hasArmor: boolean("hasArmor").default(false),
-  
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
