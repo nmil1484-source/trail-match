@@ -9,6 +9,7 @@ import { trpc } from "@/lib/trpc";
 import { MapPin, Phone, Mail, Globe, Star, Plus, CheckCircle, Crown } from "lucide-react";
 import { Link } from "wouter";
 import { useState } from "react";
+import Navigation from "@/components/Navigation";
 import ShopUpgradeModal from "@/components/ShopUpgradeModal";
 import ManageSubscriptionModal from "@/components/ManageSubscriptionModal";
 
@@ -28,15 +29,6 @@ export default function Shops() {
   const [searchState, setSearchState] = useState("");
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [manageSubModalOpen, setManageSubModalOpen] = useState(false);
-  const { data: notificationCount } = trpc.auth.notificationCount.useQuery(undefined, {
-    enabled: isAuthenticated,
-    refetchInterval: 30000,
-  });
-  
-  const { data: unreadMessageCount } = trpc.messages.getUnreadCount.useQuery(undefined, {
-    enabled: isAuthenticated,
-    refetchInterval: 30000,
-  });
 
   const { data: shops, isLoading } = trpc.shops.list.useQuery({
     categories: selectedCategories.length > 0 ? selectedCategories : undefined,
@@ -45,57 +37,7 @@ export default function Shops() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Navigation Header */}
-      <header className="border-b bg-card">
-        <div className="container py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-              <img src="/trailmatch-logo.png" alt="TrailMatch" className="h-10 w-10" />
-              <span className="text-2xl font-bold text-foreground">TrailMatch</span>
-            </Link>
-            <nav className="flex items-center gap-2 sm:gap-4 md:gap-6">
-              <Link href="/" className="text-foreground hover:text-primary font-medium text-sm sm:text-base">
-                <span className="hidden sm:inline">Find Trips</span>
-                <span className="sm:hidden">Trips</span>
-              </Link>
-              <Link href="/shops" className="text-foreground hover:text-primary font-medium text-sm sm:text-base">
-                Shops
-              </Link>
-              {isAuthenticated && (
-                <>
-              <Link href="/post-trip" className="text-foreground hover:text-primary font-medium text-sm sm:text-base">
-                <span className="hidden sm:inline">Post Trip</span>
-                <span className="sm:hidden">Post</span>
-              </Link>
-                  <Link href="/messages" className="text-foreground hover:text-primary font-medium text-sm sm:text-base relative">
-                    <span className="hidden sm:inline">Messages</span>
-                    <span className="sm:hidden">Msgs</span>
-                    {unreadMessageCount && unreadMessageCount > 0 && (
-                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
-                        {unreadMessageCount}
-                      </span>
-                    )}
-                  </Link>
-                  <Link href="/profile" className="text-foreground hover:text-primary font-medium text-sm sm:text-base relative">
-                    <span className="hidden sm:inline">My Profile</span>
-                    <span className="sm:hidden">Profile</span>
-                    {notificationCount && notificationCount > 0 && (
-                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
-                        {notificationCount}
-                      </span>
-                    )}
-                  </Link>
-                  {user?.role === "admin" && (
-                    <Link href="/admin" className="text-foreground hover:text-primary font-medium text-sm sm:text-base">
-                      Admin
-                    </Link>
-                  )}
-                </>
-              )}
-            </nav>
-          </div>
-        </div>
-      </header>
+      <Navigation />
 
       {/* Header */}
       <div className="bg-white border-b">
