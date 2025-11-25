@@ -47,13 +47,6 @@ export const vehicles = mysqlTable("vehicles", {
   hasWinch: boolean("hasWinch").default(false),
   hasLockers: boolean("hasLockers").default(false),
   hasArmor: boolean("hasArmor").default(false),
-  hasSuspensionUpgrade: boolean("hasSuspensionUpgrade").default(false),
-  
-  // Additional details
-  modsList: text("modsList"), // User-entered list of modifications
-  modifications: json("modifications"), // Array of modification details
-  photos: json("photos"), // Array of photo URLs
-  capabilityScore: int("capabilityScore").default(0), // Calculated score
   
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
