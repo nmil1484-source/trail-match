@@ -17,7 +17,6 @@ export const users = mysqlTable("users", {
   experienceLevel: mysqlEnum("experienceLevel", ["beginner", "intermediate", "advanced", "expert"]),
   bio: text("bio"),
   profilePhoto: text("profilePhoto"),
-  isShopOwner: boolean("isShopOwner").default(false),
   
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
