@@ -16,10 +16,9 @@ export const appRouter = router({
     me: publicProcedure.query(opts => opts.ctx.user),
     
     notificationCount: protectedProcedure.query(async ({ ctx }) => {
-      const pendingOrganizer = await db.getPendingRequestsForOrganizer(ctx.user.id);
-      const myRequests = await db.getUserTripRequests(ctx.user.id);
-      const pendingMyRequests = myRequests.filter(r => r.participant?.status === 'pending');
-      return pendingOrganizer.length + pendingMyRequests.length;
+      // Temporarily disabled due to database schema mismatch
+      // TODO: Re-enable once tripParticipants table is properly migrated
+      return 0;
     }),
     
     signup: publicProcedure
