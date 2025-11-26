@@ -40,6 +40,9 @@ export default function Navigation({ onAuthClick }: NavigationProps) {
             <Link href="/shops" className="text-foreground hover:text-primary font-medium">
               Shops
             </Link>
+            <Link href="/gpx-library" className="text-foreground hover:text-primary font-medium">
+              GPX Library
+            </Link>
             {isAuthenticated ? (
               <>
                 <Link href="/my-shops" className="text-foreground hover:text-primary font-medium">
