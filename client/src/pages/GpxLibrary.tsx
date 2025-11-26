@@ -32,10 +32,8 @@ export default function GpxLibrary() {
 
   const handleDownload = async (gpxFile: any) => {
     try {
-      // Track download
-      await fetch(`/api/trpc/gpx.download?input=${gpxFile.gpxFile.id}`, {
-        method: 'POST',
-      });
+      // Track download using TRPC mutation
+      await trpc.gpx.download.mutate({ id: gpxFile.gpxFile.id });
 
       // Download file from stored data
       const blob = new Blob([gpxFile.gpxFile.fileData], { type: 'application/gpx+xml' });
@@ -48,8 +46,7 @@ export default function GpxLibrary() {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error("Download error:", error);
-      alert("Failed to download file");
+      console.error('Download failed:', error);
     }
   };
 
