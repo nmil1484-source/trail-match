@@ -17,7 +17,7 @@ export const appRouter = router({
     
     notificationCount: protectedProcedure.query(async ({ ctx }) => {
       if (!ctx.user) return 0;
-      const requests = await getPendingRequestsForOrganizer(ctx.user.id);
+      const requests = await db.getPendingRequestsForOrganizer(ctx.user.id);
       return requests.length;
     }),
     
