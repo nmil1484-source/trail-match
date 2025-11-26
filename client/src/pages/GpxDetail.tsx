@@ -5,21 +5,21 @@ export default function GpxDetail() {
   const params = useParams();
   const id = parseInt(params.id || "0");
 
-  const { data: gpxFile, isLoading } = trpc.gpx.getById.useQuery(id);
+  const { data, isLoading } = trpc.gpx.getById.useQuery(id);
 
   const handleDownload = async () => {
-    if (!gpxFile) return;
+    if (!data?.gpxFile) return;
     
     try {
       // Track download using TRPC mutation
-      await trpc.gpx.download.mutate({ id: gpxFile.id });
+      await trpc.gpx.download.mutate({ id: data.gpxFile.id });
 
       // Download file from stored data
-      const blob = new Blob([gpxFile.fileData], { type: 'application/gpx+xml' });
+      const blob = new Blob([data.gpxFile.fileData], { type: 'application/gpx+xml' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = gpxFile.fileName;
+      link.download = data.gpxFile.fileName;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -42,7 +42,7 @@ export default function GpxDetail() {
     );
   }
 
-  if (!gpxFile) {
+  if (!data?.gpxFile) {
     return (
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-4xl mx-auto px-4">
@@ -52,7 +52,7 @@ export default function GpxDetail() {
             </svg>
             <h3 className="mt-2 text-lg font-medium text-gray-900">GPX file not found</h3>
             <p className="mt-1 text-gray-500">The GPX file you're looking for doesn't exist.</p>
-            <Link href="/gpx-library">
+            <Link to="/gpx-library">
               <a className="mt-4 inline-block px-4 py-2 bg-orange-600 text-white rounded-md font-semibold hover:bg-orange-700 transition">
                 Back to GPX Library
               </a>
@@ -63,12 +63,14 @@ export default function GpxDetail() {
     );
   }
 
+  const { gpxFile, uploader } = data;
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
         {/* Header */}
         <div className="mb-6">
-          <Link href="/gpx-library">
+          <Link to="/gpx-library">
             <a className="text-orange-600 hover:text-orange-700 font-semibold flex items-center gap-2 mb-4">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -90,38 +92,40 @@ export default function GpxDetail() {
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">Uploaded By</h3>
-                <p className="text-lg text-gray-900">{gpxFile.uploadedByName}</p>
+                <p className="text-lg text-gray-900">{uploader?.name || 'Unknown'}</p>
               </div>
             </div>
           </div>
 
           {/* Description */}
-          <div className="p-6 border-b border-gray-200">
-            <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">Description</h3>
-            <p className="text-gray-700 whitespace-pre-wrap">{gpxFile.description}</p>
-          </div>
+          {gpxFile.description && (
+            <div className="p-6 border-b border-gray-200">
+              <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">Description</h3>
+              <p className="text-gray-700 whitespace-pre-wrap">{gpxFile.description}</p>
+            </div>
+          )}
 
           {/* Stats */}
           <div className="p-6 border-b border-gray-200">
             <h3 className="text-sm font-semibold text-gray-500 uppercase mb-4">Statistics</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center p-4 bg-gray-50 rounded-lg">
-                <div className="text-2xl font-bold text-orange-600">{gpxFile.viewCount}</div>
+                <div className="text-2xl font-bold text-orange-600">{gpxFile.viewCount || 0}</div>
                 <div className="text-sm text-gray-600">Views</div>
               </div>
               <div className="text-center p-4 bg-gray-50 rounded-lg">
-                <div className="text-2xl font-bold text-orange-600">{gpxFile.downloadCount}</div>
+                <div className="text-2xl font-bold text-orange-600">{gpxFile.downloadCount || 0}</div>
                 <div className="text-sm text-gray-600">Downloads</div>
               </div>
               {gpxFile.distance && (
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <div className="text-2xl font-bold text-orange-600">{gpxFile.distance.toFixed(1)}</div>
+                  <div className="text-2xl font-bold text-orange-600">{Number(gpxFile.distance).toFixed(1)}</div>
                   <div className="text-sm text-gray-600">km</div>
                 </div>
               )}
               {gpxFile.elevationGain && (
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
-                  <div className="text-2xl font-bold text-orange-600">{gpxFile.elevationGain.toFixed(0)}</div>
+                  <div className="text-2xl font-bold text-orange-600">{Number(gpxFile.elevationGain).toFixed(0)}</div>
                   <div className="text-sm text-gray-600">m elevation</div>
                 </div>
               )}
