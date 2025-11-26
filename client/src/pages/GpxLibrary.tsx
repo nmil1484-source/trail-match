@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "wouter";
 import { trpc } from "../lib/trpc";
 
 export default function GpxLibrary() {

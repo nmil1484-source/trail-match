@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation } from "wouter";
 import { trpc } from "../lib/trpc";
 
 export default function UploadGpx() {
-  const navigate = useNavigate();
+  const [, setLocation] = useLocation();
   const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -16,7 +16,7 @@ export default function UploadGpx() {
   const createGpxMutation = trpc.gpx.create.useMutation({
     onSuccess: () => {
       alert("GPX file uploaded successfully!");
-      navigate("/gpx-library");
+      setLocation("/gpx-library");
     },
     onError: (error) => {
       alert(`Upload failed: ${error.message}`);
@@ -181,7 +181,7 @@ export default function UploadGpx() {
               </button>
               <button
                 type="button"
-                onClick={() => navigate("/gpx-library")}
+                onClick={() => setLocation("/gpx-library")}
                 className="px-6 py-3 border border-gray-300 rounded-md font-semibold text-gray-700 hover:bg-gray-50 transition"
               >
                 Cancel
