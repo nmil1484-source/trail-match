@@ -69,7 +69,7 @@ export default function Profile() {
 
   const { data: vehicles, isLoading: vehiclesLoading, refetch: refetchVehicles } = trpc.vehicles.list.useQuery();
   const { data: myTrips, isLoading: tripsLoading } = trpc.trips.myTrips.useQuery();
-  const { data: myRequests, isLoading: requestsLoading } = trpc.trips.myRequests.useQuery();
+  const { data: myRequests, isLoading: requestsLoading } = trpc.participants.myRequests.useQuery();
 
   const logoutMutation = trpc.auth.logout.useMutation({
     onSuccess: () => {
