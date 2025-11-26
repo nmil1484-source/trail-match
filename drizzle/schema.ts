@@ -82,31 +82,11 @@ export const trips = mysqlTable("trips", {
     "long_travel_slow"
   ]),
   minTireSize: varchar("minTireSize", { length: 50 }),
-  requiresWinch: boolean("requiresWinch").default(false),
-  requiresLockers: boolean("requiresLockers").default(false),
-  
-  // Additional info
-  photos: json("photos"), // Array of photo URLs
-  itinerary: text("itinerary"),
-  campingInfo: text("campingInfo"),
-  
-  // Communication preferences
-  communicationMethods: json("communicationMethods"), // Array of preferred methods: ["text", "email", "whatsapp", "facebook", "instagram", "built_in"]
-  phoneNumber: varchar("phoneNumber", { length: 50 }),
-  whatsappNumber: varchar("whatsappNumber", { length: 50 }),
-  facebookHandle: varchar("facebookHandle", { length: 255 }),
-  instagramHandle: varchar("instagramHandle", { length: 255 }),
   
   // Status
   status: mysqlEnum("status", ["open", "full", "completed", "cancelled"]).default("open").notNull(),
   
-  // Privacy settings
-  isPrivate: boolean("isPrivate").default(false).notNull(), // If true, trip is only accessible via share link
-  shareToken: varchar("shareToken", { length: 64 }), // Unique token for private trip sharing
-  
-  // Premium listing tiers
-  premiumTier: mysqlEnum("premiumTier", ["free", "featured", "premium"]).default("free").notNull(),
-  premiumExpiresAt: timestamp("premiumExpiresAt"),
+
   
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -124,7 +104,6 @@ export const tripParticipants = mysqlTable("tripParticipants", {
   userId: int("userId").notNull(),
   status: mysqlEnum("status", ["pending", "accepted", "declined"]).default("pending").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
 export type TripParticipant = typeof tripParticipants.$inferSelect;
