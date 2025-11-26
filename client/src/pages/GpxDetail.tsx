@@ -5,7 +5,7 @@ export default function GpxDetail() {
   const params = useParams();
   const id = parseInt(params.id || "0");
 
-  const { data: gpxFile, isLoading } = trpc.gpx.getById.useQuery({ id });
+  const { data: gpxFile, isLoading } = trpc.gpx.getById.useQuery(id);
 
   const handleDownload = async () => {
     if (!gpxFile) return;
