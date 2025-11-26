@@ -1518,14 +1518,8 @@ export const appRouter = router({
         description: z.string().optional(),
         location: z.string().min(1).max(255),
         state: z.string().max(50).optional(),
-        fileUrl: z.string().url(),
+        fileData: z.string(), // GPX file content as string
         fileName: z.string().max(255),
-        fileSize: z.number().optional(),
-        distance: z.number().optional(),
-        elevationGain: z.number().optional(),
-        elevationLoss: z.number().optional(),
-        minElevation: z.number().optional(),
-        maxElevation: z.number().optional(),
       }))
       .mutation(async ({ ctx, input }) => {
         const gpxFileId = await db.createGpxFile({

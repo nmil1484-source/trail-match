@@ -37,13 +37,16 @@ export default function GpxLibrary() {
         method: 'POST',
       });
 
-      // Download file
+      // Download file from stored data
+      const blob = new Blob([gpxFile.gpxFile.fileData], { type: 'application/gpx+xml' });
+      const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = gpxFile.gpxFile.fileUrl;
+      link.href = url;
       link.download = gpxFile.gpxFile.fileName;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Download error:", error);
       alert("Failed to download file");

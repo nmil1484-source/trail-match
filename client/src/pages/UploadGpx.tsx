@@ -51,26 +51,21 @@ export default function UploadGpx() {
     setUploading(true);
 
     try {
-      // Read file as base64
+      // Read file as text
       const reader = new FileReader();
       reader.onload = async (event) => {
-        const base64 = event.target?.result as string;
-        
-        // For now, we'll store the file content directly
-        // In production, you'd upload to S3 or similar
-        const fileUrl = base64;
+        const fileData = event.target?.result as string;
 
         await createGpxMutation.mutateAsync({
           title: formData.title,
           description: formData.description || undefined,
           location: formData.location,
           state: formData.state || undefined,
-          fileUrl: fileUrl,
+          fileData: fileData,
           fileName: selectedFile.name,
-          fileSize: selectedFile.size,
         });
       };
-      reader.readAsDataURL(selectedFile);
+      reader.readAsText(selectedFile);
     } catch (error) {
       console.error("Upload error:", error);
       setUploading(false);

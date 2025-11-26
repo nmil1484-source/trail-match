@@ -285,9 +285,8 @@ export const gpxFiles = mysqlTable("gpxFiles", {
   state: varchar("state", { length: 50 }), // US state for easier filtering
   
   // File storage
-  fileUrl: text("fileUrl").notNull(), // URL to the stored GPX file
+  fileData: text("fileData").notNull(), // GPX file content stored as text
   fileName: varchar("fileName", { length: 255 }).notNull(), // Original filename
-  fileSize: int("fileSize"), // File size in bytes
   
   // GPX metadata (parsed from file)
   distance: decimal("distance", { precision: 10, scale: 2 }), // Distance in miles
