@@ -2,6 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import Navigation from "@/components/Navigation";
 import { trpc } from "@/lib/trpc";
 import { ArrowLeft, Check, Loader2, Mountain, X } from "lucide-react";
 import { Link, useLocation } from "wouter";
@@ -86,17 +87,7 @@ export default function JoinRequests() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card">
-        <div className="container py-4">
-          <Link href="/profile">
-            <Button variant="ghost" className="flex items-center gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Profile
-            </Button>
-          </Link>
-        </div>
-      </header>
+      <Navigation />
 
       <div className="container py-8 max-w-4xl">
         <div className="mb-8">

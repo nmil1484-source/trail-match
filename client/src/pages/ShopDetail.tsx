@@ -2,6 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ImageLightbox from "@/components/ImageLightbox";
+import Navigation from "@/components/Navigation";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { MapPin, Phone, Mail, Globe, Star, ArrowLeft, Edit, Trash2, Plus, CheckCircle, Crown } from "lucide-react";
@@ -90,16 +91,7 @@ export default function ShopDetail() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b bg-card">
-        <div className="container py-4">
-          <Link href="/shops">
-            <Button variant="ghost" className="flex items-center gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Shops
-            </Button>
-          </Link>
-        </div>
-      </header>
+      <Navigation />
 
       {/* Hero Image */}
       {shop.photos && Array.isArray(shop.photos) && shop.photos.length > 0 ? (

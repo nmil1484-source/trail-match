@@ -2,6 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import Navigation from "@/components/Navigation";
 import { trpc } from "@/lib/trpc";
 import { Crown, Star, Plus, Edit, Loader2, Store, TrendingUp, Eye } from "lucide-react";
 import { Link, useLocation } from "wouter";
@@ -44,28 +45,7 @@ export default function MyShops() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card">
-        <div className="container py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-              <Store className="h-8 w-8 text-orange-600" />
-              <div>
-                <h1 className="text-2xl font-bold">My Shops</h1>
-                <p className="text-sm text-muted-foreground">Manage your shop listings</p>
-              </div>
-            </Link>
-            <div className="flex items-center gap-4">
-              <Link href="/">
-                <Button variant="ghost">Home</Button>
-              </Link>
-              <Link href="/shops">
-                <Button variant="ghost">Browse Shops</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Navigation />
 
       <div className="container py-8">
         {/* Stats Overview */}

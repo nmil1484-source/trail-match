@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import Navigation from "@/components/Navigation";
 import { trpc } from "@/lib/trpc";
 import { getLoginUrl } from "@/const";
 import { ArrowLeft, Loader2, Mountain } from "lucide-react";
@@ -180,17 +181,7 @@ export default function EditTrip() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card">
-        <div className="container py-4">
-          <Link href={`/trip/${tripId}`}>
-            <Button variant="ghost" className="flex items-center gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Trip
-            </Button>
-          </Link>
-        </div>
-      </header>
+      <Navigation />
 
       <div className="container py-8 max-w-3xl">
         <div className="mb-8">
