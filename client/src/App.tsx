@@ -34,6 +34,7 @@ import AdminSubscriptionMigration from "./pages/AdminSubscriptionMigration";
 import GpxLibrary from "./pages/GpxLibrary";
 import UploadGpx from "./pages/UploadGpx";
 import MyGpx from "./pages/MyGpx";
+import GpxDetail from "./pages/GpxDetail";
 
 function Router() {
   return (
@@ -50,6 +51,7 @@ function Router() {
       <Route path={"/gpx-library"} component={GpxLibrary} />
       <Route path={"/upload-gpx"} component={UploadGpx} />
       <Route path={"/my-gpx"} component={MyGpx} />
+      <Route path={"/gpx/:id"} component={GpxDetail} />
       <Route path={"/shops/add"} component={AddShop} />
       <Route path={"/shops/:id"} component={ShopDetail} />
       <Route path={"/edit-shop/:id"} component={EditShop} />
