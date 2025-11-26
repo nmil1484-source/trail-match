@@ -1481,6 +1481,99 @@ export const appRouter = router({
         };
       }),
   }),
+
+  gpx: router({
+    // Get all GPX files
+    getAll: publicProcedure.query(async () => {
+      return await db.getAllGpxFiles();
+    }),
+
+    // Search GPX files
+    search: publicProcedure
+      .input(z.object({ query: z.string() }))
+      .query(async ({ input }) => {
+        return await db.searchGpxFiles(input.query);
+      }),
+
+    // Get GPX file by ID
+    getById: publicProcedure
+      .input(z.number())
+      .query(async ({ input }) => {
+        const gpxFile = await db.getGpxFileById(input);
+        if (gpxFile) {
+          await db.incrementGpxViewCount(input);
+        }
+        return gpxFile;
+      }),
+
+    // Get user's GPX files
+    getMyFiles: protectedProcedure.query(async ({ ctx }) => {
+      return await db.getGpxFilesByUser(ctx.user.id);
+    }),
+
+    // Create GPX file
+    create: protectedProcedure
+      .input(z.object({
+        title: z.string().min(1).max(255),
+        description: z.string().optional(),
+        location: z.string().min(1).max(255),
+        state: z.string().max(50).optional(),
+        fileUrl: z.string().url(),
+        fileName: z.string().max(255),
+        fileSize: z.number().optional(),
+        distance: z.number().optional(),
+        elevationGain: z.number().optional(),
+        elevationLoss: z.number().optional(),
+        minElevation: z.number().optional(),
+        maxElevation: z.number().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const gpxFileId = await db.createGpxFile({
+          ...input,
+          uploadedBy: ctx.user.id,
+        });
+        return { id: gpxFileId };
+      }),
+
+    // Update GPX file
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        title: z.string().min(1).max(255).optional(),
+        description: z.string().optional(),
+        location: z.string().min(1).max(255).optional(),
+        state: z.string().max(50).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { id, ...data } = input;
+        const gpxFile = await db.getGpxFileById(id);
+        if (!gpxFile || gpxFile.gpxFile.uploadedBy !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN" });
+        }
+        await db.updateGpxFile(id, data);
+        return { success: true };
+      }),
+
+    // Delete GPX file
+    delete: protectedProcedure
+      .input(z.number())
+      .mutation(async ({ ctx, input }) => {
+        const gpxFile = await db.getGpxFileById(input);
+        if (!gpxFile || gpxFile.gpxFile.uploadedBy !== ctx.user.id) {
+          throw new TRPCError({ code: "FORBIDDEN" });
+        }
+        await db.deleteGpxFile(input);
+        return { success: true };
+      }),
+
+    // Increment download count
+    download: publicProcedure
+      .input(z.number())
+      .mutation(async ({ input }) => {
+        await db.incrementGpxDownloadCount(input);
+        return { success: true };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

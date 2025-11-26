@@ -1,7 +1,7 @@
 import { and, eq, gte, lte, sql, desc, ne, lt } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
-import { InsertTrip, InsertTripParticipant, InsertUser, InsertVehicle, InsertShop, InsertShopReview, InsertTripReview, InsertPasswordResetToken, InsertConversation, InsertMessage, tripParticipants, trips, users, vehicles, shops, shopReviews, tripReviews, passwordResetTokens, conversations, messages } from "../drizzle/schema";
+import { InsertTrip, InsertTripParticipant, InsertUser, InsertVehicle, InsertShop, InsertShopReview, InsertTripReview, InsertPasswordResetToken, InsertConversation, InsertMessage, InsertGpxFile, tripParticipants, trips, users, vehicles, shops, shopReviews, tripReviews, passwordResetTokens, conversations, messages, gpxFiles } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import crypto from "crypto";
 
@@ -1232,4 +1232,129 @@ export async function checkAndExpirePremiumShops(): Promise<void> {
         lt(shops.premiumExpiresAt, now)
       )
     );
+}
+
+// ============================================================================
+// GPX Files Functions
+// ============================================================================
+
+export async function createGpxFile(gpxFile: InsertGpxFile) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const [result] = await db.insert(gpxFiles).values(gpxFile);
+  return result.insertId;
+}
+
+export async function getAllGpxFiles() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db
+    .select({
+      gpxFile: gpxFiles,
+      uploader: {
+        id: users.id,
+        name: users.name,
+        profilePhoto: users.profilePhoto,
+      },
+    })
+    .from(gpxFiles)
+    .leftJoin(users, eq(gpxFiles.uploadedBy, users.id))
+    .orderBy(desc(gpxFiles.createdAt));
+}
+
+export async function searchGpxFiles(searchTerm: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const searchPattern = `%${searchTerm}%`;
+  
+  return await db
+    .select({
+      gpxFile: gpxFiles,
+      uploader: {
+        id: users.id,
+        name: users.name,
+        profilePhoto: users.profilePhoto,
+      },
+    })
+    .from(gpxFiles)
+    .leftJoin(users, eq(gpxFiles.uploadedBy, users.id))
+    .where(
+      sql`${gpxFiles.title} LIKE ${searchPattern} OR ${gpxFiles.description} LIKE ${searchPattern} OR ${gpxFiles.location} LIKE ${searchPattern}`
+    )
+    .orderBy(desc(gpxFiles.createdAt));
+}
+
+export async function getGpxFileById(gpxFileId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const results = await db
+    .select({
+      gpxFile: gpxFiles,
+      uploader: {
+        id: users.id,
+        name: users.name,
+        profilePhoto: users.profilePhoto,
+        location: users.location,
+      },
+    })
+    .from(gpxFiles)
+    .leftJoin(users, eq(gpxFiles.uploadedBy, users.id))
+    .where(eq(gpxFiles.id, gpxFileId))
+    .limit(1);
+  
+  return results[0] || null;
+}
+
+export async function getGpxFilesByUser(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db
+    .select()
+    .from(gpxFiles)
+    .where(eq(gpxFiles.uploadedBy, userId))
+    .orderBy(desc(gpxFiles.createdAt));
+}
+
+export async function incrementGpxDownloadCount(gpxFileId: number) {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db
+    .update(gpxFiles)
+    .set({ downloadCount: sql`${gpxFiles.downloadCount} + 1` })
+    .where(eq(gpxFiles.id, gpxFileId));
+}
+
+export async function incrementGpxViewCount(gpxFileId: number) {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db
+    .update(gpxFiles)
+    .set({ viewCount: sql`${gpxFiles.viewCount} + 1` })
+    .where(eq(gpxFiles.id, gpxFileId));
+}
+
+export async function updateGpxFile(gpxFileId: number, data: Partial<InsertGpxFile>) {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db
+    .update(gpxFiles)
+    .set(data)
+    .where(eq(gpxFiles.id, gpxFileId));
+}
+
+export async function deleteGpxFile(gpxFileId: number) {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db
+    .delete(gpxFiles)
+    .where(eq(gpxFiles.id, gpxFileId));
 }

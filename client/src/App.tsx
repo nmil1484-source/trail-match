@@ -31,6 +31,9 @@ import UserProfile from "./pages/UserProfile";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import AdminSubscriptionMigration from "./pages/AdminSubscriptionMigration";
+import GpxLibrary from "./pages/GpxLibrary";
+import UploadGpx from "./pages/UploadGpx";
+import MyGpx from "./pages/MyGpx";
 
 function Router() {
   return (
@@ -44,6 +47,9 @@ function Router() {
       <Route path={"/shops"} component={Shops} />
       <Route path={"/my-shops"} component={MyShops} />
       <Route path={"/past-trips"} component={PastTrips} />
+      <Route path={"/gpx-library"} component={GpxLibrary} />
+      <Route path={"/upload-gpx"} component={UploadGpx} />
+      <Route path={"/my-gpx"} component={MyGpx} />
       <Route path={"/shops/add"} component={AddShop} />
       <Route path={"/shops/:id"} component={ShopDetail} />
       <Route path={"/edit-shop/:id"} component={EditShop} />

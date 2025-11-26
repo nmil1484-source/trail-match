@@ -270,3 +270,39 @@ export const messages = mysqlTable("messages", {
 
 export type Message = typeof messages.$inferSelect;
 export type InsertMessage = typeof messages.$inferInsert;
+
+/**
+ * GPX Files table - user-uploaded GPS tracks/routes
+ */
+export const gpxFiles = mysqlTable("gpxFiles", {
+  id: int("id").autoincrement().primaryKey(),
+  uploadedBy: int("uploadedBy").notNull(), // User who uploaded the GPX
+  
+  // File details
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  location: varchar("location", { length: 255 }).notNull(), // General location/area name
+  state: varchar("state", { length: 50 }), // US state for easier filtering
+  
+  // File storage
+  fileUrl: text("fileUrl").notNull(), // URL to the stored GPX file
+  fileName: varchar("fileName", { length: 255 }).notNull(), // Original filename
+  fileSize: int("fileSize"), // File size in bytes
+  
+  // GPX metadata (parsed from file)
+  distance: decimal("distance", { precision: 10, scale: 2 }), // Distance in miles
+  elevationGain: int("elevationGain"), // Total elevation gain in feet
+  elevationLoss: int("elevationLoss"), // Total elevation loss in feet
+  minElevation: int("minElevation"), // Minimum elevation in feet
+  maxElevation: int("maxElevation"), // Maximum elevation in feet
+  
+  // Stats
+  downloadCount: int("downloadCount").default(0).notNull(),
+  viewCount: int("viewCount").default(0).notNull(),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type GpxFile = typeof gpxFiles.$inferSelect;
+export type InsertGpxFile = typeof gpxFiles.$inferInsert;

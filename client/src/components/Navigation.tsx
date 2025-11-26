@@ -104,6 +104,13 @@ export default function Navigation({ onAuthClick }: NavigationProps) {
             >
               Shops
             </Link>
+            <Link 
+              href="/gpx-library" 
+              className="block text-foreground hover:text-primary font-medium py-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              GPX Library
+            </Link>
             {isAuthenticated ? (
               <>
                 <Link 
@@ -112,6 +119,13 @@ export default function Navigation({ onAuthClick }: NavigationProps) {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   My Shops
+                </Link>
+                <Link 
+                  href="/my-gpx" 
+                  className="block text-foreground hover:text-primary font-medium py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  My GPX
                 </Link>
                 <Link 
                   href="/post-trip" 
