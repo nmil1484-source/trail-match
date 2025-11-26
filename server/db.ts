@@ -287,27 +287,50 @@ export async function getTripParticipants(tripId: number) {
 }
 
 export async function getPendingRequestsForOrganizer(organizerId: number) {
-  // Temporarily disabled due to database schema mismatch
-  // TODO: Re-enable after tripParticipants table is properly migrated
-  return [];
+  const db = await getDb();
+  if (!db) return [];
+
+  // Get all trips organized by this user
+  const organizerTrips = await db
+    .select({ id: trips.id })
+    .from(trips)
+    .where(eq(trips.organizerId, organizerId));
+
+  if (organizerTrips.length === 0) return [];
+
+  const tripIds = organizerTrips.map(t => t.id);
+
+  // Get all pending requests for those trips
+  return await db
+    .select({
+      participant: tripParticipants,
+      user: users,
+      trip: trips,
+    })
+    .from(tripParticipants)
+    .leftJoin(users, eq(tripParticipants.userId, users.id))
+    .leftJoin(trips, eq(tripParticipants.tripId, trips.id))
+    .where(
+      and(
+        eq(tripParticipants.status, "pending"),
+        sql`${tripParticipants.tripId} IN (${sql.join(tripIds.map(id => sql`${id}`), sql`, `)})`
+      )
+    );
 }
 
 export async function getUserTripRequests(userId: number) {
-  // Temporarily disabled due to database schema mismatch
-  // TODO: Re-enable after tripParticipants table is properly migrated
-  return [];
-  
-  // const db = await getDb();
-  // if (!db) return [];
-  // return await db
-  //   .select({
-  //     participant: tripParticipants,
-  //     trip: trips,
-  //   })
-  //   .from(tripParticipants)
-  //   .leftJoin(trips, eq(tripParticipants.tripId, trips.id))
-  //   .where(eq(tripParticipants.userId, userId))
-  //   .orderBy(desc(tripParticipants.createdAt));
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select({
+      participant: tripParticipants,
+      trip: trips,
+    })
+    .from(tripParticipants)
+    .leftJoin(trips, eq(tripParticipants.tripId, trips.id))
+    .where(eq(tripParticipants.userId, userId))
+    .orderBy(desc(tripParticipants.createdAt));
 }
 
 export async function updateParticipantStatus(participantId: number, status: "pending" | "accepted" | "declined") {

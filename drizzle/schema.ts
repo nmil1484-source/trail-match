@@ -122,12 +122,8 @@ export const tripParticipants = mysqlTable("tripParticipants", {
   id: int("id").autoincrement().primaryKey(),
   tripId: int("tripId").notNull(),
   userId: int("userId").notNull(),
-  vehicleId: int("vehicleId"),
-  
   status: mysqlEnum("status", ["pending", "accepted", "declined"]).default("pending").notNull(),
-  message: text("message"), // Optional message when requesting to join
-  
-  joinedAt: timestamp("joinedAt").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
