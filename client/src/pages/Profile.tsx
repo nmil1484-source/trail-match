@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { SinglePhotoUpload } from "@/components/SinglePhotoUpload";
+import Navigation from "@/components/Navigation";
 import { trpc } from "@/lib/trpc";
 import { ArrowLeft, Loader2, Plus, Trash2, Pencil, Calendar, MapPin, Users, Copy, Lock, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -244,25 +245,7 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card">
-        <div className="container py-4 flex justify-between items-center">
-          <Link href="/">
-            <Button variant="ghost" className="flex items-center gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Home
-            </Button>
-          </Link>
-          <Button 
-            variant="outline" 
-            onClick={() => {
-              logoutMutation.mutate();
-            }}
-          >
-            Log Out
-          </Button>
-        </div>
-      </header>
+      <Navigation />
 
       <div className="container py-8 max-w-4xl">
         <div className="mb-8">
