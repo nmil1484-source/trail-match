@@ -64,7 +64,6 @@ export const trips = mysqlTable("trips", {
   
   // Trip characteristics
   difficulty: mysqlEnum("difficulty", ["beginner", "intermediate", "advanced", "expert"]).notNull(),
-  styles: json("styles"), // Array of styles: ["rock_crawling", "overland", "desert", etc.]
   
   // Group details
   maxParticipants: int("maxParticipants").default(6),
@@ -81,15 +80,11 @@ export const trips = mysqlTable("trips", {
     "long_travel_fast",
     "long_travel_slow"
   ]),
-  minTireSize: varchar("minTireSize", { length: 50 }),
   
   // Status
   status: mysqlEnum("status", ["open", "full", "completed", "cancelled"]).default("open").notNull(),
   
-
-  
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
 export type Trip = typeof trips.$inferSelect;
