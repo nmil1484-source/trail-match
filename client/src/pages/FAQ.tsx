@@ -319,7 +319,7 @@ export default function FAQ() {
                 If you can't find the answer you're looking for, feel free to reach out to us.
               </p>
               <Button asChild>
-                <a href="mailto:trailsharesite@gmail.com" className="flex items-center gap-2">
+                <a href="mailto:trailmatchsite@gmail.com" className="flex items-center gap-2">
                   <Mail className="h-4 w-4" />
                   Contact Us
                 </a>

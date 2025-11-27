@@ -48,11 +48,11 @@ export default function Footer() {
           <div>
             <h3 className="font-semibold mb-4">Contact Us</h3>
             <a 
-              href="mailto:trailsharesite@gmail.com" 
+              href="mailto:trailmatchsite@gmail.com" 
               className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary"
             >
               <Mail className="h-4 w-4" />
-              trailsharesite@gmail.com
+              trailmatchsite@gmail.com
             </a>
           </div>
         </div>
