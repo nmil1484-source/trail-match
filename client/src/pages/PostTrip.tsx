@@ -54,7 +54,7 @@ export default function PostTrip() {
   const [minTireSize, setMinTireSize] = useState("");
   const [requiresWinch, setRequiresWinch] = useState(false);
   const [requiresLockers, setRequiresLockers] = useState(false);
-  const [vehicleRequirements, setVehicleRequirements] = useState<string[]>([]);
+  const [vehicleRequirement, setVehicleRequirement] = useState<string>("");
   const [itinerary, setItinerary] = useState("");
   const [campingInfo, setCampingInfo] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
@@ -128,7 +128,7 @@ export default function PostTrip() {
       minTireSize: minTireSize || undefined,
       requiresWinch,
       requiresLockers,
-      vehicleRequirement: vehicleRequirements.length > 0 ? vehicleRequirements : undefined,
+      vehicleRequirement: vehicleRequirement || undefined,
       itinerary: itinerary || undefined,
       campingInfo: campingInfo || undefined,
       photos: photos.length > 0 ? photos : undefined,
@@ -344,12 +344,12 @@ export default function PostTrip() {
                     <div key={req.value} className="flex items-center space-x-2">
                       <Checkbox
                         id={`vehicle-${req.value}`}
-                        checked={vehicleRequirements.includes(req.value)}
+                        checked={vehicleRequirement === req.value}
                         onCheckedChange={(checked) => {
                           if (checked) {
-                            setVehicleRequirements([...vehicleRequirements, req.value]);
+                            setVehicleRequirement(req.value);
                           } else {
-                            setVehicleRequirements(vehicleRequirements.filter(v => v !== req.value));
+                            setVehicleRequirement("");
                           }
                         }}
                       />
