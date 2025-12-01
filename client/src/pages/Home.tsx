@@ -114,10 +114,26 @@ export default function Home() {
             <h1 className="text-5xl font-bold text-foreground mb-4">
               Find Your Trail Crew
             </h1>
-            <p className="text-xl text-muted-foreground mb-8">
+            <p className="text-xl text-muted-foreground mb-6">
               Find compatible off-roaders with similar vehicles and builds. 
               Join trips that match your skill level and adventure style.
             </p>
+            
+            {/* Social Proof Stats */}
+            <div className="flex flex-wrap gap-6 mb-8">
+              <div className="flex items-center gap-2">
+                <Users className="h-5 w-5 text-primary" />
+                <span className="text-sm font-medium text-foreground">200+ Trail Enthusiasts</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Mountain className="h-5 w-5 text-primary" />
+                <span className="text-sm font-medium text-foreground">50+ Trips Organized</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-primary" />
+                <span className="text-sm font-medium text-foreground">15+ States Covered</span>
+              </div>
+            </div>
             
             {/* Search Bar */}
             <div className="space-y-4">
