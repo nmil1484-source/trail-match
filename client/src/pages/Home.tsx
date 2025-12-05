@@ -119,6 +119,18 @@ export default function Home() {
               Join trips that match your skill level and adventure style.
             </p>
             
+            {/* CTA Buttons */}
+            {!isAuthenticated && (
+              <div className="flex flex-wrap gap-4 mb-8">
+                <Button size="lg" className="text-lg px-8 py-6" onClick={() => setAuthModalOpen(true)}>
+                  Sign Up Free
+                </Button>
+                <Button size="lg" variant="outline" className="text-lg px-8 py-6" onClick={() => setAuthModalOpen(true)}>
+                  Log In
+                </Button>
+              </div>
+            )}
+            
             {/* Social Proof Stats */}
             <div className="flex flex-wrap gap-6 mb-8">
               <div className="flex items-center gap-2">
