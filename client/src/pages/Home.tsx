@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
-import { Calendar, MapPin, Users, Mountain, Loader2, Star, Trophy } from "lucide-react";
+import { Calendar, MapPin, Users, Mountain, Loader2, Star, Trophy, Heart } from "lucide-react";
 import { Link } from "wouter";
 import { useState } from "react";
 import { AuthDialog } from "@/components/AuthDialog";
@@ -213,6 +213,38 @@ export default function Home() {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Founder Story Section */}
+      <section className="py-16 bg-gradient-to-br from-primary/5 to-background">
+        <div className="container">
+          <div className="max-w-4xl mx-auto">
+            <Card className="border-primary/20 shadow-lg">
+              <CardContent className="pt-8 pb-8">
+                <div className="flex items-start gap-4 mb-6">
+                  <div className="bg-primary/10 p-3 rounded-lg shrink-0">
+                    <Heart className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-bold mb-3 text-foreground">Built by a Weekend Warrior, For Weekend Warriors</h2>
+                    <p className="text-lg text-muted-foreground leading-relaxed">
+                      I'm Nick, and I built TrailMatch because I needed it. Working in public safety with odd hours and weekends made coordinating trips nearly impossible. My friends didn't have off-road vehicles, guided tours were expensive, and finding a good local shop meant driving 45 minutes each way.
+                    </p>
+                    <p className="text-lg text-muted-foreground leading-relaxed mt-4">
+                      I knew I wasn't alone. There had to be other off-roaders with demanding jobs who just wanted to find like-minded people, organize affordable trips, and support local shops without the hassle.
+                    </p>
+                    <p className="text-lg font-semibold text-foreground mt-4">
+                      That's why TrailMatch exists. For the public safety workers, night-shifters, and weekend warriors who refuse to let a tough schedule limit their love for the trail.
+                    </p>
+                    <Button variant="outline" className="mt-6" asChild>
+                      <Link href="/about">Read Our Full Story</Link>
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
