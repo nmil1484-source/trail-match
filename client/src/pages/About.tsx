@@ -2,7 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "wouter";
-import { ArrowLeft, Users, Mountain, Shield, Heart } from "lucide-react";
+import { ArrowLeft, Users, Mountain, Shield, Heart, Compass } from "lucide-react";
 import Footer from "@/components/Footer";
 
 export default function About() {
@@ -54,6 +54,58 @@ export default function About() {
           </Button>
 
           <h1 className="text-4xl font-bold mb-6">About TrailMatch</h1>
+
+          {/* Founder's Story Section */}
+          <Card className="mb-8 border-primary/20 bg-gradient-to-br from-card to-primary/5">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="bg-primary/10 p-3 rounded-lg">
+                  <Compass className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold mb-4">Our Story: For the Weekend Warriors with Weekday Jobs</h2>
+                </div>
+              </div>
+              
+              <div className="space-y-4 text-muted-foreground">
+                <p>
+                  TrailMatch wasn't born in a boardroom. It was born out of frustration, a tight schedule, and a love for the trail.
+                </p>
+                
+                <p>
+                  My name is Nick, and I built TrailMatch because I needed it. Working in public safety means my schedule is anything but normal. I work odd hours, weekends, and holidays. Spontaneously planning a trip is a luxury I don't have. Trying to coordinate with friends who have regular 9-to-5s was nearly impossible.
+                </p>
+                
+                <p>
+                  Even when I could find the time, I faced another problem: most of my close friends don't have off-road capable vehicles. I was ready to hit the trails, but I had no one to go with.
+                </p>
+                
+                <p>
+                  I looked into guided trips, like the ones that go down to Baja, but they were expensive. I wasn't looking for a paid tour guide – I just wanted to find a few like-minded people to explore with and split the cost of gas and gear.
+                </p>
+                
+                <p>
+                  Then there was the gear. I wanted to get a new bumper for my truck, but the nearest reputable shop was a 45-minute drive away. Dropping off my truck, Ubering back and forth – it was a logistical nightmare. I knew there had to be good, reliable shops closer to home, but finding them was a challenge.
+                </p>
+                
+                <p>
+                  I figured I couldn't be the only one facing these problems. There had to be other weekend warriors out there with demanding jobs, a passion for off-roading, and a need for a better way to connect.
+                </p>
+                
+                <p className="font-semibold text-foreground">
+                  That's why I built TrailMatch. It's a place for us to find and organize trips that fit our crazy schedules, connect with other off-roaders in our area, and discover and support local shops we can trust.
+                </p>
+                
+                <p>
+                  This isn't just another social network. It's a tool built for the off-road community, by a member of the off-road community. It's for the public safety workers, the night-shifters, the weekend warriors – for anyone who believes that a love for the trail shouldn't be limited by a tough schedule or a lack of connections.
+                </p>
+                
+                <p className="text-lg font-semibold text-primary">
+                  Welcome to TrailMatch. Let's hit the trail together.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
 
           <div className="prose prose-lg max-w-none space-y-8">
             <Card>
