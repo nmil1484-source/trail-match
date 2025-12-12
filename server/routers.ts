@@ -4,6 +4,7 @@ import { z } from "zod";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
+import { notificationsRouter } from "./routers/notifications";
 import * as db from "./db";
 import { ENV } from "./_core/env";
 import { createEmailUser, authenticateEmailUser } from "./auth";
@@ -11,6 +12,7 @@ import { signToken } from "./_core/jwt";
 
 export const appRouter = router({
   system: systemRouter,
+  notifications: notificationsRouter,
 
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
@@ -229,6 +231,30 @@ export const appRouter = router({
           photos: input.photos || [],
           shareToken,
         });
+        
+        // Send notifications to users in the same area (async, don't wait)
+        if (!input.isPrivate) {
+          import("./routers/notifications").then(async ({ sendNotificationToUsers }) => {
+            try {
+              // Get users in the same state/area
+              const users = await db.getUsersByLocation(input.state || input.location);
+              const userIds = users.filter(u => u.id !== ctx.user.id).map(u => u.id);
+              
+              if (userIds.length > 0) {
+                await sendNotificationToUsers(
+                  userIds,
+                  `New Trip: ${input.title}`,
+                  `${input.location} · ${input.startDate.toLocaleDateString()} · ${input.difficulty}`,
+                  { url: `/trip/${tripId}`, tripId },
+                  'trip'
+                );
+              }
+            } catch (error) {
+              console.error('Error sending trip notifications:', error);
+            }
+          });
+        }
+        
         return { tripId, shareToken };
       }),
 
@@ -1403,12 +1429,34 @@ export const appRouter = router({
         content: z.string().min(1),
       }))
       .mutation(async ({ ctx, input }) => {
-        return await db.sendMessage({
+        const message = await db.sendMessage({
           conversationId: input.conversationId,
           senderId: ctx.user.id,
           receiverId: input.receiverId,
           content: input.content,
         });
+        
+        // Send push notification to receiver (async, don't wait)
+        import("./routers/notifications").then(async ({ sendNotificationToUser }) => {
+          try {
+            const senderName = ctx.user.name || 'Someone';
+            const preview = input.content.length > 50 
+              ? input.content.substring(0, 50) + '...' 
+              : input.content;
+            
+            await sendNotificationToUser(
+              input.receiverId,
+              `New message from ${senderName}`,
+              preview,
+              { url: '/messages', conversationId: input.conversationId },
+              'message'
+            );
+          } catch (error) {
+            console.error('Error sending message notification:', error);
+          }
+        });
+        
+        return message;
       }),
 
     // Mark messages as read

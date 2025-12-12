@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { SinglePhotoUpload } from "@/components/SinglePhotoUpload";
 import Navigation from "@/components/Navigation";
+import NotificationSettings from "@/components/NotificationSettings";
 import { trpc } from "@/lib/trpc";
 import { ArrowLeft, Loader2, Plus, Trash2, Pencil, Calendar, MapPin, Users, Copy, Lock, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -587,6 +588,11 @@ export default function Profile() {
             )}
           </CardContent>
         </Card>
+
+        {/* Notification Settings */}
+        <div className="mb-6">
+          <NotificationSettings />
+        </div>
 
         {/* My Vehicles */}
         <Card className="mb-6">

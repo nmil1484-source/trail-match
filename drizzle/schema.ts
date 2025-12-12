@@ -305,3 +305,27 @@ export const gpxFiles = mysqlTable("gpxFiles", {
 
 export type GpxFile = typeof gpxFiles.$inferSelect;
 export type InsertGpxFile = typeof gpxFiles.$inferInsert;
+
+/**
+ * Push subscriptions table - stores web push notification subscriptions
+ */
+export const pushSubscriptions = mysqlTable("pushSubscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  
+  // Push subscription data (from PushSubscription object)
+  endpoint: text("endpoint").notNull(),
+  keys: json("keys").notNull(), // {p256dh: string, auth: string}
+  
+  // Notification preferences
+  tripNotifications: boolean("tripNotifications").default(true).notNull(),
+  messageNotifications: boolean("messageNotifications").default(true).notNull(),
+  tripUpdateNotifications: boolean("tripUpdateNotifications").default(true).notNull(),
+  reminderNotifications: boolean("reminderNotifications").default(true).notNull(),
+  
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PushSubscription = typeof pushSubscriptions.$inferSelect;
+export type InsertPushSubscription = typeof pushSubscriptions.$inferInsert;
