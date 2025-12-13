@@ -13,6 +13,12 @@ export default function Navigation({ onAuthClick }: NavigationProps) {
   const { user, isAuthenticated } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
+  const logoutMutation = trpc.auth.logout.useMutation({
+    onSuccess: () => {
+      window.location.href = "/";
+    },
+  });
+  
   const { data: notificationCount } = trpc.auth.notificationCount.useQuery(undefined, {
     enabled: isAuthenticated,
     refetchInterval: 30000,
@@ -75,14 +81,12 @@ export default function Navigation({ onAuthClick }: NavigationProps) {
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  onClick={() => {
-                    trpc.auth.logout.useMutation().mutate();
-                    window.location.href = "/";
-                  }}
+                  onClick={() => logoutMutation.mutate()}
+                  disabled={logoutMutation.isPending}
                   className="text-foreground hover:text-primary"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
-                  Logout
+                  {logoutMutation.isPending ? "Logging out..." : "Logout"}
                 </Button>
               </>
             ) : (
@@ -185,13 +189,11 @@ export default function Navigation({ onAuthClick }: NavigationProps) {
                 <Button 
                   variant="ghost" 
                   className="w-full justify-start text-foreground hover:text-primary"
-                  onClick={() => {
-                    trpc.auth.logout.useMutation().mutate();
-                    window.location.href = "/";
-                  }}
+                  onClick={() => logoutMutation.mutate()}
+                  disabled={logoutMutation.isPending}
                 >
                   <LogOut className="h-4 w-4 mr-2" />
-                  Logout
+                  {logoutMutation.isPending ? "Logging out..." : "Logout"}
                 </Button>
               </>
             ) : (
