@@ -39,7 +39,18 @@ export function getSessionCookieOptions(
   //       ? hostname
   //       : undefined;
 
+  const hostname = req.hostname;
+  const shouldSetDomain =
+    hostname &&
+    !LOCAL_HOSTS.has(hostname) &&
+    !isIpAddress(hostname);
+
+  const domain = shouldSetDomain && hostname.includes('.') 
+    ? hostname.startsWith('.') ? hostname : `.${hostname}`
+    : undefined;
+
   return {
+    domain,
     httpOnly: true,
     path: "/",
     sameSite: "lax",

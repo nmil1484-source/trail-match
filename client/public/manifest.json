@@ -3,6 +3,7 @@
   "short_name": "TrailMatch",
   "description": "Connect with off-road enthusiasts, organize trips, and discover local shops. Built by weekend warriors, for weekend warriors.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#c2410c",

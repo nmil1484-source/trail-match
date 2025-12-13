@@ -1,4 +1,4 @@
-const CACHE_NAME = 'trailmatch-v1';
+const CACHE_NAME = 'trailmatch-v2';
 const urlsToCache = [
   '/',
   '/manifest.json',
