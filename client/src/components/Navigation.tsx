@@ -1,7 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut } from "lucide-react";
 import { Link } from "wouter";
 import { useState } from "react";
 
@@ -72,6 +72,18 @@ export default function Navigation({ onAuthClick }: NavigationProps) {
                     Admin
                   </Link>
                 )}
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => {
+                    trpc.auth.logout.useMutation().mutate();
+                    window.location.href = "/";
+                  }}
+                  className="text-foreground hover:text-primary"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
               </>
             ) : (
               <Button onClick={onAuthClick}>
@@ -170,6 +182,17 @@ export default function Navigation({ onAuthClick }: NavigationProps) {
                     Admin
                   </Link>
                 )}
+                <Button 
+                  variant="ghost" 
+                  className="w-full justify-start text-foreground hover:text-primary"
+                  onClick={() => {
+                    trpc.auth.logout.useMutation().mutate();
+                    window.location.href = "/";
+                  }}
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
               </>
             ) : (
               <Button 

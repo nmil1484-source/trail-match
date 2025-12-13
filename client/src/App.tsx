@@ -27,6 +27,7 @@ import JoinRequests from "./pages/JoinRequests";
 import Messages from "./pages/Messages";
 import About from "./pages/About";
 import FAQ from "./pages/FAQ";
+import InstallApp from "./pages/InstallApp";
 import AdminMessagingMigration from "./pages/AdminMessagingMigration";
 import AdminGroupChatMigration from "./pages/AdminGroupChatMigration";
 import UserProfile from "./pages/UserProfile";
@@ -70,6 +71,7 @@ function Router() {
       <Route path={"/messages"} component={Messages} />
       <Route path={"/about"} component={About} />
       <Route path={"/faq"} component={FAQ} />
+      <Route path={"/install"} component={InstallApp} />
       <Route path={"/forgot-password"} component={ForgotPassword} />
       <Route path={"/reset-password"} component={ResetPassword} />
       <Route path={"/404"} component={NotFound} />

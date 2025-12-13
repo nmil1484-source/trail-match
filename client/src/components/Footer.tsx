@@ -41,6 +41,11 @@ export default function Footer() {
                   FAQ
                 </Link>
               </li>
+              <li>
+                <Link href="/install" className="text-muted-foreground hover:text-primary">
+                  📱 Install App
+                </Link>
+              </li>
             </ul>
           </div>
 
