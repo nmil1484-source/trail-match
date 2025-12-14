@@ -1,4 +1,4 @@
-const CACHE_NAME = 'trailmatch-v2';
+const CACHE_NAME = 'trailmatch-v3';
 const urlsToCache = [
   '/',
   '/manifest.json',
@@ -36,34 +36,28 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event - NEVER cache API or auth requests
 self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+  
+  // NEVER cache API requests, trpc calls, or anything with query params (likely dynamic)
+  if (url.pathname.includes('/api/') || 
+      url.pathname.includes('/trpc') || 
+      url.search || 
+      event.request.method !== 'GET') {
+    // Always fetch from network for API/dynamic requests
+    event.respondWith(fetch(event.request));
+    return;
+  }
+  
+  // For static assets only, try cache first
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        // Cache hit - return response
         if (response) {
           return response;
         }
-
-        return fetch(event.request).then(
-          (response) => {
-            // Check if we received a valid response
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-
-            // Clone the response
-            const responseToCache = response.clone();
-
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
-
-            return response;
-          }
-        );
+        return fetch(event.request);
       })
   );
 });
@@ -92,4 +86,17 @@ self.addEventListener('notificationclick', (event) => {
   event.waitUntil(
     clients.openWindow('/')
   );
+});
+
+// Message event - handle cache clearing
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'CLEAR_CACHE') {
+    event.waitUntil(
+      caches.keys().then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => caches.delete(cacheName))
+        );
+      })
+    );
+  }
 });

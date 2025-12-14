@@ -1,7 +1,7 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
-import { Menu, X, LogOut } from "lucide-react";
+import { Menu, X, LogOut, Download } from "lucide-react";
 import { Link } from "wouter";
 import { useState } from "react";
 
@@ -14,13 +14,26 @@ export default function Navigation({ onAuthClick }: NavigationProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   const logoutMutation = trpc.auth.logout.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
+      // Clear service worker cache
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_CACHE' });
+      }
+      // Clear all caches
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(cacheNames.map(name => caches.delete(name)));
+      }
       // Force a full page reload to clear all state
       window.location.replace("/");
     },
-    onError: (error) => {
+    onError: async (error) => {
       console.error('Logout error:', error);
       // Even if logout fails on server, clear client state
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(cacheNames.map(name => caches.delete(name)));
+      }
       window.location.replace("/");
     },
   });
@@ -52,9 +65,13 @@ export default function Navigation({ onAuthClick }: NavigationProps) {
             <Link href="/shops" className="text-foreground hover:text-primary font-medium">
               Shops
             </Link>
-            <Link href="/gpx-library" className="text-foreground hover:text-primary font-medium">
-              GPX Library
-            </Link>
+              <Link href="/gpx-library" className="text-foreground hover:text-primary font-medium">
+                GPX Library
+              </Link>
+              <Link href="/install" className="text-primary hover:text-primary/80 font-semibold">
+                <Download className="h-4 w-4 inline mr-1" />
+                Install App
+              </Link>
             {isAuthenticated ? (
               <>
                 <Link href="/my-shops" className="text-foreground hover:text-primary font-medium">
@@ -135,6 +152,14 @@ export default function Navigation({ onAuthClick }: NavigationProps) {
               onClick={() => setMobileMenuOpen(false)}
             >
               GPX Library
+            </Link>
+            <Link 
+              href="/install" 
+              className="block text-primary hover:text-primary/80 font-semibold py-2"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Download className="h-4 w-4 inline mr-1" />
+              Install App
             </Link>
             {isAuthenticated ? (
               <>
