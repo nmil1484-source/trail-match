@@ -326,7 +326,8 @@ export const appRouter = router({
       .mutation(async ({ ctx, input }) => {
         const { id, ...data } = input;
         const trip = await db.getTripById(id);
-        if (!trip || trip.organizerId !== ctx.user.id) {
+        const isAdmin = ctx.user.role === 'admin';
+        if (!trip || (trip.organizerId !== ctx.user.id && !isAdmin)) {
           throw new TRPCError({ code: "FORBIDDEN" });
         }
         await db.updateTrip(id, data);
@@ -337,10 +338,47 @@ export const appRouter = router({
       .input(z.object({ id: z.number() }))
       .mutation(async ({ ctx, input }) => {
         const trip = await db.getTripById(input.id);
-        if (!trip || trip.organizerId !== ctx.user.id) {
+        const isAdmin = ctx.user.role === 'admin';
+        if (!trip || (trip.organizerId !== ctx.user.id && !isAdmin)) {
           throw new TRPCError({ code: "FORBIDDEN" });
         }
         await db.deleteTrip(input.id);
+        return { success: true };
+      }),
+
+    cancel: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const trip = await db.getTripById(input.id);
+        const isAdmin = ctx.user.role === 'admin';
+        if (!trip || (trip.organizerId !== ctx.user.id && !isAdmin)) {
+          throw new TRPCError({ code: "FORBIDDEN" });
+        }
+        
+        // Cancel the trip and get participants
+        const participants = await db.cancelTrip(input.id);
+        
+        // Send notifications to all participants (async, don't wait)
+        if (participants.length > 0) {
+          import("./routers/notifications").then(async ({ sendNotificationToUser }) => {
+            try {
+              for (const participant of participants) {
+                if (participant.status === 'accepted') {
+                  await sendNotificationToUser(
+                    participant.userId,
+                    `Trip Cancelled: ${trip.title}`,
+                    `The trip "${trip.title}" on ${new Date(trip.startDate).toLocaleDateString()} has been cancelled by the organizer.`,
+                    { url: `/trip/${input.id}`, tripId: input.id },
+                    'tripUpdate'
+                  );
+                }
+              }
+            } catch (error) {
+              console.error('Error sending cancellation notifications:', error);
+            }
+          });
+        }
+        
         return { success: true };
       }),
 

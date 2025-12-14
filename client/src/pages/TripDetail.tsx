@@ -6,7 +6,7 @@ import Navigation from "@/components/Navigation";
 import { trpc } from "@/lib/trpc";
 import { getLoginUrl } from "@/const";
 import { toast } from "sonner";
-import { Calendar, MapPin, Users, Mountain, ArrowLeft, Shield, Wrench, Edit, Trash2, MessageCircle } from "lucide-react";
+import { Calendar, MapPin, Users, Mountain, ArrowLeft, Shield, Wrench, Edit, Trash2, MessageCircle, XCircle } from "lucide-react";
 import { Link, useParams } from "wouter";
 import { JoinTripDialog } from "@/components/JoinTripDialog";
 import TripGroupChat from "@/components/TripGroupChat";
@@ -31,6 +31,16 @@ export default function TripDetail() {
     },
   });
   
+  const cancelMutation = trpc.trips.cancel.useMutation({
+    onSuccess: () => {
+      toast.success("Trip cancelled successfully. All participants have been notified.");
+      window.location.reload();
+    },
+    onError: (error) => {
+      toast.error(`Failed to cancel trip: ${error.message}`);
+    },
+  });
+  
   const createConversationMutation = trpc.messages.getOrCreateConversation.useMutation({
     onSuccess: (convo) => {
       window.location.href = `/messages?conversation=${convo.id}`;
@@ -46,7 +56,15 @@ export default function TripDetail() {
     }
   };
   
+  const handleCancel = () => {
+    if (confirm("Are you sure you want to cancel this trip? All participants will be notified.")) {
+      cancelMutation.mutate({ id: tripId });
+    }
+  };
+  
   const isOrganizer = user && trip && trip.organizerId === user.id;
+  const isAdmin = user && user.role === 'admin';
+  const canManageTrip = isOrganizer || isAdmin;
   const isParticipant = user && participants?.some(p => p.participant.userId === user.id && p.participant.status === "accepted");
 
   if (isLoading) {
@@ -103,7 +121,7 @@ export default function TripDetail() {
             <div>
               <div className="flex items-start justify-between mb-4">
                 <h1 className="text-4xl font-bold text-foreground">{trip.title}</h1>
-                {isOrganizer && (
+                {canManageTrip && (
                   <div className="flex gap-2">
                     <Button variant="outline" size="sm" asChild>
                       <Link href={`/edit-trip/${tripId}`}>
@@ -113,6 +131,18 @@ export default function TripDetail() {
                         </a>
                       </Link>
                     </Button>
+                    {trip.status !== 'cancelled' && (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={handleCancel}
+                        disabled={cancelMutation.isPending}
+                        className="border-orange-500 text-orange-600 hover:bg-orange-50"
+                      >
+                        <XCircle className="h-4 w-4 mr-2" />
+                        {cancelMutation.isPending ? 'Cancelling...' : 'Cancel Trip'}
+                      </Button>
+                    )}
                     <Button 
                       variant="destructive" 
                       size="sm"
@@ -138,6 +168,11 @@ export default function TripDetail() {
               </div>
 
               <div className="flex flex-wrap gap-2">
+                {trip.status === 'cancelled' && (
+                  <Badge className="bg-red-500 text-white text-lg px-4 py-1">
+                    ⚠️ TRIP CANCELLED
+                  </Badge>
+                )}
                 {(trip.styles as string[] || []).map((style) => (
                   <Badge key={style} variant="secondary">
                     {style.replace("_", " ").toUpperCase()}

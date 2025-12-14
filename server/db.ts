@@ -254,6 +254,22 @@ export async function deleteTrip(tripId: number) {
   await db.delete(trips).where(eq(trips.id, tripId));
 }
 
+export async function cancelTrip(tripId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Update trip status to cancelled
+  await db.update(trips).set({ status: "cancelled" }).where(eq(trips.id, tripId));
+  
+  // Get all participants for this trip to notify them
+  const participants = await db
+    .select()
+    .from(tripParticipants)
+    .where(eq(tripParticipants.tripId, tripId));
+  
+  return participants;
+}
+
 export async function deleteAllTrips() {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
