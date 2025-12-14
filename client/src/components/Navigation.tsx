@@ -15,7 +15,13 @@ export default function Navigation({ onAuthClick }: NavigationProps) {
   
   const logoutMutation = trpc.auth.logout.useMutation({
     onSuccess: () => {
-      window.location.href = "/";
+      // Force a full page reload to clear all state
+      window.location.replace("/");
+    },
+    onError: (error) => {
+      console.error('Logout error:', error);
+      // Even if logout fails on server, clear client state
+      window.location.replace("/");
     },
   });
   
