@@ -13,30 +13,36 @@ export default function Navigation({ onAuthClick }: NavigationProps) {
   const { user, isAuthenticated } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
-  const logoutMutation = trpc.auth.logout.useMutation({
-    onSuccess: async () => {
-      // Clear service worker cache
-      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-        navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_CACHE' });
-      }
-      // Clear all caches
-      if ('caches' in window) {
+  const handleLogout = async () => {
+    try {
+      // Try to call server logout
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    } catch (e) {
+      console.log('Server logout failed, clearing client anyway');
+    }
+    
+    // Clear service worker cache
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_CACHE' });
+    }
+    
+    // Clear all caches
+    if ('caches' in window) {
+      try {
         const cacheNames = await caches.keys();
         await Promise.all(cacheNames.map(name => caches.delete(name)));
+      } catch (e) {
+        console.log('Cache clear failed:', e);
       }
-      // Force a full page reload to clear all state
-      window.location.replace("/");
-    },
-    onError: async (error) => {
-      console.error('Logout error:', error);
-      // Even if logout fails on server, clear client state
-      if ('caches' in window) {
-        const cacheNames = await caches.keys();
-        await Promise.all(cacheNames.map(name => caches.delete(name)));
-      }
-      window.location.replace("/");
-    },
-  });
+    }
+    
+    // Clear local/session storage
+    localStorage.clear();
+    sessionStorage.clear();
+    
+    // Force full page reload
+    window.location.href = '/';
+  };
   
   const { data: notificationCount } = trpc.auth.notificationCount.useQuery(undefined, {
     enabled: isAuthenticated,
@@ -104,12 +110,11 @@ export default function Navigation({ onAuthClick }: NavigationProps) {
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  onClick={() => logoutMutation.mutate()}
-                  disabled={logoutMutation.isPending}
+                  onClick={handleLogout}
                   className="text-foreground hover:text-primary"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
-                  {logoutMutation.isPending ? "Logging out..." : "Logout"}
+                  Logout
                 </Button>
               </>
             ) : (
@@ -220,11 +225,13 @@ export default function Navigation({ onAuthClick }: NavigationProps) {
                 <Button 
                   variant="ghost" 
                   className="w-full justify-start text-foreground hover:text-primary"
-                  onClick={() => logoutMutation.mutate()}
-                  disabled={logoutMutation.isPending}
+                  onClick={() => {
+                    handleLogout();
+                    setMobileMenuOpen(false);
+                  }}
                 >
                   <LogOut className="h-4 w-4 mr-2" />
-                  {logoutMutation.isPending ? "Logging out..." : "Logout"}
+                  Logout
                 </Button>
               </>
             ) : (
