@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../_core/trpc";
-import { db } from "../db/index";
+import { getDb } from "../db";
 import { pushSubscriptions } from "../../drizzle/schema";
 import { eq, and } from "drizzle-orm";
 import webpush from "web-push";
@@ -32,6 +32,7 @@ export const notificationsRouter = router({
       const userId = ctx.user!.id;
       
       // Check if subscription already exists for this endpoint
+      const db = await getDb();
       const existing = await db
         .select()
         .from(pushSubscriptions)
@@ -89,6 +90,7 @@ export const notificationsRouter = router({
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.user!.id;
       
+      const db = await getDb();
       const userSubscriptions = await db
         .select()
         .from(pushSubscriptions)
@@ -114,6 +116,7 @@ export const notificationsRouter = router({
     .query(async ({ ctx }) => {
       const userId = ctx.user!.id;
       
+      const db = await getDb();
       const subscriptions = await db
         .select()
         .from(pushSubscriptions)
@@ -145,6 +148,7 @@ export const notificationsRouter = router({
     .mutation(async ({ ctx }) => {
       const userId = ctx.user!.id;
       
+      const db = await getDb();
       const subscriptions = await db
         .select()
         .from(pushSubscriptions)
@@ -195,6 +199,7 @@ export async function sendNotificationToUser(
   data?: any,
   notificationType?: 'trip' | 'message' | 'tripUpdate' | 'reminder'
 ) {
+  const db = await getDb();
   const subscriptions = await db
     .select()
     .from(pushSubscriptions)
