@@ -12,7 +12,7 @@ import { SinglePhotoUpload } from "@/components/SinglePhotoUpload";
 import Navigation from "@/components/Navigation";
 import NotificationSettings from "@/components/NotificationSettings";
 import { trpc } from "@/lib/trpc";
-import { ArrowLeft, Loader2, Plus, Trash2, Pencil, Calendar, MapPin, Users, Copy, Lock, Check } from "lucide-react";
+import { ArrowLeft, Loader2, Plus, Trash2, Pencil, Calendar, MapPin, Users, Copy, Lock, Check, LogOut } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Link, useLocation } from "wouter";
 import { useState, useEffect } from "react";
@@ -284,6 +284,35 @@ export default function Profile() {
                 <div>
                   <Label>Email</Label>
                   <p className="text-muted-foreground">{user?.email}</p>
+                </div>
+                <div className="pt-4 border-t">
+                  <Button 
+                    variant="destructive" 
+                    size="sm"
+                    onClick={async () => {
+                      if (confirm('Are you sure you want to log out?')) {
+                        try {
+                          await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+                        } catch (e) {
+                          console.log('Server logout failed');
+                        }
+                        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                          navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_CACHE' });
+                        }
+                        if ('caches' in window) {
+                          const cacheNames = await caches.keys();
+                          await Promise.all(cacheNames.map(name => caches.delete(name)));
+                        }
+                        localStorage.clear();
+                        sessionStorage.clear();
+                        window.location.href = '/';
+                      }
+                    }}
+                    className="w-full"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
+                  </Button>
                 </div>
               </div>
             </div>
