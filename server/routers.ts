@@ -233,6 +233,8 @@ export const appRouter = router({
         });
         
         // Send notifications to users in the same area (async, don't wait)
+        // Temporarily disabled due to web-push deployment issue
+        /*
         if (!input.isPrivate) {
           import("./routers/notifications").then(async ({ sendNotificationToUsers }) => {
             try {
@@ -254,6 +256,7 @@ export const appRouter = router({
             }
           });
         }
+        */
         
         return { tripId, shareToken };
       }),
@@ -359,6 +362,8 @@ export const appRouter = router({
         const participants = await db.cancelTrip(input.id);
         
         // Send notifications to all participants (async, don't wait)
+        // Temporarily disabled due to web-push deployment issue
+        /*
         if (participants.length > 0) {
           import("./routers/notifications").then(async ({ sendNotificationToUser }) => {
             try {
@@ -378,6 +383,7 @@ export const appRouter = router({
             }
           });
         }
+        */
         
         return { success: true };
       }),
@@ -1475,6 +1481,8 @@ export const appRouter = router({
         });
         
         // Send push notification to receiver (async, don't wait)
+        // Temporarily disabled due to web-push deployment issue
+        /*
         import("./routers/notifications").then(async ({ sendNotificationToUser }) => {
           try {
             const senderName = ctx.user.name || 'Someone';
@@ -1493,6 +1501,7 @@ export const appRouter = router({
             console.error('Error sending message notification:', error);
           }
         });
+        */
         
         return message;
       }),
