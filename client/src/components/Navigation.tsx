@@ -107,15 +107,10 @@ export default function Navigation({ onAuthClick }: NavigationProps) {
                     Admin
                   </Link>
                 )}
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={handleLogout}
-                  className="text-foreground hover:text-primary"
-                >
+                <Link href="/logout" className="text-foreground hover:text-primary font-medium flex items-center">
                   <LogOut className="h-4 w-4 mr-2" />
                   Logout
-                </Button>
+                </Link>
               </>
             ) : (
               <Button onClick={onAuthClick}>
@@ -222,17 +217,14 @@ export default function Navigation({ onAuthClick }: NavigationProps) {
                     Admin
                   </Link>
                 )}
-                <Button 
-                  variant="ghost" 
-                  className="w-full justify-start text-foreground hover:text-primary"
-                  onClick={() => {
-                    handleLogout();
-                    setMobileMenuOpen(false);
-                  }}
+                <Link 
+                  href="/logout"
+                  className="block text-foreground hover:text-primary font-medium py-2 flex items-center"
+                  onClick={() => setMobileMenuOpen(false)}
                 >
                   <LogOut className="h-4 w-4 mr-2" />
                   Logout
-                </Button>
+                </Link>
               </>
             ) : (
               <Button 
