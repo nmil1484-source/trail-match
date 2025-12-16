@@ -28,6 +28,7 @@ import Messages from "./pages/Messages";
 import About from "./pages/About";
 import FAQ from "./pages/FAQ";
 import InstallApp from "./pages/InstallApp";
+import Logout from "./pages/Logout";
 import AdminMessagingMigration from "./pages/AdminMessagingMigration";
 import AdminGroupChatMigration from "./pages/AdminGroupChatMigration";
 import UserProfile from "./pages/UserProfile";
@@ -43,6 +44,7 @@ function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
+      <Route path={"/logout"} component={Logout} />
       <Route path={"/post-trip"} component={PostTrip} />
       <Route path={"/edit-trip/:id"} component={EditTrip} />
       <Route path={"/trip/:id"} component={TripDetail} />
