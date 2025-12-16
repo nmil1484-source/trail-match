@@ -4,7 +4,7 @@ import { z } from "zod";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { notificationsRouter } from "./routers/notifications";
+// import { notificationsRouter } from "./routers/notifications";
 import * as db from "./db";
 import { ENV } from "./_core/env";
 import { createEmailUser, authenticateEmailUser } from "./auth";
@@ -12,7 +12,7 @@ import { signToken } from "./_core/jwt";
 
 export const appRouter = router({
   system: systemRouter,
-  notifications: notificationsRouter,
+  // notifications: notificationsRouter, // Temporarily disabled due to web-push deployment issue
 
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
