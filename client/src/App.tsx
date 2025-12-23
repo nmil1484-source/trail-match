@@ -56,6 +56,7 @@ function Router() {
       <Route path={"/my-shops"} component={MyShops} />
       <Route path={"/past-trips"} component={PastTrips} />
       <Route path={"/gpx-library"} component={GpxLibrary} />
+      <Route path={"/gpx"} component={GpxLibrary} />
       <Route path={"/upload-gpx"} component={UploadGpx} />
       <Route path={"/my-gpx"} component={MyGpx} />
       <Route path={"/gpx/:id"} component={GpxDetail} />
