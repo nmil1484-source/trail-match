@@ -17,6 +17,7 @@ import AddShop from "./pages/AddShop";
 import EditShop from "./pages/EditShop";
 import MyShops from "./pages/MyShops";
 import PastTrips from "./pages/PastTrips";
+import Trips from "./pages/Trips";
 
 import Admin from "./pages/Admin";
 import AdminSetup from "./pages/AdminSetup";
@@ -44,6 +45,7 @@ function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
+      <Route path={"/trips"} component={Trips} />
       <Route path={"/logout"} component={Logout} />
       <Route path={"/post-trip"} component={PostTrip} />
       <Route path={"/edit-trip/:id"} component={EditTrip} />
