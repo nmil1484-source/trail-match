@@ -5,7 +5,7 @@ services:
     region: oregon
     plan: free
     branch: main
-    buildCommand: pnpm install && pnpm run build
+    buildCommand: pnpm install && rm -rf dist && pnpm run build
     startCommand: node dist/index.js
     envVars:
       - key: NODE_ENV
