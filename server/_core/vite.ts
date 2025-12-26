@@ -67,6 +67,21 @@ export function serveStatic(app: Express) {
   if (fs.existsSync(distPath)) {
     const files = fs.readdirSync(distPath);
     console.log(`[serveStatic] Files in distPath:`, files);
+    
+    // Check assets folder
+    const assetsPath = path.resolve(distPath, 'assets');
+    if (fs.existsSync(assetsPath)) {
+      const assetFiles = fs.readdirSync(assetsPath);
+      console.log(`[serveStatic] Files in assets folder:`, assetFiles);
+    }
+    
+    // Check what index.html references
+    const indexPath = path.resolve(distPath, 'index.html');
+    if (fs.existsSync(indexPath)) {
+      const indexContent = fs.readFileSync(indexPath, 'utf-8');
+      const jsMatch = indexContent.match(/src="\/assets\/(index-[^"]+\.js)"/);      const cssMatch = indexContent.match(/href="\/assets\/(index-[^"]+\.css)"/);      console.log(`[serveStatic] index.html references JS:`, jsMatch ? jsMatch[1] : 'NOT FOUND');
+      console.log(`[serveStatic] index.html references CSS:`, cssMatch ? cssMatch[1] : 'NOT FOUND');
+    }
   }
   
   if (!fs.existsSync(distPath)) {
