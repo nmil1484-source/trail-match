@@ -249,6 +249,81 @@ export default function Home() {
         </div>
       </section>
 
+      {/* How It Works Section */}
+      <section className="py-16 bg-background">
+        <div className="container">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-foreground mb-4">How It Works</h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Getting started with TrailMatch is simple. Here's how to find your trail crew and hit the dirt.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+            {/* Step 1 */}
+            <Card className="border-2 hover:border-primary/50 transition-colors">
+              <CardContent className="pt-8 pb-6">
+                <div className="bg-primary/10 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+                  <span className="text-2xl font-bold text-primary">1</span>
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-3">Create Your Profile</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Sign up and tell us about your rig, experience level, and preferred trails. Connect with off-roaders who match your style.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Step 2 */}
+            <Card className="border-2 hover:border-primary/50 transition-colors">
+              <CardContent className="pt-8 pb-6">
+                <div className="bg-primary/10 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+                  <span className="text-2xl font-bold text-primary">2</span>
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-3">Find or Post Trips</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Browse upcoming trips in your area or post your own adventure. Filter by difficulty, vehicle type, and location.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Step 3 */}
+            <Card className="border-2 hover:border-primary/50 transition-colors">
+              <CardContent className="pt-8 pb-6">
+                <div className="bg-primary/10 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+                  <span className="text-2xl font-bold text-primary">3</span>
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-3">Connect & Coordinate</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Message trip organizers, join trips that fit your schedule, and share GPX files and trail info with your crew.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Step 4 */}
+            <Card className="border-2 hover:border-primary/50 transition-colors">
+              <CardContent className="pt-8 pb-6">
+                <div className="bg-primary/10 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+                  <span className="text-2xl font-bold text-primary">4</span>
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-3">Discover Local Shops</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Find trusted off-road shops near you. Support local businesses and get recommendations from fellow wheelers.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* CTA */}
+          {!isAuthenticated && (
+            <div className="text-center mt-12">
+              <Button size="lg" className="text-lg px-8 py-6" onClick={() => setAuthModalOpen(true)}>
+                Get Started Free
+              </Button>
+            </div>
+          )}
+        </div>
+      </section>
+
       {/* Trips Grid */}
       <section className="py-12 bg-background">
         <div className="container">
